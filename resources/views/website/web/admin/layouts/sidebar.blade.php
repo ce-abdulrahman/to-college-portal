@@ -15,10 +15,17 @@
 
     <div class="drawer-content">
         <nav class="drawer-nav">
-            <a href="{{ route('admin.profile') }}" class="drawer-nav-item back-btn">
-                <i class="bi bi-users"></i>
-                <span>قوتابیان</span>
+            @php
+                function navActive($route)
+                {
+                    return request()->routeIs($route) ? 'active' : '';
+                }
+            @endphp
+
+            <a href="{{ route('admin.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
+                <i class="bi bi-house"></i><span>ماڵەوە</span>
             </a>
+
 
             <a href="{{ route('admin.systems.index') }}" class="drawer-nav-item">
                 <i class="bi bi-building"></i>
@@ -40,25 +47,37 @@
                 <i class="bi bi-archive"></i>
                 <span>بەشەکانی</span>
             </a>
+
+            <a href="{{ route('admin.students.index') }}" class="drawer-nav-item back-btn">
+                <i class="bi bi-users"></i>
+                <span>قوتابیان</span>
+            </a>
+
+            <a href="{{ route('admin.results.index') }}" class="drawer-nav-item back-btn">
+                <i class="bi bi-users"></i>
+                <span>ئەنجامی هەڵبژاردنەکانی قوتابیان</span>
+            </a>
+
+            <a href="{{ route('admin.users.index') }}" class="drawer-nav-item back-btn">
+                <i class="bi bi-users"></i>
+                <span>بەکارهێنەر</span>
+            </a>
         </nav>
     </div>
 
     <div class="drawer-footer">
         <button class="drawer-btn change-password-btn"
-            onclick="window.location.href='{{ route('admin.profile.edit', auth()->user()->id) }}'">
+            onclick="window.location.href='{{ route('admin.users.edit', auth()->user()->id) }}'">
             <i class="bi bi-person"></i>
             <span>پرۆفایل</span>
         </button>
         <form method="POST" action="{{ route('logout') }}">
-            @csrf
+  @csrf
+  <button class="drawer-btn logout-btn w-100" type="submit">
+    <i class="bi bi-box-arrow-right"></i><span>دەرچوون</span>
+  </button>
+</form>
 
-            <button class="drawer-btn logout-btn">
-                <i class="bi bi-box-arrow-right"></i>
-                <a href="{{ route('logout') }}" style="color: #fff;text-decoration: none;">
-                    <span>دەرچوون</span>
-                </a>
-            </button>
-        </form>
     </div>
 </div>
 
@@ -79,6 +98,7 @@
     function openDrawer() {
         const drawer = document.querySelector('.drawer');
         const overlay = document.querySelector('.drawer-overlay');
+        document.body.classList.add('no-scroll');
 
         drawer.classList.add('active');
         overlay.classList.add('active');
@@ -88,6 +108,7 @@
     function closeDrawer() {
         const drawer = document.querySelector('.drawer');
         const overlay = document.querySelector('.drawer-overlay');
+        document.body.classList.remove('no-scroll');
 
         drawer.classList.remove('active');
         overlay.classList.remove('active');

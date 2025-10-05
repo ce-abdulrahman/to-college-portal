@@ -3,28 +3,30 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>زانکۆلاین</title>
 
     <link rel="icon" href="{{ asset('assets/admin/images/favicon.png') }}" type="image/x-icon" />
 
-    <!-- Bootstrap & Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    {{-- Core CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-    <!-- DataTables v2 (Vanilla JS) -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" />
+    {{-- DataTables v2 (Vanilla / no jQuery) --}}
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css">
 
-    <!-- Your styles -->
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/nav.css') }}" />
+    {{-- App CSS --}}
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/admin/css/nav.css') }}">
+
+    {{-- Optional per-page <head> extras --}}
+    @stack('head-scripts')
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-    {{-- Toast container (top-end) --}}
+    {{-- Toasts (session/errors) --}}
     <div class="position-fixed top-0 end-0 p-3" style="z-index:1080">
         @if (session('success'))
             <div class="toast align-items-center text-bg-success border-0 shadow-lg" role="alert"
@@ -68,31 +70,36 @@
 
     @include('website.web.admin.layouts.header')
 
-    <main class="container mt-4">
+    <main class="flex-grow-1 container mt-4">
         @yield('content')
     </main>
 
-    {{-- Footer هەبێت ئەگەر پێویستە --}}
-    {{-- @include('website.web.admin.layouts.footer') --}}
+    @include('website.web.admin.layouts.footer')
 
-    <!-- JS (Bootstrap bundle first) -->
+    {{-- JS order matters! --}}
+    {{-- 1) Bootstrap (defines global "bootstrap") --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- DataTables v2 (Vanilla JS only — no jQuery) -->
+    {{-- 2) DataTables v2 (defines global "DataTable") --}}
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
+    {{-- 3) App core scripts (only once, globally) --}}
+    <script src="{{ asset('assets/admin/js/app-core.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/table-kit.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/dept-filters.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/forms-validate.js') }}"></script>
+    <script src="{{ asset('assets/admin/js/drawer.js') }}"></script>
+
+    {{-- 4) Page-specific scripts --}}
     @stack('scripts')
 
     <script>
-        // Enable tooltips
+        // Tooltips
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
             new bootstrap.Tooltip(el);
         });
-
-        // Auto-show any toasts present
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
-        });
+        // Auto-show toasts
+        document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
     </script>
 </body>
 

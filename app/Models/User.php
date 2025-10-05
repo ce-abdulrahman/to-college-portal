@@ -36,4 +36,9 @@ class User extends Authenticatable
     {
         return 'code';                // ✅ use 'code' for auth
     }
+    
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
 }

@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\Province;
 use App\Models\Student;
 
-class AdminProfileController extends Controller
+class UserProfileController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +17,7 @@ class AdminProfileController extends Controller
     {
         $users = User::where('role', 'admin')->get();
         $provinces = Province::all();
-        return view('website.web.admin.profile.index', compact('users', 'provinces'));
+        return view('website.web.admin.user.index', compact('users', 'provinces'));
     }
 
     /**
@@ -26,7 +26,7 @@ class AdminProfileController extends Controller
     public function create()
     {
         $provinces = Province::all();
-        return view('website.web.admin.profile.create', compact('provinces'));
+        return view('website.web.admin.user.create', compact('provinces'));
     }
 
     /**
@@ -38,7 +38,7 @@ class AdminProfileController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,user',
+            'role' => 'required|in:admin,student',
         ]);
 
         $user = User::create([
@@ -48,7 +48,7 @@ class AdminProfileController extends Controller
             'role' => $request->role,
         ]);
 
-        if ($request->role === 'user') {
+        if ($request->role === 'student') {
             Student::create([
                 'user_id' => $user->id,
                 'mark' => $request->mark,
@@ -59,7 +59,7 @@ class AdminProfileController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.profile')->with('success', 'Admin profile created successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'بەکارهێنەر دروستکرا بەسەرکەوتوویی.');
     }
 
     /**
@@ -76,7 +76,7 @@ class AdminProfileController extends Controller
     public function edit(string $id)
     {
         $user = User::findOrfail($id);
-        return view('website.web.admin.profile.edit', compact('user'));
+        return view('website.web.admin.user.edit', compact('user'));
     }
 
     /**
@@ -112,7 +112,7 @@ class AdminProfileController extends Controller
                 'code' => $request->code,
             ]);
         }
-        return redirect()->route('admin.profile')->with('success', 'ئەدمینی نوێکردنەوە بەسەرکەوتوویی تەواو بوو.');
+        return redirect()->route('admin.users.index')->with('success', 'ئەدمینی نوێکردنەوە بەسەرکەوتوویی تەواو بوو.');
     }
 
     /**
@@ -122,6 +122,6 @@ class AdminProfileController extends Controller
     {
         $user = User::findOrfail($id);
         $user->delete();
-        return redirect()->route('admin.profile')->with('success', 'بەکارهێنەر سڕایەوە بەسەرکەوتوویی.');
+        return redirect()->route('admin.users.index')->with('success', 'بەکارهێنەر سڕایەوە بەسەرکەوتوویی.');
     }
 }

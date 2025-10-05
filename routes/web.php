@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Admin\UserProfileController;
+use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\ProvinceController;
 use App\Http\Controllers\Admin\UniversityController;
 use App\Http\Controllers\Admin\CollegeController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\ResultController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -35,14 +37,14 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/api/universities', [DepartmentController::class, 'getUniversities'])->name('admin.api.universities');
     Route::get('/admin/api/colleges', [DepartmentController::class, 'getColleges'])->name('admin.api.colleges');
 
-    // edit profile
-    Route::get('admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
-    Route::get('admin/profile/create', [AdminProfileController::class, 'create'])->name('admin.profile.create');
-    Route::post('admin/profile', [AdminProfileController::class, 'store'])->name('admin.profile.store');
-    Route::get('admin/profile/{id}/edit', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
-    Route::put('admin/profile/{id}', [AdminProfileController::class, 'update'])->name('admin.profile.update');
-    Route::delete('admin/profile/{id}', [AdminProfileController::class, 'destroy'])->name('admin.profile.destroy');
+    // users routes will be here
+    Route::resource('admin/users', UserProfileController::class)->names('admin.users');
 
+    // student routes will be here
+    Route::resource('admin/students', StudentController::class)->names('admin.students');
+
+    // results for all students
+    Route::resource('admin/results', ResultController::class)->names('admin.results');
 
 
 });

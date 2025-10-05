@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\University;
 use App\Models\College;
 use App\Models\Department;
+use App\Models\Province;
 
 class CollegeController extends Controller
 {
@@ -16,7 +17,8 @@ class CollegeController extends Controller
     public function index()
     {
         $colleges = College::with('university')->get();
-        return view('website.web.admin.college.index', compact('colleges'));
+        $provinces = Province::where('status', 1)->get();
+        return view('website.web.admin.college.index', compact('colleges','provinces'));
     }
 
     /**

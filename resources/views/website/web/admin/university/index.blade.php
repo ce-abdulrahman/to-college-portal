@@ -72,28 +72,16 @@
         </div>
     </div>
 @endsection
-
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // DataTable init
-            new DataTable('#datatable', {
-                autoWidth: false,
-                ordering: true,
-                pageLength: 10,
-                lengthMenu: [10, 25, 50, 100],
-                language: {
-                    search: 'گەڕان:',
-                    lengthMenu: 'پیشاندانی _MENU_',
-                    info: 'پیشاندانی _START_ تا _END_ لە _TOTAL_',
-                    paginate: {
-                        previous: 'پێشتر',
-                        next: 'دواتر'
-                    },
-                    zeroRecords: 'هیچ داتا نییە',
-                    infoEmpty: 'هیچ تۆمار نییە',
-                }
-            });
-        });
-    </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  TableKit.initDataTable({
+    table: '#datatable',
+    externalSearch: '#custom-search',  // ئەگەر هەیە
+    pageLengthSel: '#page-length',     // ئەگەر هەیە
+    infoBox: '#dt-info',               // ئەگەر هەیە
+    pagerBox: '#dt-pager'              // ئەگەر هەیە
+  });
+});
+</script>
 @endpush
