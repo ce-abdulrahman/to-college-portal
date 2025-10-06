@@ -10,6 +10,11 @@ use App\Models\Province;
 use App\Models\University;
 use App\Models\College;
 
+use App\Http\Requests\Admin\DepartmentStoreRequest;
+use App\Http\Requests\Admin\DepartmentUpdateRequest;
+use App\Http\Resources\UniversityResource;
+use App\Http\Resources\CollegeResource;
+
 class DepartmentController extends Controller
 {
     /**
@@ -39,35 +44,20 @@ class DepartmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(DepartmentStoreRequest $request)
     {
-        $validated = $request->validate([
-            'system_id' => 'required|exists:systems,id',
-            'province_id' => 'required|exists:provinces,id',
-            'university_id' => 'required|exists:universities,id',
-            'college_id' => 'required|exists:colleges,id',
-            'name' => 'required|string',
-            'local_score' => 'required|numeric|min:50|max:100',
-            'internal_score' => 'required|numeric|min:50|max:100',
-            'type' => 'required|in:زانستی,وێژەیی,زانستی و وێژەیی',
-            'sex' => 'nullable|string',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean',
-        ]);
-
-        $dep = new Department();
-        $dep->system_id = $validated['system_id'];
-        $dep->province_id = $validated['province_id'];
-        $dep->university_id = $validated['university_id'];
-        $dep->college_id = $validated['college_id'];
-        $dep->name = $validated['name'];
-        $dep->local_score = $validated['local_score'];
-        $dep->internal_score = $validated['internal_score'];
-        $dep->type = $validated['type'];
-        $dep->sex = $validated['sex'];
-        $dep->description = $validated['description'];
-        $dep->status = $validated['status'];
-        $dep->save();
+        $d = new Department();
+        $d->system_id = $request->validated('system_id');
+        $d->province_id = $request->validated('province_id');
+        $d->university_id = $request->validated('university_id');
+        $d->college_id = $request->validated('college_id');
+        $d->name = $request->validated('name');
+        $d->local_score = $request->validated('local_score');
+        $d->internal_score = $request->validated('internal_score');
+        $d->type = $request->validated('type');
+        $d->sex = $request->validated('sex');
+        $d->description = $request->validated('description');
+        $d->save();
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی دروستکرا.');
     }
@@ -100,22 +90,11 @@ class DepartmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(DepartmentUpdateRequest $request, string $id)
     {
         $department = Department::findOrFail($id);
 
-        $validated = $request->validate([
-            'college_id' => 'required|exists:colleges,id',
-            'name' => 'required|string|unique:departments,name,' . $department->id,
-            'local_score' => 'required|numeric|min:50|max:100',
-            'internal_score' => 'required|numeric|min:50|max:100',
-            'type' => 'required|in:زانستی,وێژەیی,زانستی و وێژەیی',
-            'sex' => 'nullable|string',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean',
-        ]);
-
-        $department->update($validated);
+        $department->update($request->validated());
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی نوێکرا.');
     }
@@ -131,20 +110,25 @@ class DepartmentController extends Controller
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی سڕاوە.');
     }
 
-    // API to get universities based on province
     public function getUniversities(Request $request)
     {
-        $provinceId = $request->query('province_id');
-        $universities = University::where('province_id', $provinceId)->where('status', 1)->get();
-        return response()->json($universities);
+        $pid = (int) $request->query('province_id');
+        abort_if($pid <= 0, 422, 'پاریزگا نەدۆزرایەوە!');
+
+        $universities = University::select('id', 'name')->where('province_id', $pid)->where('status', 1)->get();
+
+        return response()->json($universities)
+        ->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
     }
 
-    // API to get colleges based on university
     public function getColleges(Request $request)
     {
-        $universityId = $request->query('university_id');
-        $colleges = College::where('university_id', $universityId)->where('status', 1)->get();
-        return response()->json($colleges);
-    }
+        $uid = (int) $request->query('university_id');
+        abort_if($uid <= 0, 422, 'زانکۆ نەدۆزرایەوە!');
 
+        $colleges = College::select('id', 'name')->where('university_id', $uid)->where('status', 1)->get();
+
+        return response()->json($colleges)
+        ->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
+    }
 }

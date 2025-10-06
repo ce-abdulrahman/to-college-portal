@@ -70,7 +70,7 @@
         {{-- Charts & Latest --}}
         <div class="row g-3 g-md-4 mt-1">
             {{-- Sales/Revenue Chart --}}
-            <div class="col-12 col-lg-8">
+            {{--  <div class="col-12 col-lg-8">
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -86,7 +86,7 @@
                         <canvas id="salesChart" height="120"></canvas>
                     </div>
                 </div>
-            </div>
+            </div>  --}}
 
             {{-- Latest Activity / Events --}}
             <div class="col-12 col-lg-4">
@@ -130,7 +130,7 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{--  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  --}}
     <script src="{{ asset('assets/admin/js/dashboard-charts.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {

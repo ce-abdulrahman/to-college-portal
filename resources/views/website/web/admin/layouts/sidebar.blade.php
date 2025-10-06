@@ -27,38 +27,45 @@
             </a>
 
 
-            <a href="{{ route('admin.systems.index') }}" class="drawer-nav-item">
+            <a href="{{ route('admin.systems.index') }}" class="drawer-nav-item {{ navActive('admin.systems.index') }}">
                 <i class="bi bi-building"></i>
                 <span>سیستەمەکان</span>
             </a>
-            <a href="{{ route('admin.provinces.index') }}" class="drawer-nav-item">
+            <a href="{{ route('admin.provinces.index') }}"
+                class="drawer-nav-item {{ navActive('admin.provinces.index') }}">
                 <i class="bi bi-geo-alt"></i>
                 <span>پارێزگاکان</span>
             </a>
-            <a href="{{ route('admin.universities.index') }}" class="drawer-nav-item">
+            <a href="{{ route('admin.universities.index') }}"
+                class="drawer-nav-item {{ navActive('admin.universities.index') }}">
                 <i class="bi bi-mortarboard"></i>
                 <span>زانکۆکان</span>
             </a>
-            <a href="{{ route('admin.colleges.index') }}" class="drawer-nav-item">
+            <a href="{{ route('admin.colleges.index') }}"
+                class="drawer-nav-item {{ navActive('admin.colleges.index') }}">
                 <i class="bi bi-bank"></i>
                 <span>کۆلێژەکان</span>
             </a>
-            <a href="{{ route('admin.departments.index') }}" class="drawer-nav-item">
+            <a href="{{ route('admin.departments.index') }}"
+                class="drawer-nav-item {{ navActive('admin.departments.index') }}">
                 <i class="bi bi-archive"></i>
                 <span>بەشەکانی</span>
             </a>
 
-            <a href="{{ route('admin.students.index') }}" class="drawer-nav-item back-btn">
+            <a href="{{ route('admin.students.index') }}"
+                class="drawer-nav-item back-btn {{ navActive('admin.students.index') }}">
                 <i class="bi bi-users"></i>
                 <span>قوتابیان</span>
             </a>
 
-            <a href="{{ route('admin.results.index') }}" class="drawer-nav-item back-btn">
+            <a href="{{ route('admin.results.index') }}"
+                class="drawer-nav-item back-btn {{ navActive('admin.results.index') }}">
                 <i class="bi bi-users"></i>
                 <span>ئەنجامی هەڵبژاردنەکانی قوتابیان</span>
             </a>
 
-            <a href="{{ route('admin.users.index') }}" class="drawer-nav-item back-btn">
+            <a href="{{ route('admin.users.index') }}"
+                class="drawer-nav-item back-btn {{ navActive('admin.users.index') }}">
                 <i class="bi bi-users"></i>
                 <span>بەکارهێنەر</span>
             </a>
@@ -72,11 +79,11 @@
             <span>پرۆفایل</span>
         </button>
         <form method="POST" action="{{ route('logout') }}">
-  @csrf
-  <button class="drawer-btn logout-btn w-100" type="submit">
-    <i class="bi bi-box-arrow-right"></i><span>دەرچوون</span>
-  </button>
-</form>
+            @csrf
+            <button class="drawer-btn logout-btn w-100" type="submit">
+                <i class="bi bi-box-arrow-right"></i><span>دەرچوون</span>
+            </button>
+        </form>
 
     </div>
 </div>

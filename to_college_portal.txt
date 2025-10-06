@@ -1,0 +1,367 @@
+# بۆ بەکارهێنانی سکویریتی route + API هەموو ئەم ڕێنمایانەی خوارەوە.
+
+# Laravel Security & Structure Plan for to-college-portal
+
+## 1. Sanctum Setup
+```
+composer require laravel/sanctum
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+php artisan migrate
+```
+
+### Kernel Setup
+```php
+'api' => [
+    \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+    'throttle:api',
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+],
+```
+
+---
+
+## 2. Route Files Organization
+
+### routes/admin.php
+```php
+<?php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DepartmentController;
+
+Route::middleware(['web','auth','admin'])->name('admin.')->group(function(){
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('systems', \App\Http\Controllers\Admin\SystemController::class);
+    Route::resource('provinces', \App\Http\Controllers\Admin\ProvinceController::class);
+    Route::resource('universities', \App\Http\Controllers\Admin\UniversityController::class);
+    Route::resource('colleges', \App\Http\Controllers\Admin\CollegeController::class);
+    Route::resource('departments', DepartmentController::class);
+
+    Route::get('/api/universities', [DepartmentController::class, 'getUniversities'])->name('api.universities');
+    Route::get('/api/colleges', [DepartmentController::class, 'getColleges'])->name('api.colleges');
+});
+```
+
+### app/Providers/RouteServiceProvider.php
+```php
+public function boot(): void
+{
+    parent::boot();
+
+    Route::middleware('web')
+        ->group(base_path('routes/admin.php'));
+}
+```
+
+---
+
+## 3. API (for Flutter/Mobile)
+
+### routes/api.php
+```php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\LookupController;
+
+Route::prefix('v1')->group(function(){
+
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+    Route::middleware(['auth:sanctum','abilities:read','throttle:60,1'])->group(function(){
+        Route::get('/universities', [LookupController::class, 'universities']);
+        Route::get('/colleges', [LookupController::class, 'colleges']);
+    });
+});
+```
+
+---
+
+## 4. Middleware
+
+### Create Middleware
+```
+php artisan make:middleware IsAdmin
+```
+
+### app/Http/Middleware/IsAdmin.php
+```php
+namespace App\Http\Middleware;
+use Closure;
+use Illuminate\Http\Request;
+
+class IsAdmin
+{
+    public function handle(Request $request, Closure $next)
+    {
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+        return $next($request);
+    }
+}
+```
+
+### Register Middleware
+```php
+protected $routeMiddleware = [
+    'admin' => \App\Http\Middleware\IsAdmin::class,
+];
+```
+
+---
+
+## 5. DepartmentController (Safe APIs)
+```php
+public function getUniversities(Request $request)
+{
+    $pid = (int)$request->query('province_id');
+    abort_if($pid <= 0, 422, 'Invalid province_id');
+
+    $universities = University::select('id','name')
+        ->where('province_id', $pid)
+        ->where('status', 1)
+        ->orderBy('name')
+        ->get();
+
+    return response()->json($universities);
+}
+
+public function getColleges(Request $request)
+{
+    $uid = (int)$request->query('university_id');
+    abort_if($uid <= 0, 422, 'Invalid university_id');
+
+    $colleges = College::select('id','name')
+        ->where('university_id', $uid)
+        ->where('status', 1)
+        ->orderBy('name')
+        ->get();
+
+    return response()->json($colleges);
+}
+```
+
+---
+
+## 6. AuthController (API Login/Logout)
+```php
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
+
+class AuthController extends Controller
+{
+    public function login(Request $request)
+    {
+        $cred = $request->validate([
+            'code' => 'required|string',
+            'password' => 'required|string',
+            'device_name' => 'required|string'
+        ]);
+
+        $user = User::where('code', $cred['code'])->first();
+        if (!$user || !\Hash::check($cred['password'], $user->password)) {
+            throw ValidationException::withMessages(['code' => ['Credentials invalid.']]);
+        }
+
+        $token = $user->createToken($cred['device_name'], ['read'])->plainTextToken;
+        return response()->json(['token' => $token, 'user' => $user]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logged out']);
+    }
+}
+```
+
+---
+
+## 7. LookupController (API Data for Flutter)
+```php
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\University;
+use App\Models\College;
+use App\Http\Resources\UniversityResource;
+use App\Http\Resources\CollegeResource;
+
+class LookupController extends Controller
+{
+    public function universities(Request $request)
+    {
+        $pid = (int)$request->query('province_id');
+        abort_if($pid <= 0, 422, 'Invalid province_id');
+
+        $items = University::select('id','name','province_id','status')
+            ->where('province_id', $pid)->where('status', 1)->orderBy('name')->get();
+
+        return UniversityResource::collection($items);
+    }
+
+    public function colleges(Request $request)
+    {
+        $uid = (int)$request->query('university_id');
+        abort_if($uid <= 0, 422, 'Invalid university_id');
+
+        $items = College::select('id','name','university_id','status')
+            ->where('university_id', $uid)->where('status', 1)->orderBy('name')->get();
+
+        return CollegeResource::collection($items);
+    }
+}
+```
+
+---
+
+## 8. Command Summary
+```
+php artisan make:middleware IsAdmin
+php artisan make:controller Api/V1/AuthController
+php artisan make:controller Api/V1/LookupController
+php artisan make:controller Admin/DepartmentController --resource --model=Department
+php artisan make:request DepartmentStoreRequest
+php artisan make:request DepartmentUpdateRequest
+php artisan make:resource UniversityResource
+php artisan make:resource CollegeResource
+```
+
+---
+
+## 9. Recommendations
+- Always use `abort_if()` for validation in lightweight API endpoints.
+- Use `select()` to limit exposed columns.
+- For complex APIs, prefer `Resource` classes for consistent JSON format.
+- Add `throttle` for API abuse prevention.
+- For admin routes, protect with `auth + admin` middleware.
+- For public APIs (Flutter), protect with `auth:sanctum` and `abilities`.
+
+✅ Safe, scalable, and organized Laravel structure ready for web + mobile (Flutter).
+
+
+
+
+
+بەڵێ—دوو بابەت هەیە: (A) پاککردنەوەی کاشەکان و (B) چارەسەری 419 Page Expired.
+
+A) پاککردنەوەی کاشەکان (ڕەچاو پاش گۆڕانکاریی route/middleware)
+
+لە ریشه‌ی پرۆژەکە:
+
+php artisan optimize:clear
+php artisan route:clear
+php artisan config:clear
+php artisan view:clear
+php artisan cache:clear
+composer dump-autoload
+
+
+ئەمانە هەموو کاشەکان پاک دەکەن. پاشان، هاوسەنگکردنەوەی route cache (ئارەزوومەندانە، تەنیا کاتێک route-closures نیە):
+
+php artisan route:cache
+php artisan config:cache
+
+B) 419 Page Expired — خۆراکەکانی هەموو جارەوە
+
+419 زۆرجار بەهۆی CSRF یان کۆکی/سێشەن ڕوودەدات. ئەم چیکلیستە تێپەڕێ:
+
+1) فۆڕمەکەتەکان
+
+لە هەموو <form method="POST"> ـەکانت دەبێت @csrf هەبێت.
+
+لە PUT/PATCH/DELETE: @method('PUT')، هتد…
+
+2) ڕوتەی پۆستکردن
+
+ئەگەر فۆڕمەکەت Blade/Breeze ـە، دەبێت لە گروپی web بێت، نه‌ک api.
+
+routes/web.php → فۆڕمەکانت بۆ ئەم ڕووتانە بفرێرە.
+
+routes/api.php بێ‌CSRFـە و بۆ SPA/مۆبایلە.
+
+3) Middlewareـەکان
+
+دڵنیابە لە VerifyCsrfToken لە گروپی web هەیە (لاریڤێڵ دیفۆلتە).
+
+ئەگەر بە Sanсtum کاردەکەیت و لە SPA/AJAX دا پۆست دەکەیت:
+
+یەکجار پێش هەموو POSTـەکان بانگ بکە: GET /sanctum/csrf-cookie
+
+هەموو داواکاریەکانت هەدرەکەی X-XSRF-TOKEN هەبێت (بە شێوەی خوارەوە).
+
+مثال (Axios):
+
+import axios from 'axios';
+axios.get('/sanctum/csrf-cookie').then(() => {
+  return axios.post('/login', { email, password });
+});
+
+4) .env و کۆکی/دۆمەین
+
+دڵنیابە:
+
+APP_KEY هەیە (ئەگەر بەتاڵە: php artisan key:generate).
+
+APP_URL دروستە (http/https، دۆمەین).
+
+SESSION_DRIVER=file (یان redis) کاردەکات و پرمیسنی storage/framework/sessions هەیە.
+
+ئەگەر لوکالێ: SESSION_SECURE_COOKIE=false لە کاتی http. کاتێک httpsـە → true.
+
+بۆ Sanctum/SPA لە دۆمەینە جیاوازەکان:
+
+SESSION_DOMAIN=.example.test
+
+SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,localhost:8000,localhost:5173 (پێویست بە پۆرتەکانت زیاد بکە)
+
+پاش گۆڕانکاری .env:
+
+php artisan config:clear
+php artisan optimize:clear
+
+5) کاتی سێشەن/کۆکی
+
+ئەگەر پەڕەکەت دیر کڕدرابێت، token دەتوانێت بەسۆزدراوبێت. پەڕە نوێ بکە یان سێشەن لەبراوسەر بسڕەوە.
+
+SESSION_LIFETIME=120 (دەقە) بەرزبکە.
+
+6) ترتیب لۆدای سکرپتەکان (بۆ Bootstrap/DT)
+
+ئەو هەڵەیەش کە «bootstrap is not defined / DataTable is not defined / jQuery is not defined» هاتبوون:
+
+ئەگەر DataTables v2 (Vanilla) بەکاردهێنیت: هەرگیز jQuery نسقەی DTـی 1.x دابەزێنەوە.
+
+Bootstrap JS پێش سکرپتی خۆت لود بکە. لە layout:
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js" defer></script>
+<script src="/assets/admin/js/app-core.js" defer></script>
+
+
+ئەو کۆدەیی کە window.initDataTable بانگ دەکات، دڵنیابە لە پاش لودبوونی app-core.js اجرا دەبێت.
+
+کورتە چارەسەری 419 لە Breeze (Blade)
+
+پاککردنەوەی کاشەکان (دەستپێکی هەمیشە):
+php artisan optimize:clear
+
+دڵنیابە فۆڕمی لاگین @csrf هەیە (بە دیفۆلت هەیە).
+
+لۆگین پۆست بکەنە web route (نه‌ api.php).
+
+.env هەنگاوەکانی سەرەوە ـ بۆ کۆکی/APP_URL.
+
+ئەگەر دوای گۆڕانکاری ئەو هەڵەیە هێشتا هەیە:
+
+سێشەن/کۆکیی براوسەر بسڕەوە.
+
+php artisan key:generate (تەنیا ئەگەر APP_KEY بەتاڵە).
+
+storage/framework/sessions پرمیسن: 775 یان 777 لە لوکال.

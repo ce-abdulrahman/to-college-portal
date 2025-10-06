@@ -38,7 +38,7 @@ class ProvinceController extends Controller
 
         Province::create($request->all());
 
-        return redirect()->route('admin.provinces.index')->with('success', 'Province created successfully.');
+        return redirect()->route('admin.provinces.index')->with('success', 'پاریزگا بە سەرکەوتووی دروستکرا.');
     }
 
     /**
@@ -73,7 +73,7 @@ class ProvinceController extends Controller
         $province = Province::findOrFail($id);
         $province->update($request->all());
 
-        return redirect()->route('admin.provinces.index')->with('success', 'Province updated successfully.');
+        return redirect()->route('admin.provinces.index')->with('success', 'پاریزگا بە سەرکەوتووی نوێ کراوە.');
     }
 
     /**

@@ -1,27 +1,24 @@
-// public/assets/admin/js/pages/departments/index.js
 (() => {
   "use strict";
-
   document.addEventListener("DOMContentLoaded", () => {
-    // 1) Init DT
     const dt = window.initDataTable('#datatable');
 
-    // 2) External search & page length
+    // External search + length
     const customSearch = document.getElementById('custom-search');
     const lengthSel    = document.getElementById('page-length');
-    if (customSearch) customSearch.addEventListener('input', () => dt.search(customSearch.value).draw());
-    if (lengthSel) lengthSel.addEventListener('change', () => dt.page.len(Number(lengthSel.value)).draw());
+    customSearch?.addEventListener('input', () => dt.search(customSearch.value).draw());
+    lengthSel?.addEventListener('change', () => dt.page.len(Number(lengthSel.value)).draw());
 
-    // 3) Info + Pager
+    // Info + Pager
     const infoBox = document.getElementById('dt-info');
     const pager   = document.getElementById('dt-pager');
     const rerender = () => {
-      if (infoBox) window.renderDtInfo(dt, infoBox);
-      if (pager)   window.renderDtPager(dt, pager);
+      infoBox && window.renderDtInfo(dt, infoBox);
+      pager   && window.renderDtPager(dt, pager);
     };
     dt.on('draw', rerender); rerender();
 
-    // 4) Filters (Province -> University -> College + System)
+    // Filters
     const $ = id => document.getElementById(id);
     const selSystem = $('filter-system'),
           selProv   = $('filter-province'),
@@ -31,13 +28,12 @@
           btnReset  = $('filter-reset');
 
     const enable = (el, on = true) => el && (el.disabled = !on);
-    const fill   = (el, items, ph) => {
+    const fill   = (el, list, ph) => {
       if (!el) return;
       el.innerHTML = `<option value="">${ph}</option>`;
-      items.forEach(it => {
+      list.forEach(({id, name}) => {
         const o = document.createElement('option');
-        o.value = it.id;
-        o.textContent = it.name;
+        o.value = id; o.textContent = name;
         el.appendChild(o);
       });
     };
@@ -49,7 +45,9 @@
       fill(selCol, [], 'هەموو کۆلێژەکان'); enable(selCol, false);
       if (!pid) { applyFilters(); return; }
 
-      fetch(`/admin/api/universities?province_id=${encodeURIComponent(pid)}`)
+      fetch(`/api/v1/lookups/universities?province_id=${encodeURIComponent(pid)}`, {
+        headers: { 'Accept': 'application/json' }
+        })
         .then(r => r.json())
         .then(list => { fill(selUni, list, 'هەموو زانکۆكان'); enable(selUni, true); })
         .catch(() => fill(selUni, [], 'هەڵە ڕوویدا'));
@@ -63,7 +61,9 @@
       fill(selCol, [], 'هەموو کۆلێژەکان'); enable(selCol, false);
       if (!uid) { applyFilters(); return; }
 
-      fetch(`/admin/api/colleges?university_id=${encodeURIComponent(uid)}`)
+      fetch(`/api/v1/lookups/colleges?university_id=${encodeURIComponent(uid)}`, {
+        headers: { 'Accept': 'application/json' }
+        })
         .then(r => r.json())
         .then(list => { fill(selCol, list, 'هەموو کۆلێژەکان'); enable(selCol, true); })
         .catch(() => fill(selCol, [], 'هەڵە ڕوویدا'));
@@ -71,7 +71,7 @@
       applyFilters();
     });
 
-    // Apply filters: hide/show rows by data-* attributes (ID-based exact match)
+    // Apply filters by row dataset
     function applyFilters() {
       const sys = selSystem?.value?.trim() || '';
       const pid = selProv?.value || '';
@@ -80,7 +80,7 @@
 
       dt.rows().every(function () {
         const n = this.node();
-        const okSys = !sys || n.dataset.system === sys;
+        const okSys  = !sys || n.dataset.system === sys;
         const okProv = !pid || n.dataset.provinceId === pid;
         const okUni  = !uid || n.dataset.universityId === uid;
         const okCol  = !cid || n.dataset.collegeId === cid;
@@ -92,14 +92,14 @@
     [selSystem, selProv, selUni, selCol].forEach(el => el?.addEventListener('change', applyFilters));
     txtFilter?.addEventListener('input', () => dt.search(txtFilter.value).draw());
 
-    // Reset all
+    // Reset
     btnReset?.addEventListener('click', () => {
-      if (selSystem) selSystem.value = '';
-      if (selProv)   selProv.value   = '';
+      selSystem && (selSystem.value = '');
+      selProv   && (selProv.value   = '');
       fill(selUni, [], 'هەموو زانکۆكان'); enable(selUni, false);
       fill(selCol, [], 'هەموو کۆلێژەکان'); enable(selCol, false);
-      if (txtFilter) txtFilter.value = '';
-      if (customSearch) customSearch.value = '';
+      txtFilter && (txtFilter.value = '');
+      customSearch && (customSearch.value = '');
 
       dt.rows().every(function(){ this.node().classList.remove('d-none'); });
       dt.search('').columns().search('').draw();

@@ -147,39 +147,30 @@
                             @foreach ($departments as $i => $department)
                                 @php
                                     $systemName = $department->system->name;
-                                    $systemBadgeClass = match ($systemName) {
+                                    $badge = match ($systemName) {
                                         'زانکۆلاین' => 'bg-primary',
                                         'پاراڵیل' => 'bg-success',
                                         default => 'bg-danger',
                                     };
                                 @endphp
-
-                                <tr data-systemColor="{{ $systemName }}" data-system="{{ $department->system->name }}"
-                                    data-province="{{ $department->province->name }}"
-                                    data-university="{{ $department->university->name }}"
-                                    data-college="{{ $department->college->name }}">
+                                <tr data-system="{{ $department->system->name }}"
+                                    data-province-id="{{ $department->province_id }}"
+                                    data-university-id="{{ $department->university_id }}"
+                                    data-college-id="{{ $department->college_id }}">
                                     <td>{{ $i + 1 }}</td>
                                     <td>
-                                        <div class="d-flex flex-column">
-                                            <div class="fw-semibold">{{ $department->name }}</div>
-                                            <div class="text-muted small">
-                                                {{ $department->system->name }} /
-                                                {{ $department->province->name }} /
-                                                {{ $department->university->name }} /
-                                                {{ $department->college->name }}
-                                            </div>
-                                            <div class="mt-1">
-                                                <span class="badge {{ $systemBadgeClass }}">
-                                                    <i class="fa-solid fa-cube me-1"></i>{{ $systemName }}
-                                                </span>
-                                            </div>
+                                        <div class="fw-semibold">{{ $department->name }}</div>
+                                        <div class="text-muted small">
+                                            {{ $department->system->name }} /
+                                            {{ $department->province->name }} /
+                                            {{ $department->university->name }} /
+                                            {{ $department->college->name }}
                                         </div>
+                                        <span class="badge {{ $badge }}"><i
+                                                class="fa-solid fa-cube me-1"></i>{{ $systemName }}</span>
                                     </td>
                                     <td>{{ $department->local_score ?? '—' }}</td>
                                     <td>{{ $department->internal_score ?? '—' }}</td>
-                                    {{--  <td><span class="chip"><i class="fa-solid fa-layer-group"></i>
-                                            {{ $department->type }}</span></td>
-                                    <td>{{ $department->sex ?? '—' }}</td>  --}}
                                     <td>
                                         @if ($department->status)
                                             <span class="badge bg-success">چاڵاک</span>
@@ -210,6 +201,7 @@
                                     </td>
                                 </tr>
                             @endforeach
+
                         </tbody>
                     </table>
                     <div class="d-flex flex-wrap justify-content-between align-items-center mt-2">

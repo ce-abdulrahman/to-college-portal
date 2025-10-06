@@ -76,31 +76,38 @@
 
     @include('website.web.admin.layouts.footer')
 
-    {{-- JS order matters! --}}
-    {{-- 1) Bootstrap (defines global "bootstrap") --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    {{-- 2) DataTables v2 (defines global "DataTable") --}}
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-
-    {{-- 3) App core scripts (only once, globally) --}}
-    <script src="{{ asset('assets/admin/js/app-core.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/table-kit.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/dept-filters.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/forms-validate.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/drawer.js') }}"></script>
-
-    {{-- 4) Page-specific scripts --}}
-    @stack('scripts')
-
-    <script>
-        // Tooltips
-        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
-            new bootstrap.Tooltip(el);
-        });
-        // Auto-show toasts
-        document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
-    </script>
 </body>
+
+<!-- ======================== JavaScript Libraries ======================== -->
+
+<!-- jQuery (must be loaded before DataTables v1 style plugins) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+
+<!-- Chart.js (optional for dashboard) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- ======================== Your App Scripts ======================== -->
+<script src="{{ asset('assets/admin/js/app-core.js') }}"></script>
+<script src="{{ asset('assets/admin/js/table-kit.js') }}"></script>
+<script src="{{ asset('assets/admin/js/dept-filters.js') }}"></script>
+<script src="{{ asset('assets/admin/js/forms-validate.js') }}"></script>
+<script src="{{ asset('assets/admin/js/drawer.js') }}"></script>
+
+@stack('scripts')
+
+<script>
+    // Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+        document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
+    });
+</script>
+
 
 </html>

@@ -39,9 +39,9 @@
                                     </td>
                                     <td>
                                         @if ($university->status)
-                                            <span class="badge bg-success">{{ __('چاڵاک') }}</span>
+                                            <span class="badge bg-success">چاڵاک</span>
                                         @else
-                                            <span class="badge bg-danger">{{ __('ناچاڵاک') }}</span>
+                                            <span class="badge bg-danger">ناچاڵاک</span>
                                         @endif
                                     </td>
                                     <td class="actions">
@@ -73,15 +73,15 @@
     </div>
 @endsection
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  TableKit.initDataTable({
-    table: '#datatable',
-    externalSearch: '#custom-search',  // ئەگەر هەیە
-    pageLengthSel: '#page-length',     // ئەگەر هەیە
-    infoBox: '#dt-info',               // ئەگەر هەیە
-    pagerBox: '#dt-pager'              // ئەگەر هەیە
-  });
-});
-</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            TableKit.initDataTable({
+                table: '#datatable',
+                externalSearch: '#custom-search', // ئەگەر هەیە
+                pageLengthSel: '#page-length', // ئەگەر هەیە
+                infoBox: '#dt-info', // ئەگەر هەیە
+                pagerBox: '#dt-pager' // ئەگەر هەیە
+            });
+        });
+    </script>
 @endpush

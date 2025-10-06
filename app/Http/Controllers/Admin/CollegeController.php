@@ -43,7 +43,7 @@ class CollegeController extends Controller
 
         College::create($request->all());
 
-        return redirect()->route('admin.colleges.index')->with('success', 'College created successfully.');
+        return redirect()->route('admin.colleges.index')->with('success', 'کۆلێژ یان پەیمانگا بە سەرکەوتوویی زیادکرا.');
     }
 
     /**
@@ -80,7 +80,7 @@ class CollegeController extends Controller
         $college = College::findOrFail($id);
         $college->update($request->all());
 
-        return redirect()->route('admin.colleges.index')->with('success', 'College updated successfully.');
+        return redirect()->route('admin.colleges.index')->with('success', 'کۆلێژ یان پەیمانگا بە سەرکەوتوویی نوێ کراوە.');
     }
 
     /**
@@ -91,6 +91,6 @@ class CollegeController extends Controller
         $college = College::findOrFail($id);
         $college->delete();
 
-        return redirect()->route('admin.colleges.index')->with('success', 'College deleted successfully.');
+        return redirect()->route('admin.colleges.index')->with('success', 'کۆلێژ یان پەیمانگا بە سەرکەوتوویی سڕیاوە.');
     }
 }
