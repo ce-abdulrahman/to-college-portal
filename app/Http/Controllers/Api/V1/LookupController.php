@@ -14,7 +14,7 @@ class LookupController extends Controller
     public function universities(Request $request)
     {
         $pid = (int) $request->query('province_id');
-        abort_if($pid <= 0, 422, 'Invalid province_id');
+        abort_if($pid <= 0, 422, 'پارێزگا نەدۆزرایەوە!');
 
         $items = University::with('province:id,name')
             ->select('id','name','province_id','status')
@@ -29,7 +29,7 @@ class LookupController extends Controller
     public function colleges(Request $request)
     {
         $uid = (int) $request->query('university_id');
-        abort_if($uid <= 0, 422, 'Invalid university_id');
+        abort_if($uid <= 0, 422, 'زانکۆ نەدۆزرایەوە!');
 
         $items = College::with('university:id,name')
             ->select('id','name','university_id','status')
