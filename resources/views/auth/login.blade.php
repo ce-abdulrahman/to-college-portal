@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ku" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
@@ -16,192 +16,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3a0ca3;
-            --accent-color: #f72585;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --success-color: #4cc9f0;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --border-radius: 12px;
-            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Tajawal', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: var(--text-color);
-        }
-
-        .login-container {
-            max-width: 450px;
-            width: 100%;
-        }
-
-        .login-card {
-            background: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--secondary-color);
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            font-size: 1rem;
-            color: var(--text-color);
-            margin-bottom: 30px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 1rem 1.2rem;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--border-radius);
-            background: #fff;
-            color: var(--dark-color);
-            margin-bottom: 1.2rem;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-            outline: none;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--secondary-color);
-            text-align: right;
-        }
-
-        .btn-primary {
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            color: white;
-            width: 100%;
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            font-weight: 700;
-            font-size: 1.1rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 1.5rem;
-            font-weight: 500;
-        }
-
-        .alert-danger {
-            background-color: #feeaea;
-            color: #c53030;
-            border: 1px solid #feb2b2;
-        }
-
-        .input-icon {
-            position: relative;
-        }
-
-        .input-icon i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #a0aec0;
-        }
-
-        .input-icon .form-control {
-            padding-left: 45px;
-        }
-
-        .register-link {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: var(--border-radius);
-            text-align: center;
-        }
-
-        .register-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 576px) {
-            .login-card {
-                padding: 2rem 1.5rem;
-            }
-
-            .logo {
-                font-size: 2.5rem;
-            }
-
-            .title {
-                font-size: 1.5rem;
-            }
-
-            .form-control {
-                padding: 0.9rem 1rem;
-            }
-        }
-
-        .footer {
-            text-align: center;
-            color: #718096;
-            font-size: 0.9rem;
-            margin-top: 30px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('assets/student/css/style.css') }}">
 
 </head>
 
 <body>
+
+    @include('layouts.toasts')
+
+    
     <div class="login-container">
         <div class="login-card">
             <div class="logo">
@@ -243,7 +66,7 @@
 
             <div class="register-link">
                 <p>ئەگەر ئەمژمێرت نیە دەتوانی لێرە دروست بکەی ؟
-                    <a href="{{ route('register') }}">ئەژمێری نوێ</a>
+                    <a href="{{ route('register') }}">ئەژماری نوێ</a>
                 </p>
             </div>
         </div>

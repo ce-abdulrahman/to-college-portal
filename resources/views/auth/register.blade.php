@@ -1,61 +1,100 @@
-{{-- resources/views/auth/register.blade.php --}}
-<x-guest-layout>
-    <div class="mx-auto mt-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        <h1 class="mb-6 text-center text-2xl font-semibold">Create Account</h1>
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
 
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="ئەم سیستەمە بۆ هەڵبژاردنی بەشەکانی زانکۆ لە هەر چوار پارێزگادابگەڕی. قوتابی دەتوانێت بە ئاسانی بەشەکان هەڵبژێرد و ڕێزبەندیەک بۆ خۆی دروست بکات..">
+    <meta name="keywords"
+        content="zankoline,kolizh,colej,university,college,rezbande, بەرەو زانکۆ, زانکۆلاین, رێزبەندی فۆرمی زانکۆلاین, پۆلی ١٢, poli 12">
+    <meta name="author" content="Abdulrahman">
 
-            {{-- Name (optional) --}}
-            <div>
-                <x-input-label for="name" :value="__('Name')" />
-                <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name')" autocomplete="name" />
-                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+    <title>خۆتۆمارکردن</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ asset('assets/student/css/style.css') }}">
+
+</head>
+
+<body>
+    <div class="login-container mt-4 ">
+        <div class="login-card">
+
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
             </div>
 
-            {{-- Code (integer) --}}
-            <div class="mt-4">
-                <x-input-label for="code" :value="__('Code')" />
-                <x-text-input id="code" name="code" type="number" class="mt-1 block w-full" :value="old('code')" required autofocus />
-                <x-input-error :messages="$errors->get('code')" class="mt-2" />
-            </div>
-
-            {{-- Password --}}
-            <div class="mt-4">
-                <x-input-label for="password" :value="__('Password')" />
-                <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" required autocomplete="new-password" />
-                <x-input-error :messages="$errors->get('password')" class="mt-2" />
-            </div>
-
-            {{-- Confirm Password --}}
-            <div class="mt-4">
-                <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-                <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" required autocomplete="new-password" />
-            </div>
-
-            {{-- Role (optional: show only if you want admins to set it here) --}}
-            {{-- If you want public register disabled, remove this and set default in controller --}}
-            <div class="mt-4">
-                <x-input-label for="role" :value="__('Role')" />
-                <select id="role" name="role" class="mt-1 block w-full rounded-md border-gray-300">
-                    <option value="student" {{ old('role') === 'student' ? 'selected' : '' }}>Student</option>
-                    <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
-                </select>
-                <x-input-error :messages="$errors->get('role')" class="mt-2" />
-            </div>
-
-            <div class="mt-6">
-                <x-primary-button class="w-full justify-center">
-                    {{ __('Register') }}
-                </x-primary-button>
-            </div>
-
-            <p class="mt-4 text-center text-sm text-gray-600">
-                {{ __('Already registered?') }}
-                <a class="text-indigo-600 underline hover:text-indigo-800" href="{{ route('login') }}">
-                    {{ __('Log in') }}
-                </a>
+            <h1 class="title">خۆتۆمارکردن <i class="fa-regular fa-registered"></i></h1>
+            <p class="subtitle">
+                تکایە زانیاریەکانت بنووسە بۆ تۆمارکردنی قوتابی
             </p>
-        </form>
+
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
+
+                <div class="mb-3">
+                    <label for="student_code"><i class="fas fa-id-card"></i> کۆدی قوتابی</label>
+                    <div class="input-icon">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" name="code" value="{{ old('code') }}" class="form-control"
+                            placeholder="کۆدی قوتابی بنووسە" required>
+                    </div>
+                    @error('code')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="student_name"><i class="fas fa-id-card"></i> کۆدی ناوی</label>
+                    <div class="input-icon">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" name="name" value="{{ old('name') }}" class="form-control"
+                            placeholder="ناو قوتابی بنووسە" required>
+                    </div>
+                    @error('name')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="password"><i class="fas fa-lock"></i> وشەی نهێنی</label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" class="form-control" placeholder="وشەی نهێنی بنووسە"
+                            required>
+                    </div>
+                    @error('password')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-out-alt"></i> خۆتۆمارکردن
+                </button>
+            </form>
+
+            <div class="register-link">
+                <p>ئەگەر ئەژمارت هەیە دەتوانی کلیک لەم بەستەرەی خوارەوە بکەی ؟
+                    <a href="{{ route('login') }}">ئەژمارم هەیە.</a>
+                </p>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <p>ھەموو مافەکان پارێزراوە © ٢٠٢٥ بۆ گرووپی کۆس</p>
+        </div>
     </div>
-</x-guest-layout>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

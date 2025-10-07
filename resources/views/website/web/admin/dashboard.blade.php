@@ -9,7 +9,7 @@
                 <div class="card stat-card h-100">
                     <div class="card-body d-flex align-items-center justify-content-between">
                         <div>
-                            <p class="text-muted mb-1 fw-medium">Total Users</p>
+                            <p class="text-muted mb-1 fw-medium">کۆی قوتابیان</p>
                             <h4 class="mb-0 counter" data-target="36254">0</h4>
                         </div>
                         <div class="stat-icon bg-primary-subtle text-primary">
@@ -24,7 +24,7 @@
                 <div class="card stat-card h-100">
                     <div class="card-body d-flex align-items-center justify-content-between">
                         <div>
-                            <p class="text-muted mb-1 fw-medium">Total Orders</p>
+                            <p class="text-muted mb-1 fw-medium">کۆی هەڵبژاردنی قوتابیان</p>
                             <h4 class="mb-0 counter" data-target="5543">0</h4>
                         </div>
                         <div class="stat-icon bg-info-subtle text-info">
@@ -39,11 +39,11 @@
                 <div class="card stat-card h-100">
                     <div class="card-body d-flex align-items-center justify-content-between">
                         <div>
-                            <p class="text-muted mb-1 fw-medium">Total Revenue</p>
-                            <h4 class="mb-0 counter" data-target="63548" data-prefix="$">0</h4>
+                            <p class="text-muted mb-1 fw-medium">بەم زووانە</p>
+                            <h4 class="mb-0 counter" data-target="" data-prefix="$">0</h4>
                         </div>
                         <div class="stat-icon bg-success-subtle text-success">
-                            <i class="bi bi-cash-coin"></i>
+                            <i class="fa-solid fa-route"></i>
                         </div>
                     </div>
                 </div>
@@ -54,11 +54,11 @@
                 <div class="card stat-card h-100">
                     <div class="card-body d-flex align-items-center justify-content-between">
                         <div>
-                            <p class="text-muted mb-1 fw-medium">Total Likes</p>
-                            <h4 class="mb-0 counter" data-target="25862">0</h4>
+                            <p class="text-muted mb-1 fw-medium">بەم زووانە</p>
+                            <h4 class="mb-0 counter" data-target="">0</h4>
                         </div>
                         <div class="stat-icon bg-danger-subtle text-danger">
-                            <i class="bi bi-heart-fill"></i>
+                            <i class="fa-solid fa-recycle"></i>
                         </div>
                     </div>
                 </div>

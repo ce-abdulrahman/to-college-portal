@@ -34,7 +34,7 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
             'code' => ['required', 'integer', 'unique:users,code'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', Rules\Password::defaults()],
             'role' => ['nullable', Rule::in(['admin', 'student'])], // or remove to force default
         ]);
 
@@ -45,15 +45,17 @@ class RegisteredUserController extends Controller
             'role' => $request->filled('role') ? $request->role : 'student', // default student
         ]);
 
-        event(new Registered($user));
+        //ئەگەر نەتەوێت بەکاربهێنیت
+        // ئەگەر پەیجەکەت verification بە email پێویست نییە، دەتوانیت بە ئاسانی لە کۆدەکەت بسڕیتەوە:
+        //event(new Registered($user));
 
-        Auth::login($user);
+        //Auth::login($user);
 
         // check role and redirect accordingly
         if ($user->role === 'admin') {
             return redirect(RouteServiceProvider::ADMIN_DASHBOARD);
         }
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect()->route('login')->with('success', 'قوتابی نوێ بە سەرکەوتووی دروست کرا.');
     }
 }

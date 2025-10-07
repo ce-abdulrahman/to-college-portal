@@ -48,25 +48,25 @@
             </a>
             <a href="{{ route('admin.departments.index') }}"
                 class="drawer-nav-item {{ navActive('admin.departments.index') }}">
-                <i class="bi bi-archive"></i>
+                <i class="fa-regular fa-building"></i>
                 <span>بەشەکانی</span>
             </a>
 
             <a href="{{ route('admin.students.index') }}"
                 class="drawer-nav-item back-btn {{ navActive('admin.students.index') }}">
-                <i class="bi bi-users"></i>
+                <i class="fa-regular fa-id-card"></i>
                 <span>قوتابیان</span>
             </a>
 
             <a href="{{ route('admin.results.index') }}"
                 class="drawer-nav-item back-btn {{ navActive('admin.results.index') }}">
-                <i class="bi bi-users"></i>
+                <i class="fa-solid fa-receipt"></i>
                 <span>ئەنجامی هەڵبژاردنەکانی قوتابیان</span>
             </a>
 
             <a href="{{ route('admin.users.index') }}"
                 class="drawer-nav-item back-btn {{ navActive('admin.users.index') }}">
-                <i class="bi bi-users"></i>
+                <i class="fa-solid fa-users-gear"></i>
                 <span>بەکارهێنەر</span>
             </a>
         </nav>
