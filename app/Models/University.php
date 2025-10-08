@@ -9,7 +9,11 @@ class University extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['province_id', 'name', 'status'];
+    protected $fillable = ['province_id', 'name', 'lat', 'lng', 'status'];
+
+    protected $casts = [
+        'geojson' => 'array',
+    ];
 
     public function province()
     {

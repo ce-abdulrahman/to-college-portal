@@ -8,6 +8,7 @@
         <a href="{{ route('admin.universities.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus me-1"></i> {{ __('زیادکردنی زانکۆی نوێ') }}
         </a>
+
     </div>
 
     <div class="card glass fade-in">
@@ -46,18 +47,18 @@
                                     </td>
                                     <td class="actions">
                                         <a href="{{ route('admin.universities.show', $university->id) }}"
-                                            class="btn btn-sm btn-info">
+                                            class="btn btn-sm btn-outline-info">
                                             <i class="fa-solid fa-eye me-1"></i>
                                         </a>
                                         <a href="{{ route('admin.universities.edit', $university->id) }}"
-                                            class="btn btn-sm btn-primary">
+                                            class="btn btn-sm btn-outline-primary">
                                             <i class="fa-solid fa-pen-to-square me-1"></i>
                                         </a>
                                         <form action="{{ route('admin.universities.destroy', $university->id) }}"
                                             method="POST" class="d-inline"
                                             onsubmit="return confirm('دڵنیایت دەتەوێت زانکۆ بسڕیتەوە؟');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
                                                 <i class="fa-solid fa-trash-can me-1"></i>
                                             </button>
                                         </form>

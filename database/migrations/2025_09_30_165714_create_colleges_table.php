@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('university_id')->constrained('universities')->onDelete('cascade');
             $table->string('name')->unique();
+            $table->longText('geojson')->nullable();
+            $table->double('lat', 10, 6)->nullable();
+            $table->double('lng', 10, 6)->nullable();
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

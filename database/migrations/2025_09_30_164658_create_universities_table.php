@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('province_id')->constrained('provinces')->onDelete('cascade');
             $table->string('name')->unique();
+            $table->longText('geojson')->nullable(); // سنووری پارێزگا
+            $table->double('lat', 10, 6)->nullable();
+            $table->double('lng', 10, 6)->nullable(); 
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

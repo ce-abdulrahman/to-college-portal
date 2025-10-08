@@ -37,7 +37,7 @@ class SystemController extends Controller
 
         System::create($validated);
 
-        return redirect()->route('admin.systems.index')->with('success', 'System created successfully.');
+        return redirect()->route('admin.systems.index')->with('success', 'سیستەم بە سەرکەوتوو زیاد بوو.');
     }
 
     /**
@@ -70,7 +70,7 @@ class SystemController extends Controller
         ]);
         $system->update($validated);
 
-        return redirect()->route('admin.systems.index')->with('success', 'System updated successfully.');
+        return redirect()->route('admin.systems.index')->with('success', 'سیستەم بە سەرکەوتوو نوێ کرایەوە.');
     }
 
     /**
@@ -81,6 +81,6 @@ class SystemController extends Controller
         $system = System::findOrFail($id);
         $system->delete();
 
-        return redirect()->route('admin.systems.index')->with('success', 'System deleted successfully.');
+        return redirect()->route('admin.systems.index')->with('success', 'سیستەم بە سەرکەوتوو سڕایەوە.');
     }
 }

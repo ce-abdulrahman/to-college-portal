@@ -16,9 +16,12 @@ class Department extends Model
         'internal_score',
         'type',
         'sex',
+        'lat', 'lng',
         'description',
         'status',
     ];
+
+    protected $casts = ['geojson' => 'array'];
 
     public function system()
     {

@@ -6,16 +6,20 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Province;
 use App\Models\University;
+use App\Http\Controllers\Concerns\HandlesGeo;
 
 class ProvinceController extends Controller
 {
+    use HandlesGeo;
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Province $province)
     {
         $provinces = Province::all();
-        return view('website.web.admin.province.index', compact('provinces'));
+        $province = Province::findOrFail($province);
+        return view('website.web.admin.province.index', compact('provinces', 'province'));
     }
 
     /**
@@ -31,12 +35,23 @@ class ProvinceController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'status' => 'required|boolean',
+        $data = $request->validate([
+            'name'         => ['required','string','max:255','unique:provinces,name'],
+            'status'       => ['required','boolean'],
+            'geojson_text' => ['nullable','string'],
+            'geojson_file' => ['nullable','file','mimes:json,geojson,txt','max:20480'],
         ]);
 
-        Province::create($request->all());
+        $payload = [
+            'name'   => $data['name'],
+            'status' => (bool)$data['status'],
+        ];
+
+        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        }
+
+        Province::create($payload);
 
         return redirect()->route('admin.provinces.index')->with('success', 'پاریزگا بە سەرکەوتووی دروستکرا.');
     }
@@ -65,13 +80,25 @@ class ProvinceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'status' => 'required|boolean',
+        $province = Province::findOrFail($id);
+
+        $data = $request->validate([
+            'name'         => ['required','string','max:255','unique:provinces,name,'.$province->id],
+            'status'       => ['required','boolean'],
+            'geojson_text' => ['nullable','string'],
+            'geojson_file' => ['nullable','file','mimes:json,geojson,txt','max:20480'],
         ]);
 
-        $province = Province::findOrFail($id);
-        $province->update($request->all());
+        $payload = [
+            'name'   => $data['name'],
+            'status' => (bool)$data['status'],
+        ];
+
+        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        }
+
+        $province->update($payload);
 
         return redirect()->route('admin.provinces.index')->with('success', 'پاریزگا بە سەرکەوتووی نوێ کراوە.');
     }

@@ -8,9 +8,12 @@ use App\Models\University;
 use App\Models\College;
 use App\Models\Department;
 use App\Models\Province;
+use App\Http\Controllers\Concerns\HandlesGeo;
 
 class CollegeController extends Controller
 {
+    use HandlesGeo;
+
     /**
      * Display a listing of the resource.
      */
@@ -35,13 +38,32 @@ class CollegeController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'university_id' => 'required|exists:universities,id',
-            'name' => 'required|string|max:255',
-            'status' => 'required|boolean',
+        $data = $request->validate([
+            'name'          => ['required','string','max:255','unique:colleges,name'],
+            'university_id' => ['required','exists:universities,id'],
+            'status'        => ['required','boolean'],
+
+            'geojson_text'  => ['nullable','string'],
+            'geojson_file'  => ['nullable','file','mimes:json,geojson,txt','max:20480'],
+            'lat'           => ['nullable','numeric','between:-90,90'],
+            'lng'           => ['nullable','numeric','between:-180,180'],
         ]);
 
-        College::create($request->all());
+        $payload = [
+            'name'          => $data['name'],
+            'university_id' => (int)$data['university_id'],
+            'status'        => (bool)$data['status'],
+        ];
+
+        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        }
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $payload['lat'] = (float)$data['lat'];
+            $payload['lng'] = (float)$data['lng'];
+        }
+
+        College::create($payload);
 
         return redirect()->route('admin.colleges.index')->with('success', 'کۆلێژ یان پەیمانگا بە سەرکەوتوویی زیادکرا.');
     }
@@ -71,14 +93,32 @@ class CollegeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'university_id' => 'required|exists:universities,id',
-            'name' => 'required|string|max:255',
-            'status' => 'required|boolean',
+        $data = $request->validate([
+            'name'          => ['required','string','max:255','unique:colleges,name,'.$college->id],
+            'university_id' => ['required','exists:universities,id'],
+            'status'        => ['required','boolean'],
+
+            'geojson_text'  => ['nullable','string'],
+            'geojson_file'  => ['nullable','file','mimes:json,geojson,txt','max:20480'],
+            'lat'           => ['nullable','numeric','between:-90,90'],
+            'lng'           => ['nullable','numeric','between:-180,180'],
         ]);
 
-        $college = College::findOrFail($id);
-        $college->update($request->all());
+        $payload = [
+            'name'          => $data['name'],
+            'university_id' => (int)$data['university_id'],
+            'status'        => (bool)$data['status'],
+        ];
+
+        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        }
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $payload['lat'] = (float)$data['lat'];
+            $payload['lng'] = (float)$data['lng'];
+        }
+
+        $college->update($payload);
 
         return redirect()->route('admin.colleges.index')->with('success', 'کۆلێژ یان پەیمانگا بە سەرکەوتوویی نوێ کراوە.');
     }

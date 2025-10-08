@@ -19,6 +19,10 @@ class Province extends Model
         'status',
     ];
 
+    protected $casts = [
+        'geojson' => 'array',
+    ];
+
     public function system()
     {
         return $this->belongsTo(System::class);

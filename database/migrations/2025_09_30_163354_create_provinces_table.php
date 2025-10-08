@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('provinces', function (Blueprint $table) {
-            $table->id(); 
+            $table->id();
             $table->string('name')->unique();
+            $table->longText('geojson')->nullable(); // Polygon/MultiPolygon بە GeoJSON
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

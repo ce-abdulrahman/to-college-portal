@@ -18,7 +18,7 @@
                         <i class="fa-solid fa-building-columns me-2"></i> {{ __('دروستکردنی زانکۆ') }}
                     </h4>
 
-                    <form action="{{ route('admin.universities.store') }}" method="POST" class="needs-validation"
+                    <form action="{{ route('admin.universities.store') }}" method="POST" class="needs-validation" enctype="multipart/form-data"
                         novalidate>
                         @csrf
                         <div class="row g-3">
@@ -37,6 +37,36 @@
                                 </select>
                                 <div class="invalid-feedback">تکایە پارێزگا هەڵبژێرە.</div>
                             </div>
+
+                            {{-- Area (optional) --}}
+                            <div class="mb-3">
+                                <label class="form-label">GeoJSON (Optional)</label>
+                                <textarea name="geojson_text" rows="6" class="form-control">{{ old('geojson_text') }}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Upload GeoJSON (Optional)</label>
+                                <input type="file" name="geojson_file" class="form-control" accept=".geojson,.json,.txt">
+                            </div>
+
+                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+                            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                            <div id="map" style="height:420px;border-radius:12px" class="mt-3"></div>
+
+                            {{-- Point (optional) --}}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Latitude</label>
+                                    <input id="lat" name="lat" value="{{ old('lat', $university->lat ?? null) }}"
+                                        class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Longitude</label>
+                                    <input id="lng" name="lng" value="{{ old('lng', $university->lng ?? null) }}"
+                                        class="form-control">
+                                </div>
+                                <div class="form-text">لەسەر نەخشە کلیک بکە، lat/lng خۆکار پڕ دەبن.</div>
+                            </div>
+
 
                             {{-- Name --}}
                             <div class="col-md-6">
@@ -81,6 +111,66 @@
 
 @push('scripts')
     <script>
+        const map = L.map('map').setView([36.2, 44.0], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18
+        }).addTo(map);
+        const area = L.geoJSON(null, {
+            style: {
+                color: '#16a34a',
+                weight: 2,
+                fillColor: '#22c55e',
+                fillOpacity: 0.12
+            }
+        }).addTo(map);
+        const markers = L.layerGroup().addTo(map);
+        let marker = null;
+
+        // preload (edit)
+        @isset($university)
+            @if (!empty($university->geojson))
+                try {
+                    const gj = @json($university->geojson);
+                    area.addData(gj);
+                    const b = area.getBounds();
+                    if (b.isValid()) map.fitBounds(b, {
+                        padding: [20, 20]
+                    });
+                } catch (e) {}
+            @endif
+            @if (!empty($university->lat) && !empty($university->lng))
+                marker = L.marker([{{ $university->lat }}, {{ $university->lng }}]).addTo(markers);
+                map.setView([{{ $university->lat }}, {{ $university->lng }}], 15);
+            @endif
+        @endisset
+
+        // paste-preview
+        const ta = document.querySelector('textarea[name="geojson_text"]');
+        if (ta) {
+            let t;
+            ta.addEventListener('input', () => {
+                clearTimeout(t);
+                t = setTimeout(() => {
+                    try {
+                        const gj = JSON.parse(ta.value);
+                        area.clearLayers().addData(gj);
+                        const b = area.getBounds();
+                        if (b.isValid()) map.fitBounds(b, {
+                            padding: [20, 20]
+                        });
+                    } catch (e) {}
+                }, 350);
+            });
+        }
+
+        map.on('click', (e) => {
+            if (marker) markers.clearLayers();
+            marker = L.marker(e.latlng).addTo(markers);
+            document.getElementById('lat').value = e.latlng.lat.toFixed(6);
+            document.getElementById('lng').value = e.latlng.lng.toFixed(6);
+        });
+
+
         (() => {
             const forms = document.querySelectorAll('.needs-validation');
             forms.forEach(form => {

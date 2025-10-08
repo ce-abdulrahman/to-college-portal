@@ -22,17 +22,19 @@ class DepartmentUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'system_id' => 'required|exists:systems,id',
-            'province_id' => 'required|exists:provinces,id',
-            'university_id' => 'required|exists:universities,id',
-            'college_id' => 'required|exists:colleges,id',
-            'name' => 'required|string|max:255',
-            'local_score' => 'nullable|numeric|min:0',
-            'internal_score' => 'nullable|numeric|min:0',
-            'type' => 'required|in:زانستی,وێژەیی,زانستی و وێژەیی',
-            'sex' => 'nullable|string',
-            'description' => 'nullable|string',
-            'status' => 'required|boolean',
+            'system_id'         => 'required|exists:systems,id',
+            'province_id'       => 'required|exists:provinces,id',
+            'university_id'     => 'required|exists:universities,id',
+            'college_id'        => 'required|exists:colleges,id',
+            'name'              => 'required|string|max:255',
+            'local_score'       => 'nullable|numeric|min:50',
+            'internal_score'    => 'nullable|numeric|min:50',
+            'type'              => 'required|in:زانستی,وێژەیی,زانستی و وێژەیی',
+            'sex'               => 'nullable|string',
+            'lat'               => ['nullable','numeric','between:-90,90'],
+            'lng'               => ['nullable','numeric','between:-180,180'],
+            'description'       => 'nullable|string',
+            'status'            => 'required|boolean',
         ];
     }
 }

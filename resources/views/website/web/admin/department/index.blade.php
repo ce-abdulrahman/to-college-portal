@@ -180,12 +180,12 @@
                                     </td>
                                     <td class="actions">
                                         <a href="{{ route('admin.departments.show', $department->id) }}"
-                                            class="btn btn-sm btn-outline" data-bs-toggle="tooltip"
+                                            class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip"
                                             data-bs-title="پیشاندان">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
                                         <a href="{{ route('admin.departments.edit', $department->id) }}"
-                                            class="btn btn-sm btn-primary" data-bs-toggle="tooltip"
+                                            class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
                                             data-bs-title="دەستکاری">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
@@ -193,7 +193,7 @@
                                             method="POST" class="d-inline"
                                             onsubmit="return confirm('ئایە دڵنیایت لە سڕینەوەی ئەم بەشە؟');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip"
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip"
                                                 data-bs-title="سڕینەوە">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>

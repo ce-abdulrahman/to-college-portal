@@ -35,6 +35,7 @@
         @yield('content')
     </main>
 
+
     @include('website.web.admin.layouts.footer')
 
 </body>
@@ -50,8 +51,8 @@
 <!-- DataTables -->
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
-<!-- Chart.js (optional for dashboard) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{--  <!-- Chart.js (optional for dashboard) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  --}}
 
 <!-- ======================== Your App Scripts ======================== -->
 <script src="{{ asset('assets/admin/js/app-core.js') }}"></script>

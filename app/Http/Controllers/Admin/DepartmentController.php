@@ -46,18 +46,18 @@ class DepartmentController extends Controller
      */
     public function store(DepartmentStoreRequest $request)
     {
-        $d = new Department();
-        $d->system_id = $request->validated('system_id');
-        $d->province_id = $request->validated('province_id');
-        $d->university_id = $request->validated('university_id');
-        $d->college_id = $request->validated('college_id');
-        $d->name = $request->validated('name');
-        $d->local_score = $request->validated('local_score');
-        $d->internal_score = $request->validated('internal_score');
-        $d->type = $request->validated('type');
-        $d->sex = $request->validated('sex');
-        $d->description = $request->validated('description');
-        $d->save();
+        $data = $request->validated();
+
+        // point (optional)
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $data['lat'] = (float) $request->lat;
+            $data['lng'] = (float) $request->lng;
+        }
+
+        // status هەیە لە rules → دڵنیابە پاشەکەوت دەبێت
+        // هەروەها هەموو خانەکانی rules هەمانە دێنە ناو $data
+
+        Department::create($data);
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی دروستکرا.');
     }
@@ -93,8 +93,17 @@ class DepartmentController extends Controller
     public function update(DepartmentUpdateRequest $request, string $id)
     {
         $department = Department::findOrFail($id);
+        $data = $request->validated();
 
-        $department->update($request->validated());
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $data['lat'] = (float) $request->lat;
+            $data['lng'] = (float) $request->lng;
+        } else {
+            // هەلتە بێ‌جێ: ئەگەر خاڵی کەوتن، ناهێنینە NaN — هەموو شت بمانێنەوە وەکو هەبوون
+            unset($data['lat'], $data['lng']);
+        }
+
+        $department->update($data);
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی نوێکرا.');
     }
@@ -117,8 +126,7 @@ class DepartmentController extends Controller
 
         $universities = University::select('id', 'name')->where('province_id', $pid)->where('status', 1)->get();
 
-        return response()->json($universities)
-        ->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
+        return response()->json($universities)->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
     }
 
     public function getColleges(Request $request)
@@ -128,7 +136,6 @@ class DepartmentController extends Controller
 
         $colleges = College::select('id', 'name')->where('university_id', $uid)->where('status', 1)->get();
 
-        return response()->json($colleges)
-        ->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
+        return response()->json($colleges)->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
     }
 }

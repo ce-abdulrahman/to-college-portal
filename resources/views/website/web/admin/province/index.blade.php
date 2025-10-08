@@ -58,21 +58,21 @@
                                     </td>
                                     <td class="actions">
                                         <a href="{{ route('admin.provinces.show', $province->id) }}"
-                                            class="btn btn-sm btn-outline" data-bs-toggle="tooltip"
+                                            class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip"
                                             data-bs-title="پیشاندان">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
 
                                         @if (auth()->user()->role === 'admin')
                                             <a href="{{ route('admin.provinces.edit', $province->id) }}"
-                                                class="btn btn-sm btn-primary" data-bs-toggle="tooltip"
+                                                class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
                                                 data-bs-title="دەستکاری">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
                                             <form action="{{ route('admin.provinces.destroy', $province->id) }}"
                                                 method="POST" class="d-inline" onsubmit="return confirm('دڵنیایت؟');">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
                                                     data-bs-toggle="tooltip" data-bs-title="سڕینەوە">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>

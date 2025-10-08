@@ -1,7 +1,22 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <div class="container-fluid">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        #map {
+            height: 540px;
+            border-radius: 1rem;
+        }
+
+        .sidebar {
+            max-height: 540px;
+            overflow: auto;
+        }
+    </style>
+
+    <div class="container-fluid mb-3">
         <div class="row g-3 g-md-4">
 
             {{-- Users --}}
@@ -66,75 +81,140 @@
 
         </div>
 
-        {{-- (Optional) ناوەڕۆکی تر لە خوارەوەی کارتەکان مانند Chart/Latest… --}}
-        {{-- Charts & Latest --}}
-        <div class="row g-3 g-md-4 mt-1">
-            {{-- Sales/Revenue Chart --}}
-            {{--  <div class="col-12 col-lg-8">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-graph-up-arrow me-1 text-primary"></i> فروش/داخەوە
-                            </h5>
-                            <div class="btn-group btn-group-sm" role="group" aria-label="Range">
-                                <button class="btn btn-outline-primary active" data-range="7">7ڕۆژ</button>
-                                <button class="btn btn-outline-primary" data-range="30">30ڕۆژ</button>
-                                <button class="btn btn-outline-primary" data-range="90">90ڕۆژ</button>
-                            </div>
-                        </div>
-                        <canvas id="salesChart" height="120"></canvas>
-                    </div>
-                </div>
-            </div>  --}}
+    </div>
+    <div class="container">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2">
+                <div id="map"></div>
+            </div>
 
-            {{-- Latest Activity / Events --}}
-            <div class="col-12 col-lg-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            <i class="bi bi-clock-history me-1 text-info"></i> دوایین چالاکیەکان
-                        </h5>
-                        <ul class="list-group list-group-flush latest-list">
-                            <li class="list-group-item d-flex align-items-start">
-                                <div class="me-2 text-success"><i class="bi bi-check2-circle"></i></div>
-                                <div>
-                                    <div class="fw-semibold">هەژمارێک تۆمارکرایەوە</div>
-                                    <small class="text-muted">ئەمڕۆ • 10:32</small>
-                                </div>
-                            </li>
-                            <li class="list-group-item d-flex align-items-start">
-                                <div class="me-2 text-primary"><i class="bi bi-person-plus"></i></div>
-                                <div>
-                                    <div class="fw-semibold">زیادکردنی بەکارهێنەر</div>
-                                    <small class="text-muted">دوێنێ • 15:18</small>
-                                </div>
-                            </li>
-                            <li class="list-group-item d-flex align-items-start">
-                                <div class="me-2 text-warning"><i class="bi bi-pencil-square"></i></div>
-                                <div>
-                                    <div class="fw-semibold">نوێکردنەوەی داتا</div>
-                                    <small class="text-muted">٣ ڕۆژ پێشتر</small>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="text-end mt-3">
-                            <a href="#" class="btn btn-sm btn-outline-secondary">بینینی هەمووی</a>
-                        </div>
-                    </div>
+            <div class="sidebar rounded-2xl border bg-white p-4 shadow-sm">
+                <div class="text-sm text-gray-500">پارێزگا</div>
+                <h3 id="province-title" class="mt-1 text-xl font-semibold">—</h3>
+
+                <div class="mt-4">
+                    <div class="text-sm text-gray-500 mb-2">زانکۆ/کۆلێژ/پەیمانگا</div>
+                    <ul id="inst-list" class="space-y-2 text-sm">
+                        <li class="text-gray-400">پارێزگایەک هەڵبژێرە لە نەخشە...</li>
+                    </ul>
                 </div>
             </div>
         </div>
-
     </div>
 @endsection
 
 @push('scripts')
-    {{--  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  --}}
-    <script src="{{ asset('assets/admin/js/dashboard-charts.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            DashboardCharts.initSalesChart('#salesChart');
-        });
+        // دیتای GeoJSON لە سرڤەر
+        const PROVINCES = @json($provinceGeoJSON);
+        const API_UNI = "{{ url('/dashboard/provinces') }}/"; // + {id} + "/universities"
+
+        // map init — ناوچەی کوردستان
+        const map = L.map('map', {
+                zoomControl: true,
+                preferCanvas: true
+            })
+            .setView([36.2, 44.0], 7);
+
+        // base tiles (free)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+
+        // style بۆ پارێزگا
+        function provinceStyle() {
+            return {
+                color: '#2563eb',
+                weight: 2,
+                fillColor: '#3b82f6',
+                fillOpacity: 0.15
+            };
+        }
+
+        const markersLayer = L.layerGroup().addTo(map);
+
+        function renderInstitutions(list, provinceName) {
+            markersLayer.clearLayers();
+            const ul = document.getElementById('inst-list');
+            ul.innerHTML = '';
+
+            if (!list.length) {
+                ul.innerHTML = '<li class="text-gray-400">هیچ پۆینتەکی تۆمارنەکراو بۆ ئەم پارێزگایە (lat/lng) 🔎</li>';
+                return;
+            }
+
+            const bounds = [];
+            list.forEach(item => {
+                const m = L.marker([item.lat, item.lng]).addTo(markersLayer)
+                    .bindPopup(`<strong>${item.name}</strong><br><small>${item.type}</small>`);
+                bounds.push([item.lat, item.lng]);
+
+                const li = document.createElement('li');
+                li.innerHTML = `<div class="rounded-lg border p-2">
+          <div class="font-medium">${item.name}</div>
+          <div class="text-gray-500 text-xs">${item.type} • ${provinceName}</div>
+        </div>`;
+                ul.appendChild(li);
+            });
+
+            if (bounds.length) {
+                map.fitBounds(bounds, {
+                    padding: [20, 20]
+                });
+            }
+        }
+
+        function onProvinceClick(e) {
+            const props = e.target.feature.properties;
+            document.getElementById('province-title').textContent = props.name;
+
+            fetch(API_UNI + props.id + '/universities')
+                .then(r => r.json())
+                .then(json => {
+                    renderInstitutions(json.institutions || [], props.name);
+                })
+                .catch(() => {
+                    renderInstitutions([], props.name);
+                });
+        }
+
+        function onProvinceHover(e) {
+            const layer = e.target;
+            layer.setStyle({
+                weight: 3,
+                fillOpacity: 0.25
+            });
+            layer.bringToFront();
+        }
+
+        function onProvinceOut(e) {
+            provincesLayer.resetStyle(e.target);
+        }
+
+        function eachProvince(feature, layer) {
+            layer.on({
+                click: onProvinceClick,
+                mouseover: onProvinceHover,
+                mouseout: onProvinceOut,
+            });
+            const n = feature.properties?.name ?? '';
+            layer.bindTooltip(n, {
+                sticky: true,
+                direction: 'top'
+            });
+        }
+
+        const provincesLayer = L.geoJSON(PROVINCES, {
+            style: provinceStyle,
+            onEachFeature: eachProvince
+        }).addTo(map);
+
+        // ڕەحەمی سەرەتایی: باندی هەموو پارێزگاكان
+        try {
+            map.fitBounds(provincesLayer.getBounds(), {
+                padding: [20, 20]
+            });
+        } catch {}
     </script>
 @endpush

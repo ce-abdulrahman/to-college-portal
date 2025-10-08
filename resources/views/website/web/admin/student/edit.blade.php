@@ -1,7 +1,7 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <a href="{{ route('admin.users.index') }}" class="btn btn-outline mb-4">
+    <a href="{{ route('admin.students.index') }}" class="btn btn-outline mb-4">
         <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
     </a>
 

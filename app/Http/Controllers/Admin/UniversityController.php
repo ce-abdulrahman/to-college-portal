@@ -9,9 +9,12 @@ use App\Models\Province;
 use App\Models\University;
 use App\Models\College;
 use App\Models\Department;
+use App\Http\Controllers\Concerns\HandlesGeo;
 
 class UniversityController extends Controller
 {
+    use HandlesGeo;
+
     /**
      * Display a listing of the resource.
      */
@@ -35,15 +38,34 @@ class UniversityController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'province_id' => 'required|exists:provinces,id',
-            'name' => 'required|string|max:255',
-            'status' => 'required|boolean',
+        $data = $request->validate([
+            'name'         => ['required','string','max:255','unique:universities,name'],
+            'province_id'  => ['required','exists:provinces,id'],
+            'status'       => ['required','boolean'],
+
+            'geojson_text' => ['nullable','string'],
+            'geojson_file' => ['nullable','file','mimes:json,geojson,txt','max:20480'],
+            'lat'          => ['nullable','numeric','between:-90,90'],
+            'lng'          => ['nullable','numeric','between:-180,180'],
         ]);
 
-        University::create($request->all());
+        $payload = [
+            'name'        => $data['name'],
+            'province_id' => (int)$data['province_id'],
+            'status'      => (bool)$data['status'],
+        ];
 
-        return redirect()->route('admin.universities.index')->with('success', 'University created successfully.');
+        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        }
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $payload['lat'] = (float)$data['lat'];
+            $payload['lng'] = (float)$data['lng'];
+        }
+
+        University::create($payload);
+
+        return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتووی زیاد کرا.');
     }
 
     /**
@@ -71,16 +93,34 @@ class UniversityController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'province_id' => 'required|exists:provinces,id',
-            'name' => 'required|string|max:255',
-            'status' => 'required|boolean',
+        $data = $request->validate([
+            'name'         => ['required','string','max:255','unique:universities,name,'.$university->id],
+            'province_id'  => ['required','exists:provinces,id'],
+            'status'       => ['required','boolean'],
+
+            'geojson_text' => ['nullable','string'],
+            'geojson_file' => ['nullable','file','mimes:json,geojson,txt','max:20480'],
+            'lat'          => ['nullable','numeric','between:-90,90'],
+            'lng'          => ['nullable','numeric','between:-180,180'],
         ]);
 
-        $university = University::findOrFail($id);
-        $university->update($request->all());
+        $payload = [
+            'name'        => $data['name'],
+            'province_id' => (int)$data['province_id'],
+            'status'      => (bool)$data['status'],
+        ];
 
-        return redirect()->route('admin.universities.index')->with('success', 'University updated successfully.');
+        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        }
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $payload['lat'] = (float)$data['lat'];
+            $payload['lng'] = (float)$data['lng'];
+        }
+
+        $university->update($payload);
+
+        return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتوویی نوێ کرایەوە.');
     }
 
     /**
@@ -91,6 +131,6 @@ class UniversityController extends Controller
         $university = University::findOrFail($id);
         $university->delete();
 
-        return redirect()->route('admin.universities.index')->with('success', 'University deleted successfully.');
+        return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتوویی سڕایەوە.');
     }
 }

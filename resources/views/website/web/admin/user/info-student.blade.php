@@ -81,8 +81,8 @@
             <label for="queue" class="form-label">رێزبەندی کرد</label>
             <select class="form-select @error('queue') is-invalid @enderror" id="queue" name="queue" required>
                 <option value="" disabled @selected(!old('queue'))>بەڵی یان نەخیر</option>
-                <option value="yes" @selected(old('queue') === 'بەڵی')>بەڵی</option>
-                <option value="no" @selected(old('queue') === 'نەخێر')>نەخێر</option>
+                <option value="yes" @selected(old('queue') === 'yes')>بەڵی</option>
+                <option value="no" @selected(old('queue') === 'no')>نەخێر</option>
             </select>
             @error('queue')
                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -93,7 +93,7 @@
 </div>
 
 @php
-    $showNum = old('queue') === 'yes' || request()->has('yes');
+    $showNum = old('queue') == 'yes' || request()->has('yes');
 @endphp
 
 <div id="choose-num" class="{{ $showNum ? '' : 'd-none' }}">
@@ -104,13 +104,13 @@
     <div class="row g-3">
 
         <div class="col-12 col-md-4">
-            <label for="num_zankoline" class="form-label">نمرە</label>
+            <label for="zankoline_num" class="form-label">نمرە</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-star-half-stroke"></i></span>
-                <input type="number" class="form-control @error('num_zankoline') is-invalid @enderror" id="num_zankoline"
-                    name="num_zankoline" value="{{ old('num_zankoline') }}" required min="0" step="0.01"
+                <input type="number" class="form-control @error('zankoline_num') is-invalid @enderror" id="zankoline_num"
+                    name="zankoline_num" value="{{ old('zankoline_num') }}" required min="0" step="0.01"
                     placeholder="نموونە: 89.50">
-                @error('num_zankoline')
+                @error('zankoline_num')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @else
                     <div class="invalid-feedback">نمرە پێویستە.</div>
@@ -119,13 +119,13 @@
         </div>
 
         <div class="col-12 col-md-4">
-            <label for="num_parallel" class="form-label">نمرە</label>
+            <label for="parallel_num" class="form-label">نمرە</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-star-half-stroke"></i></span>
-                <input type="number" class="form-control @error('num_parallel') is-invalid @enderror" id="num_parallel"
-                    name="num_parallel" value="{{ old('num_parallel') }}" required min="0" step="0.01"
+                <input type="number" class="form-control @error('parallel_num') is-invalid @enderror" id="parallel_num"
+                    name="parallel_num" value="{{ old('parallel_num') }}" required min="0" step="0.01"
                     placeholder="نموونە: 89.50">
-                @error('num_parallel')
+                @error('parallel_num')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @else
                     <div class="invalid-feedback">نمرە پێویستە.</div>
@@ -134,13 +134,13 @@
         </div>
 
         <div class="col-12 col-md-4">
-            <label for="num_evening" class="form-label">نمرە</label>
+            <label for="evening_num" class="form-label">نمرە</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-star-half-stroke"></i></span>
-                <input type="number" class="form-control @error('num_evening') is-invalid @enderror" id="num_evening"
-                    name="num_evening" value="{{ old('num_evening') }}" required min="0" step="0.01"
+                <input type="number" class="form-control @error('evening_num') is-invalid @enderror" id="evening_num"
+                    name="evening_num" value="{{ old('evening_num') }}" required min="0" step="0.01"
                     placeholder="نموونە: 89.50">
-                @error('num_evening')
+                @error('evening_num')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @else
                     <div class="invalid-feedback">نمرە پێویستە.</div>

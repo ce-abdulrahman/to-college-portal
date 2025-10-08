@@ -22,6 +22,8 @@ return new class extends Migration
             $table->float('internal_score')->default(50);
             $table->enum('type', ['زانستی', 'وێژەیی', 'زانستی و وێژەیی'])->default('زانستی');
             $table->string('sex');
+            $table->double('lat', 10, 6)->nullable();
+            $table->double('lng', 10, 6)->nullable();
             $table->text('description')->nullable();
             $table->boolean('status')->default(1);
             $table->timestamps();

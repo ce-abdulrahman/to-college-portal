@@ -3,7 +3,7 @@
 @section('content')
     {{-- Top Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.users.index') }}" class="btn btn-outline">
+        <a href="{{ route('admin.students.index') }}" class="btn btn-outline">
             <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
         </a>
 
@@ -40,7 +40,7 @@
                         <table class="table table-striped table-hover align-middle">
                             <tbody>
                                 <tr>
-                                    <th style="width:260px"><i class="fa-solid fa-hashtag me-1 text-muted"></i> ID</th>
+                                    <th style="width:260px"><i class="fa-solid fa-hashtag me-1 text-muted"></i></th>
                                     <td>{{ $user->id }}</td>
                                 </tr>
                                 <tr>
@@ -60,7 +60,7 @@
                                     <td>{{ $user->student->mark ?? '—' }}</td>
                                 </tr>
                                 <tr>
-                                    <th><i class="fa-solid fa-layer-group me-1 text-muted"></i> جۆر</th>
+                                    <th><i class="fa-solid fa-layer-group me-1 text-muted"></i> لق</th>
                                     <td><span class="chip chip-primary">{{ $user->student->type ?? '—' }}</span></td>
                                 </tr>
                                 <tr>
@@ -76,10 +76,10 @@
                                     <td>
                                         @if ($user->status)
                                             <span class="badge bg-success"><i class="fa-solid fa-circle-check me-1"></i>
-                                                کارایە</span>
+                                                چاڵاکە</span>
                                         @else
                                             <span class="badge bg-danger"><i class="fa-solid fa-circle-xmark me-1"></i>
-                                                نەکارایە</span>
+                                                ناچاڵاکە</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -102,7 +102,7 @@
             <div class="card glass fade-in shadow-sm">
                 <div class="card-body">
                     <h4 class="card-title mb-4">
-                        <i class="fa-solid fa-building-columns me-2 text-success"></i> بەشەکان لە کۆلێژی پەیوەندیدار
+                        <i class="fa-solid fa-building-columns me-2 text-success"></i> بەشە هەڵبژێدراوەکان لە کۆلێژ و پەیمانگا
                     </h4>
 
                     <div class="table-responsive">
