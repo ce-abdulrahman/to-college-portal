@@ -15,4 +15,7 @@ RewriteRule ^(.*)$ /public/$1
 RewriteRule ^(/)?$ public/index.php [L]
 
 </IfModule>
+<<<<<<< HEAD
  
+=======
+>>>>>>> 499fbf13d3b51d33cff352837cc1e2e36ddad393
