@@ -5,7 +5,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-4">سیستەمەکانی خوێند</h4>
+                    <h4 class="card-title mb-4">سیستەمەکانی خوێندن</h4>
                     <a href="{{ route('admin.systems.create') }}" class="btn btn-primary mb-4">زیادکردنی نوێ</a>
                 </div>
             </div>
@@ -37,12 +37,12 @@
                             </td>
                             <td>
                                 <a href="{{ route('admin.systems.edit', $system->id) }}"
-                                    class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                                    class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
                                 <form action="{{ route('admin.systems.destroy', $system->id) }}" method="POST"
                                     style="display:inline-block;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger"
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"
                                         onclick="return confirm('ئیشکراوی ئەم سیستەمە دڵنیایت؟');"><i class="bi bi-trash"></i></button>
                                 </form>
                             </td>

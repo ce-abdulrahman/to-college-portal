@@ -93,6 +93,7 @@ class CollegeController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $college = College::findOrFail($id);
         $data = $request->validate([
             'name'          => ['required','string','max:255','unique:colleges,name,'.$college->id],
             'university_id' => ['required','exists:universities,id'],
@@ -113,6 +114,7 @@ class CollegeController extends Controller
         if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
             $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
         }
+        
         if ($request->filled('lat') && $request->filled('lng')) {
             $payload['lat'] = (float)$data['lat'];
             $payload['lng'] = (float)$data['lng'];

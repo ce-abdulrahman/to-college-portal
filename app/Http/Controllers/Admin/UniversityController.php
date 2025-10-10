@@ -93,6 +93,8 @@ class UniversityController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $university = University::findOrFail($id);
+
         $data = $request->validate([
             'name'         => ['required','string','max:255','unique:universities,name,'.$university->id],
             'province_id'  => ['required','exists:provinces,id'],

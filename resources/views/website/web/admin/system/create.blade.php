@@ -2,7 +2,7 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="{{ route('admin.systems.index') }}" class="btn btn-outline">
+    <a href="{{ route('admin.systems.index') }}" class="btn btn-outline-success">
       <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
     </a>
     <div class="d-none d-lg-block text-center flex-grow-1">

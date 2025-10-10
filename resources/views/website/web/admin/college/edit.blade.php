@@ -63,7 +63,7 @@
                         {{-- Area (optional) --}}
                         <div class="mb-3">
                             <label class="form-label">GeoJSON (Optional)</label>
-                            <textarea name="geojson_text" rows="6" class="form-control">{{ old('geojson_text') }}</textarea>
+                            <textarea name="geojson_text" rows="6" class="form-control">{{ $college->geojson_text }}</textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Upload GeoJSON (Optional)</label>
@@ -77,24 +77,24 @@
                         {{-- Point (optional) --}}
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">Latitude</label>
-                                <input id="lat" name="lat" value="{{ old('lat', $university->lat ?? null) }}"
+                                <label class="form-label">Latitude (X)</label>
+                                <input id="lat" name="lat" value="{{ $college->lat ?? '' }}"
                                     class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Longitude</label>
-                                <input id="lng" name="lng" value="{{ old('lng', $university->lng ?? null) }}"
+                                <label class="form-label">Longitude (Y)</label>
+                                <input id="lng" name="lng" value="{{ $college->lng ?? '' }}"
                                     class="form-control">
                             </div>
                             <div class="form-text">لەسەر نەخشە کلیک بکە، lat/lng خۆکار پڕ دەبن.</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="status" class="form-label">{{ __('دۆخ') }}</label>
+                            <label for="status" class="form-label">دۆخ</label>
                             <select id="status" name="status" class="form-select @error('status') is-invalid @enderror"
                                 required>
-                                <option value="1" @selected(old('status', $college->status) == 1)>{{ __('چاڵاک') }}</option>
-                                <option value="0" @selected(old('status', $college->status) == 0)>{{ __('ناچاڵاک') }}</option>
+                                <option value="1" @selected(old('status', $college->status) == 1)>چاڵاک</option>
+                                <option value="0" @selected(old('status', $college->status) == 0)>ناچاڵاک</option>
                             </select>
                             @error('status')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -103,7 +103,7 @@
 
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fa-solid fa-floppy-disk me-1"></i> {{ __('پاشەکەوتکردن') }}
+                                <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
                             </button>
                         </div>
                     </form>
