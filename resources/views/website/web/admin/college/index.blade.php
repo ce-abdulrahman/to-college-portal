@@ -1,6 +1,15 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-none d-lg-block text-center flex-grow-1">
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-building-columns me-2"></i> تەواوی کۆلێژ یان پەیمانگا
+            </div>
+        </div>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <a href="{{ route('admin.colleges.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus me-1"></i> زیادکردنی کۆلێژ
@@ -81,9 +90,9 @@
                         <thead>
                             <tr>
                                 <th style="width:60px">#</th>
-                                <th>کۆلێژ</th>
-                                <th>زانکۆ</th>
                                 <th>پارێزگا</th>
+                                <th>زانکۆ</th>
+                                <th>کۆلێژ</th>
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:160px">کردار</th>
                             </tr>
@@ -94,11 +103,11 @@
                                     data-university-id="{{ $college->university_id }}"
                                     data-status="{{ (int) $college->status }}">
                                     <td>{{ $index + 1 }}</td>
-                                    <td class="fw-semibold">
-                                        <i class="fa-solid fa-building-columns me-1 text-muted"></i>{{ $college->name }}
-                                    </td>
-                                    <td>{{ $college->university->name ?? '—' }}</td>
                                     <td>{{ $college->university->province->name ?? '—' }}</td>
+                                    <td>{{ $college->university->name ?? '—' }}</td>
+                                    <td class="fw-semibold">
+                                        <i class="fa-solid fa-building-columns me-1 text-muted"></i> {{ $college->name }}
+                                    </td>
                                     <td>
                                         @if ($college->status)
                                             <span class="badge bg-success">چاڵاک</span>

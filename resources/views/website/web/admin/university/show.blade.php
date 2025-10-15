@@ -12,13 +12,13 @@
         </div>
 
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.universities.edit', $university->id) }}" class="btn btn-sm ">
+            <a href="{{ route('admin.universities.edit', $university->id) }}" class="btn btn-outline-success btn-sm ">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
             <form action="{{ route('admin.universities.destroy', $university->id) }}" method="POST"
                 onsubmit="return confirm('دڵنیایت؟');">
                 @csrf @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-danger">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
             </form>
@@ -31,7 +31,7 @@
             <div class="card glass fade-in mb-4">
                 <div class="card-body">
                     <h4 class="card-title mb-4">
-                        <i class="fa-solid fa-building-columns me-2"></i> {{ __('زانیاری بنەڕەتی زانکۆ') }}
+                        <i class="fa-solid fa-building-columns me-2"></i> زانیاری بنەڕەتی زانکۆ
                     </h4>
 
                     <div class="table-wrap">
@@ -44,13 +44,26 @@
                                     </tr>
 
                                     <tr>
+                                        <th><i class="fa-solid fa-map-pin me-1 text-muted"></i> {{ __('پارێزگا') }}</th>
+                                        <td>{{ $university->province->name ?? '—' }}</td>
+                                    </tr>
+
+                                    <tr>
                                         <th><i class="fa-solid fa-school me-1 text-muted"></i> {{ __('ناوی زانکۆ') }}</th>
                                         <td class="fw-semibold">{{ $university->name }}</td>
                                     </tr>
 
                                     <tr>
-                                        <th><i class="fa-solid fa-map-pin me-1 text-muted"></i> {{ __('پارێزگا') }}</th>
-                                        <td>{{ $university->province->name ?? '—' }}</td>
+                                        <th><i class="fa-solid fa-map-pin me-1 text-muted"></i> تەوەرەیی X - Longitude</th>
+                                        <td>
+                                            {{ $university->lng ?? '—' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="fa-solid fa-map-pin me-1 text-muted"></i> تەوەرەیی Y - Latitude</th>
+                                        <td>
+                                            {{ $university->lat ?? '—' }}
+                                        </td>
                                     </tr>
 
                                     <tr>
@@ -80,80 +93,87 @@
                         </div>
                     </div>
 
-                    <div class="card glass fade-in">
-                        <div class="card-body">
-                            <div class="row g-4">
-                                <div class="col-12 col-xl-7">
-                                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-                                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                                    <div id="map-university" style="height: 460px; border-radius: 14px;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
-                {{-- Colleges / Institutes of this University --}}
-                <div class="card glass fade-in">
-                    <div class="card-body">
+
+            </div>
+            {{-- Colleges / Institutes of this University --}}
+            <div class="card glass fade-in">
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <h4 class="card-title mb-4">
-                            <i class="fa-solid fa-building me-2"></i> {{ __('کۆلێژ/پەیمانگاکانی ئەم زانکۆیە') }}
-                        </h4>
-
-                        {{-- Optional toolbar: counters / future filters --}}
-                        <div class="table-toolbar">
-                            <span class="chip">
-                                <i class="fa-solid fa-database"></i> {{ __('کۆی گشتی:') }} {{ count($colleges) }}
-                            </span>
-                        </div>
+                        <i class="fa-solid fa-building me-2"></i> کۆلێژ/پەیمانگاکانی ئەم زانکۆیە
+                    </h4>
+                        <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی:
+                            {{ count($colleges) }}</span>
+                    </div>
 
 
-                        <div class="table-wrap">
-                            <div class="table-responsive">
-                                <table class="table table-bordered align-middle">
-                                    <thead>
+                    <div class="table-wrap">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle">
+                                <thead>
+                                    <tr>
+                                        <th style="width:60px">#</th>
+                                        <th>ناو</th>
+                                        <th>X</th>
+                                        <th>Y</th>
+                                        <th style="width:120px">دۆخ</th>
+                                        {{-- هەلبژاردن: ئەگەر خانەی تر هەیە وەکو جۆر/ژمارەی بەشەکان، لێرە زیاد بکە --}}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($colleges as $index => $college)
                                         <tr>
-                                            <th style="width:60px">#</th>
-                                            <th>{{ __('ناو') }}</th>
-                                            <th style="width:120px">{{ __('دۆخ') }}</th>
-                                            {{-- هەلبژاردن: ئەگەر خانەی تر هەیە وەکو جۆر/ژمارەی بەشەکان، لێرە زیاد بکە --}}
+                                            <td>{{ ++$index }}</td>
+                                            <td class="fw-semibold">
+                                                <i class="fa-solid fa-building-columns me-1 text-muted"></i>
+                                                {{ $college->name }}
+                                            </td>
+                                            <td>
+                                                <i class="fa-solid fa-map-pin me-1 text-muted"></i>
+                                                {{ $college->lng ?? '—' }}
+                                            </td>
+                                            <td>
+                                                <i class="fa-solid fa-map-pin me-1 text-muted"></i>
+                                                {{ $college->lat ?? '—' }}
+                                            </td>
+                                            <td>
+                                                @if ($college->status)
+                                                    <span class="badge bg-success">چاڵاک</span>
+                                                @else
+                                                    <span class="badge bg-danger">ناچاڵاک</span>
+                                                @endif
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($colleges as $index => $college)
-                                            <tr>
-                                                <td>{{ ++$index }}</td>
-                                                <td class="fw-semibold">
-                                                    <i class="fa-solid fa-building-columns me-1 text-muted"></i>
-                                                    {{ $college->name }}
-                                                </td>
-                                                <td>
-                                                    @if ($college->status)
-                                                        <span class="badge bg-success">{{ __('چاڵاک') }}</span>
-                                                    @else
-                                                        <span class="badge bg-danger">{{ __('ناچاڵاک') }}</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="3" class="text-center text-muted">
-                                                    <i class="fa-solid fa-circle-info me-1"></i>
-                                                    {{ __('هیچ کۆلێژ/پەیمانگایەک بۆ ئەم زانکۆیە نەدۆزرایەوە') }}
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">
+                                                <i class="fa-solid fa-circle-info me-1"></i>
+                                                هیچ کۆلێژ/پەیمانگایەک بۆ ئەم زانکۆیە نەدۆزرایەوە
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-
-            @endsection
+            </div>
         </div>
+
+        <div class="card-body">
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <div id="map-university" style="height: 460px; border-radius: 14px;"></div>
+
+        </div>
+
+
     </div>
-</div>
+@endsection
 
 @push('scripts')
     <script>
@@ -175,6 +195,7 @@
 
         let any = false;
 
+        // University geojson
         @if ($university->geojson)
             try {
                 const gj = @json($university->geojson);
@@ -191,14 +212,37 @@
             }
         @endif
 
+        // University marker
         @if ($university->lat && $university->lng)
-            const m = L.marker([{{ $university->lat }}, {{ $university->lng }}]).addTo(markers)
+            L.marker([{{ $university->lat }}, {{ $university->lng }}]).addTo(markers)
                 .bindPopup(`<strong>{{ addslashes($university->name) }}</strong>`);
-            if (!any) {
-                mapU.setView([{{ $university->lat }}, {{ $university->lng }}], 15);
-            }
             any = true;
         @endif
+
+        // Colleges markers
+        @foreach ($colleges as $college)
+            @if ($college->lat && $college->lng)
+                L.marker([{{ $college->lat }}, {{ $college->lng }}]).addTo(markers)
+                    .bindPopup(`<strong>{{ addslashes($college->name) }}</strong>`);
+                any = true;
+            @endif
+            @if ($college->geojson)
+                try {
+                    const gj = @json($college->geojson);
+                    L.geoJSON(gj, {
+                        style: {
+                            color: '#2563eb',
+                            weight: 2,
+                            fillColor: '#3b82f6',
+                            fillOpacity: 0.15
+                        }
+                    }).addTo(mapU);
+                    any = true;
+                } catch (e) {
+                    console.error(e);
+                }
+            @endif
+        @endforeach
 
         if (!any) {
             mapU.setView([36.2, 44.0], 8);

@@ -114,7 +114,7 @@ class CollegeController extends Controller
         if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
             $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
         }
-        
+
         if ($request->filled('lat') && $request->filled('lng')) {
             $payload['lat'] = (float)$data['lat'];
             $payload['lng'] = (float)$data['lng'];

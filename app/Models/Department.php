@@ -10,6 +10,9 @@ class Department extends Model
     use HasFactory;
 
     protected $fillable = [
+        'system_id',
+        'province_id',
+        'university_id',
         'college_id',
         'name',
         'local_score',

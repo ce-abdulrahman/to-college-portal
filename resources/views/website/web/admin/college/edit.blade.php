@@ -4,11 +4,14 @@
 
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.colleges.index') }}" class="btn btn-outline mb-4">
-            <i class="fa-solid fa-arrow-right-long me-1"></i> {{ __('گەڕانەوە') }}
+        <a href="{{ route('admin.colleges.index') }}" class="btn btn-outline-success mb-4">
+            <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
         </a>
+
         <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">نوێ کردنەوە کۆلێژ یان پەیمانگا </div>
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-building-columns me-1 text-muted"></i> نوێ کردنەوە کۆلێژ یان پەیمانگا
+            </div>
         </div>
     </div>
 
@@ -31,8 +34,8 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.colleges.update', $college->id) }}" method="POST" enctype="multipart/form-data"
-                        class="needs-validation" novalidate>
+                    <form action="{{ route('admin.colleges.update', $college->id) }}" method="POST"
+                        enctype="multipart/form-data" class="needs-validation" novalidate>
                         @csrf @method('PUT')
 
                         <div class="mb-3">
@@ -63,14 +66,14 @@
                         {{-- Area (optional) --}}
                         <div class="mb-3">
                             <label class="form-label">GeoJSON (Optional)</label>
-                            <textarea name="geojson_text" rows="6" class="form-control">{{ $college->geojson_text }}</textarea>
+                            <textarea name="geojson_text" rows="6" class="form-control">{{ is_array($college->geojson) ? json_encode($college->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $college->geojson }}</textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Upload GeoJSON (Optional)</label>
                             <input type="file" name="geojson_file" class="form-control" accept=".geojson,.json,.txt">
                         </div>
 
-                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                         <div id="map" style="height:420px;border-radius:12px" class="m-3"></div>
 

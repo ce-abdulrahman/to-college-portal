@@ -68,7 +68,7 @@
                                     </tr>
                                     <tr>
                                         <th><i class="fa-solid fa-percent me-1 text-muted"></i> ن. ناوخۆی</th>
-                                        <td>{{ $department->internal_score ?? '—' }}</td>
+                                        <td>{{ $department->external_score ?? '—' }}</td>
                                     </tr>
                                     <tr>
                                         <th><i class="fa-solid fa-layer-group me-1 text-muted"></i> جۆر</th>
@@ -103,6 +103,7 @@
                                 </tbody>
                             </table>
                         </div>
+
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 mt-3">
@@ -116,10 +117,12 @@
 
                 </div>
             </div>
+            <div class="table-wrap">
 
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-            <div id="map-department" style="height: 440px; border-radius: 14px;" class="m-3"></div>
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                <div id="map-department" style="height: 440px; border-radius: 14px;" class="m-3"></div>
+            </div>
 
 
         </div>
@@ -128,9 +131,10 @@
 
 @push('scripts')
     <script>
-        const map = L.map('map-province').setView([36.2, 44.0], 7);
+        const map = L.map('map-department').setView([36.2, 44.0], 7);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap'
         }).addTo(map);
         const layer = L.geoJSON(null, {
             style: {
@@ -141,17 +145,17 @@
             }
         }).addTo(map);
 
-        @if ($department->geojson)
-            try {
-                const gj = @json($department->geojson);
-                layer.addData(gj);
-                const b = layer.getBounds();
-                if (b.isValid()) map.fitBounds(b, {
-                    padding: [20, 20]
-                });
-            } catch (e) {
-                console.error(e);
-            }
+        let any = false;
+
+        @if ($department->lat && $department->lng)
+            const m = L.marker([{{ $department->lat }}, {{ $department->lng }}]).addTo(map)
+                .bindPopup(`<strong>{{ addslashes($department->name) }}</strong>`);
+            map.setView([{{ $department->lat }}, {{ $department->lng }}], 15);
+            any = true;
         @endif
+
+        if (!any) {
+            map.setView([36.2, 44.0], 8);
+        }
     </script>
 @endpush

@@ -2,11 +2,14 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.universities.index') }}" class="btn btn-outline">
+        <a href="{{ route('admin.universities.index') }}" class="btn btn-outline-success">
             <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
         </a>
+
         <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">{{ __('دروستکردنی زانکۆی نوێ') }}</div>
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-map-pin me-1 text-muted"></i> دروستکردنی زانکۆی نوێ
+            </div>
         </div>
     </div>
 
@@ -18,8 +21,8 @@
                         <i class="fa-solid fa-building-columns me-2"></i> {{ __('دروستکردنی زانکۆ') }}
                     </h4>
 
-                    <form action="{{ route('admin.universities.store') }}" method="POST" class="needs-validation" enctype="multipart/form-data"
-                        novalidate>
+                    <form action="{{ route('admin.universities.store') }}" method="POST" class="needs-validation"
+                        enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="row g-3">
 
@@ -37,6 +40,16 @@
                                 </select>
                                 <div class="invalid-feedback">تکایە پارێزگا هەڵبژێرە.</div>
                             </div>
+                            {{-- Name --}}
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">
+                                    <i class="fa-solid fa-tag me-1 text-muted"></i> {{ __('ناوی زانکۆ') }} <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" required
+                                    minlength="2" placeholder="ناوی زانکۆ...">
+                                <div class="invalid-feedback">تکایە ناوی دروست بنوسە (کەمتر نیە لە ٢ پیت).</div>
+                            </div>
 
                             {{-- Area (optional) --}}
                             <div class="mb-3">
@@ -48,7 +61,7 @@
                                 <input type="file" name="geojson_file" class="form-control" accept=".geojson,.json,.txt">
                             </div>
 
-                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                             <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                             <div id="map" style="height:420px;border-radius:12px" class="mt-3"></div>
 
@@ -68,16 +81,7 @@
                             </div>
 
 
-                            {{-- Name --}}
-                            <div class="col-md-6">
-                                <label for="name" class="form-label">
-                                    <i class="fa-solid fa-tag me-1 text-muted"></i> {{ __('ناوی زانکۆ') }} <span
-                                        class="text-danger">*</span>
-                                </label>
-                                <input type="text" class="form-control" id="name" name="name" required
-                                    minlength="2" placeholder="ناوی زانکۆ...">
-                                <div class="invalid-feedback">تکایە ناوی دروست بنوسە (کەمتر نیە لە ٢ پیت).</div>
-                            </div>
+
 
                             {{-- Status --}}
                             <div class="col-md-6">

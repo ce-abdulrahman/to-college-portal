@@ -5,8 +5,11 @@
         <a href="{{ route('admin.universities.index') }}" class="btn btn-outline">
             <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
         </a>
+
         <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">دەستکاری زانکۆ</div>
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-map-pin me-1 text-muted"></i> نوێ کردنەوەی زانکۆی
+            </div>
         </div>
     </div>
 
@@ -56,7 +59,8 @@
                             {{-- Area (optional) --}}
                             <div class="mb-3">
                                 <label class="form-label">GeoJSON (Optional)</label>
-                                <textarea name="geojson_text" rows="6" class="form-control">{{ old('geojson_text') }}</textarea>
+                            <textarea name="geojson_text" rows="6" class="form-control">{{ is_array($university->geojson) ? json_encode($university->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $university->geojson }}</textarea>
+
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Upload GeoJSON (Optional)</label>

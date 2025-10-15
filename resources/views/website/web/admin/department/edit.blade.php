@@ -87,9 +87,9 @@
                             </div>
 
                             <div class="col-12 col-md-3">
-                                <label for="internal_score" class="form-label">ن. ناوخۆی</label>
-                                <input id="internal_score" name="internal_score" type="number" step="0.01"
-                                    class="form-control" value="{{ old('internal_score', $department->internal_score) }}">
+                                <label for="external_score" class="form-label">ن. ناوخۆی</label>
+                                <input id="external_score" name="external_score" type="number" step="0.01"
+                                    class="form-control" value="{{ old('external_score', $department->external_score) }}">
                             </div>
 
                             <div class="col-12 col-md-6">
@@ -109,6 +109,10 @@
                                     <option value="مێ" @selected(old('sex', $department->sex) === 'مێ')>مێ</option>
                                 </select>
                             </div>
+
+                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+                            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                            <div id="map" style="height:420px;border-radius:12px" class="m-3"></div>
 
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -150,11 +154,10 @@
     </div>
 @endsection
 
+
 @push('scripts')
     <script src="{{ asset('assets/admin/js/pages/departments/form.js') }}" defer></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <div id="map" style="height:380px;border-radius:12px" class="mt-3"></div>
+
     <script>
         const lat0 = {{ $department->lat ?? 36.2 }};
         const lng0 = {{ $department->lng ?? 44.0 }};

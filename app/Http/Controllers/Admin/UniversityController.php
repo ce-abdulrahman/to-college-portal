@@ -37,36 +37,35 @@ class UniversityController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name'         => ['required','string','max:255','unique:universities,name'],
-            'province_id'  => ['required','exists:provinces,id'],
-            'status'       => ['required','boolean'],
+{
+    $data = $request->validate([
+        'name' => ['required', 'string', 'max:255', 'unique:universities,name'],
+        'province_id' => ['required', 'exists:provinces,id'],
+        'status' => ['required', 'boolean'],
+        'geojson_text' => ['nullable', 'string'],
+        'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
+        'lat' => ['nullable', 'numeric', 'between:-90,90'],
+        'lng' => ['nullable', 'numeric', 'between:-180,180'],
+    ]);
 
-            'geojson_text' => ['nullable','string'],
-            'geojson_file' => ['nullable','file','mimes:json,geojson,txt','max:20480'],
-            'lat'          => ['nullable','numeric','between:-90,90'],
-            'lng'          => ['nullable','numeric','between:-180,180'],
-        ]);
+    $payload = [
+        'name' => $data['name'],
+        'province_id' => (int)$data['province_id'],
+        'status' => (bool)$data['status'],
+    ];
 
-        $payload = [
-            'name'        => $data['name'],
-            'province_id' => (int)$data['province_id'],
-            'status'      => (bool)$data['status'],
-        ];
-
-        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
-            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
-        }
-        if ($request->filled('lat') && $request->filled('lng')) {
-            $payload['lat'] = (float)$data['lat'];
-            $payload['lng'] = (float)$data['lng'];
-        }
-
-        University::create($payload);
-
-        return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتووی زیاد کرا.');
+    if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+        $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
     }
+    if ($request->filled('lat') && $request->filled('lng')) {
+        $payload['lat'] = (float)$data['lat'];
+        $payload['lng'] = (float)$data['lng'];
+    }
+
+    University::create($payload);
+
+    return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتووی زیاد کرا.');
+}
 
     /**
      * Display the specified resource.
@@ -96,28 +95,30 @@ class UniversityController extends Controller
         $university = University::findOrFail($id);
 
         $data = $request->validate([
-            'name'         => ['required','string','max:255','unique:universities,name,'.$university->id],
-            'province_id'  => ['required','exists:provinces,id'],
-            'status'       => ['required','boolean'],
+            'name' => ['required', 'string', 'max:255', 'unique:universities,name,' . $university->id],
+            'province_id' => ['required', 'exists:provinces,id'],
+            'status' => ['required', 'boolean'],
 
-            'geojson_text' => ['nullable','string'],
-            'geojson_file' => ['nullable','file','mimes:json,geojson,txt','max:20480'],
-            'lat'          => ['nullable','numeric','between:-90,90'],
-            'lng'          => ['nullable','numeric','between:-180,180'],
+            'geojson_text' => ['nullable', 'string'],
+            'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
+            'lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'lng' => ['nullable', 'numeric', 'between:-180,180'],
         ]);
 
         $payload = [
-            'name'        => $data['name'],
-            'province_id' => (int)$data['province_id'],
-            'status'      => (bool)$data['status'],
+            'name' => $data['name'],
+            'province_id' => (int) $data['province_id'],
+            'status' => (bool) $data['status'],
         ];
 
-        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+        if ($data['geojson_text'] !== null || $request->hasFile('geojson_file')) {
             $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        } else {
+            $payload['geojson'] = null; // سڕینەوەی geojson ئەگەر هیچ نەبوو
         }
         if ($request->filled('lat') && $request->filled('lng')) {
-            $payload['lat'] = (float)$data['lat'];
-            $payload['lng'] = (float)$data['lng'];
+            $payload['lat'] = (float) $data['lat'];
+            $payload['lng'] = (float) $data['lng'];
         }
 
         $university->update($payload);

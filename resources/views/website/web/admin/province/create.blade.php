@@ -5,10 +5,12 @@
         <a href="{{ route('admin.provinces.index') }}" class="btn btn-outline-success">
             <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
         </a>
+        
         <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">دروستکردنی پارێزگای نوێ</div>
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-map-pin me-1 text-muted"></i> دروستکردنی پارێزگای نوێ
+            </div>
         </div>
-        <div></div>
     </div>
 
     @if (auth()->user()->role !== 'admin')

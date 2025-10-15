@@ -1,15 +1,21 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">سیستەمەکانی خوێندن</h4>
-                    <a href="{{ route('admin.systems.create') }}" class="btn btn-primary mb-4">زیادکردنی نوێ</a>
-                </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-none d-lg-block text-center flex-grow-1">
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-building-columns me-2"></i> سیستەمەکانی خوێندن
             </div>
         </div>
+    </div>
+
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <a href="{{ route('admin.systems.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus me-1"></i> زیادکردنی
+        </a>
+        <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی: {{ count($systems) }}</span>
     </div>
 
     <div class="table-wrap fade-in">

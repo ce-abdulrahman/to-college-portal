@@ -17,6 +17,7 @@ class Province extends Model
         'system_id',
         'name',
         'status',
+        'geojson'
     ];
 
     protected $casts = [

@@ -1,16 +1,23 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">پارێزگا</div>
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-map-pin me-1 text-muted"></i> تەواوی پارێزگاکان
+            </div>
         </div>
+    </div>
 
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         @if (auth()->user()->role === 'admin')
             <a href="{{ route('admin.provinces.create') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus me-1"></i> پارێزگای نوێ
             </a>
         @endif
+
+        <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی: {{ count($provinces) }}</span>
     </div>
 
     <div class="card glass fade-in">

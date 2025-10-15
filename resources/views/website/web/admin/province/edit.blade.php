@@ -6,9 +6,10 @@
             <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
         </a>
         <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">دەستکاری پارێزگا</div>
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-map-pin me-1 text-muted"></i> نوێکردنەوەی پارێزگاکان
+            </div>
         </div>
-        <div></div>
     </div>
 
     @if (auth()->user()->role !== 'admin')
@@ -46,9 +47,8 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <textarea name="geojson_text" rows="8" class="form-control">
-                                        {{ old('geojson_text', $province->geojson ? json_encode($province->geojson) : '') }}
-                                    </textarea>
+                                    <textarea name="geojson_text" rows="6" class="form-control">{{ is_array($province->geojson) ? json_encode($province->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $province->geojson }}</textarea>
+
                                 </div>
 
                                 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />

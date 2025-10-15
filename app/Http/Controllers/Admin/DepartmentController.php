@@ -57,21 +57,7 @@ class DepartmentController extends Controller
         // status هەیە لە rules → دڵنیابە پاشەکەوت دەبێت
         // هەروەها هەموو خانەکانی rules هەمانە دێنە ناو $data
 
-        Department::create([
-            'system_id' => $data['system_id'],
-            'province_id' => $data['province_id'],
-            'university_id' => $data['university_id'],
-            'college_id' => $data['college_id'],
-            'name' => $data['name'],
-            'local_score' => $data['local_score'],
-            'external_score' => $data['external_score'],
-            'type' => $data['type'],
-            'sex' => $data['sex'],
-            'lat'=> $data['lat'],
-            'lan' => $data['lan'],
-            'description' => $data['description'],
-            'status' => $data['status']
-        ]);
+        Department::create($data);
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی دروستکرا.');
     }

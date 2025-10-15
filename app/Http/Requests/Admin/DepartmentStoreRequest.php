@@ -28,7 +28,7 @@ class DepartmentStoreRequest extends FormRequest
             'college_id'        => 'required|exists:colleges,id',
             'name'              => 'required|string|max:255',
             'local_score'       => 'nullable|numeric|min:50',
-            'internal_score'    => 'nullable|numeric|min:50',
+            'external_score'    => 'nullable|numeric|min:50',
             'type'              => 'required|in:زانستی,وێژەیی,زانستی و وێژەیی',
             'sex'               => 'nullable|string',
             'lat'               => ['nullable','numeric','between:-90,90'],

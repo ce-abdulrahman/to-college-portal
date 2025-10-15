@@ -103,9 +103,9 @@
                             </div>
 
                             <div class="col-12 col-md-3">
-                                <label for="internal_score" class="form-label">ن. ناوخۆی</label>
-                                <input id="internal_score" name="internal_score" type="number" step="0.01"
-                                    class="form-control" value="{{ old('internal_score') }}">
+                                <label for="external_score" class="form-label">ن. ناوخۆی</label>
+                                <input id="external_score" name="external_score" type="number" step="0.01"
+                                    class="form-control" value="{{ old('external_score') }}">
                             </div>
 
                             <div class="col-12 col-md-6">

@@ -6,8 +6,12 @@
             <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
         </a>
 
-        <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">زانیاری پارێزگا</div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-none d-lg-block text-center flex-grow-1">
+                <div class="navbar-page-title" style="font-size: 32px">
+                    <i class="fa-solid fa-map-pin me-1 text-muted"></i> زانیاری پارێزگا
+                </div>
+            </div>
         </div>
 
         <div class="d-flex gap-2">
@@ -68,99 +72,144 @@
                         </div>
 
                     </div>
-                    <div class="card glass fade-in">
-                        <div class="card-body">
-                            <div class="row g-4">
-                                <div class="col-12 col-xl-7">
-                                    {{-- Map --}}
-                                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-                                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                                    <div id="map-province" style="height: 460px; border-radius: 14px;"></div>
 
-                                </div>
 
+                </div>
+                {{-- دەتوانیت لێرەدا زانیاری پەیوەندیدار لە یونیڤەرسیتییەکانی ئەم پارێزگایەش پیشان بدەی --}}
+            </div>
+
+            @isset($universities)
+                <div class="card glass fade-in mt-3">
+                    <div class="card-body">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <h4 class="card-title mb-4">
+                                <i class="fa-solid fa-building me-2"></i> زانکۆکانی ئەم پارێزگایە
+                            </h4>
+                            <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی:
+                                {{ count($universities) }}</span>
+                        </div>
+
+                        <div class="table-wrap">
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:60px">#</th>
+                                            <th>ناو</th>
+                                            <th style="width:120px">دۆخ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($universities as $i => $u)
+                                            <tr>
+                                                <td>{{ $i + 1 }}</td>
+                                                <td class="fw-semibold"><i class="fa-solid fa-school me-1 text-muted"></i>
+                                                    {{ $u->name }}</td>
+                                                <td>
+                                                    @if ($u->status)
+                                                        <span class="badge bg-success">چاڵاک</span>
+                                                    @else
+                                                        <span class="badge bg-danger">ناچاڵاک</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">هیچ زانیارییەک نیە
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
-                {{-- دەتوانیت لێرەدا زانیاری پەیوەندیدار لە یونیڤەرسیتییەکانی ئەم پارێزگایەش پیشان بدەی --}}
-                @isset($universities)
-                    <div class="card glass fade-in mt-3">
-                        <div class="card-body">
-                            <h4 class="card-title mb-4"><i class="fa-solid fa-building-columns me-2"></i> زانکۆکانی ئەم
-                                پارێزگایە
-                            </h4>
-                            <div class="table-wrap">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered align-middle">
-                                        <thead>
-                                            <tr>
-                                                <th style="width:60px">#</th>
-                                                <th>ناو</th>
-                                                <th style="width:120px">دۆخ</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @forelse ($universities as $i => $u)
-                                                <tr>
-                                                    <td>{{ $i + 1 }}</td>
-                                                    <td class="fw-semibold"><i class="fa-solid fa-school me-1 text-muted"></i>
-                                                        {{ $u->name }}</td>
-                                                    <td>
-                                                        @if ($u->status)
-                                                            <span class="badge bg-success">چاڵاک</span>
-                                                        @else
-                                                            <span class="badge bg-danger">ناچاڵاک</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="3" class="text-center text-muted">هیچ زانیارییەک نیە
-                                                    </td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endisset
-            @endsection
+            @endisset
+
+            <div class="card-body">
+                {{-- Map --}}
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                <div id="map-province" style="height: 460px; border-radius: 14px;"></div>
+
+            </div>
         </div>
     </div>
-</div>
+@endsection
+
 @push('scripts')
     <script>
-        const map = L.map('map-province').setView([36.2, 44.0], 7);
+        const mapU = L.map('map-province').setView([36.2, 44.0], 8);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
+            maxZoom: 19,
             attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
-        const layer = L.geoJSON(null, {
-            style: {
-                color: '#2563eb',
-                weight: 2,
-                fillColor: '#3b82f6',
-                fillOpacity: 0.15
-            }
-        }).addTo(map);
+        }).addTo(mapU);
 
+        const area = L.geoJSON(null, {
+            style: {
+                color: '#16a34a',
+                weight: 2,
+                fillColor: '#22c55e',
+                fillOpacity: 0.12
+            }
+        }).addTo(mapU);
+        const markers = L.layerGroup().addTo(mapU);
+
+        let any = false;
+
+        // province geojson
         @if ($province->geojson)
             try {
                 const gj = @json($province->geojson);
-                layer.addData(gj);
-                const b = layer.getBounds();
-                if (b.isValid()) map.fitBounds(b, {
-                    padding: [20, 20]
-                });
+                area.addData(gj);
+                const b = area.getBounds();
+                if (b.isValid()) {
+                    mapU.fitBounds(b, {
+                        padding: [20, 20]
+                    });
+                    any = true;
+                }
             } catch (e) {
-                console.error('GeoJSON error:', e);
+                console.error(e);
             }
-        @else
-            // fallback zoom to region
-            map.setView([36.2, 44.0], 7);
         @endif
+
+        // University marker
+        @if ($province->lat && $province->lng)
+            L.marker([{{ $province->lat }}, {{ $province->lng }}]).addTo(markers)
+                .bindPopup(`<strong>{{ addslashes($province->name) }}</strong>`);
+            any = true;
+        @endif
+
+        // province markers
+        @foreach ($universities as $university)
+            @if ($university->lat && $university->lng)
+                L.marker([{{ $university->lat }}, {{ $university->lng }}]).addTo(markers)
+                    .bindPopup(`<strong>{{ addslashes($university->name) }}</strong>`);
+                any = true;
+            @endif
+            @if ($university->geojson)
+                try {
+                    const gj = @json($university->geojson);
+                    L.geoJSON(gj, {
+                        style: {
+                            color: '#2563eb',
+                            weight: 2,
+                            fillColor: '#3b82f6',
+                            fillOpacity: 0.15
+                        }
+                    }).addTo(mapU);
+                    any = true;
+                } catch (e) {
+                    console.error(e);
+                }
+            @endif
+        @endforeach
+
+        if (!any) {
+            mapU.setView([36.2, 44.0], 8);
+        }
     </script>
 @endpush
