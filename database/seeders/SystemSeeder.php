@@ -15,12 +15,15 @@ class SystemSeeder extends Seeder
     {
         System::create([
             'name' => 'زانکۆلاین',
+            'name_en' => 'Zankolain',
         ]);
         System::create([
             'name' => 'پاراڵیل',
+            'name_en' => 'Parallel',
         ]);
         System::create([
             'name' => 'ئێواران',
+            'name_en' => 'Evening',
         ]);
     }
 }

@@ -16,10 +16,12 @@ class CollegeSeeder extends Seeder
         College::create([
             'university_id' => 1,
             'name' => 'کۆلێژی ئەندازیاری',
+            'name_en' => 'College of Engineering',
         ]);
         College::create([
             'university_id' => 1,
             'name' => 'کۆلێژی زانست',
+            'name_en' => 'College of Science',
         ]);
     }
 }

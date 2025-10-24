@@ -11,24 +11,27 @@ use App\Http\Controllers\Admin\UserProfileController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\GeoController;
-
+use App\Http\Controllers\Admin\PictureController;
 
 Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
     ->prefix('admin')
     ->as('admin.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard/provinces/{province}/universities', [DashboardController::class, 'universitiesByProvince']);
 
         Route::resource('systems', SystemController::class);
 
         Route::resource('provinces', ProvinceController::class);
 
         Route::resource('universities', UniversityController::class);
-        Route::get('/dashboard/provinces/{province}/universities', [DashboardController::class, 'universitiesByProvince']);
 
         Route::resource('colleges', CollegeController::class);
 
         Route::resource('departments', DepartmentController::class);
+        // API‌های داخلی داشبۆرد (Cascading selects)
+        Route::get('/api/universities', [DepartmentController::class, 'getUniversities'])->name('api.universities');
+        Route::get('/api/colleges', [DepartmentController::class, 'getColleges'])->name('api.colleges');
 
         // users routes will be here
         Route::resource('users', UserProfileController::class)->names('users');
@@ -39,11 +42,7 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
         // results for all students
         Route::resource('results', ResultController::class)->names('results');
 
-        // API‌های داخلی داشبۆرد (Cascading selects)
-        Route::get('/api/universities', [DepartmentController::class, 'getUniversities'])->name('api.universities');
-        Route::get('/api/colleges', [DepartmentController::class, 'getColleges'])->name('api.colleges');
     });
-
 
 Route::prefix('admin/geo')
     ->name('admin.geo.')

@@ -44,7 +44,9 @@
                         <thead>
                             <tr>
                                 <th style="width:60px">#</th>
+                                <th>وێنە</th>
                                 <th>ناو</th>
+                                <th>ناو (ئینگلیزی)</th>
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:220px">کردار</th>
                             </tr>
@@ -54,7 +56,14 @@
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td class="fw-semibold">
+                                        <img src="{{ $province->image }}" alt="{{ $province->name }}"
+                                            style="height:40px;max-width:100%;border-radius:6px;object-fit:cover">
+                                    </td>
+                                    <td class="fw-semibold">
                                         <i class="fa-solid fa-map-pin me-1 text-muted"></i> {{ $province->name }}
+                                    </td>
+                                    <td class="fw-semibold">
+                                        <i class="fa-solid fa-map-pin me-1 text-muted"></i> {{ $province->name_en }}
                                     </td>
                                     <td>
                                         @if ($province->status)

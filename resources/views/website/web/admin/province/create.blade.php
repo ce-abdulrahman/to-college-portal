@@ -5,7 +5,7 @@
         <a href="{{ route('admin.provinces.index') }}" class="btn btn-outline-success">
             <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
         </a>
-        
+
         <div class="d-none d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
                 <i class="fa-solid fa-map-pin me-1 text-muted"></i> دروستکردنی پارێزگای نوێ
@@ -44,6 +44,13 @@
                                     <div class="invalid-feedback">ناو پێویستە.</div>
                                 </div>
 
+                                <div class="col-12">
+                                    <label class="form-label">ناوی پارێزگا (ئینگلیزی)</label>
+                                    <input type="text" name="name_en" class="form-control" required
+                                        value="{{ old('name_en') }}" placeholder="نموونە: هەولێر">
+                                    <div class="invalid-feedback">ناو پێویستە.</div>
+                                </div>
+
                                 {{-- GeoJSON (Optional) --}}
                                 <div class="mb-3">
                                     <label class="form-label">ڕووبەر (GeoJSON)</label>
@@ -51,7 +58,7 @@
                                     <div class="form-text">دەتوانیت GeoJSON paste بکەیت یان فایل upload بکەیت.</div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label">Upload GeoJSON</label>
+                                    <label class="form-label">Upload GeoJSON (Optional)</label>
                                     <input type="file" name="geojson_file" class="form-control"
                                         accept=".geojson,.json,.txt">
                                 </div>
@@ -60,7 +67,10 @@
                                 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                                 <div id="map" style="height:420px;border-radius:12px" class="mt-3"></div>
 
-
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label">وێنە</label>
+                                    <input type="file" name="image" class="form-control" accept="image/*">
+                                </div>
 
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">دۆخ</label>

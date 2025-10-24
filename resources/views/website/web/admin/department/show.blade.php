@@ -41,6 +41,13 @@
                                         <td>{{ $department->id }}</td>
                                     </tr>
                                     <tr>
+                                        <th style="width:260px"><i class="fa-solid fa-image me-1 text-muted"></i> وێنە</th>
+                                        <td>
+                                            <img src="{{ $department->image }}" alt="{{ $department->name }}"
+                                                style="height:80px;max-width:100%;border-radius:6px;object-fit:cover">
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <th><i class="fa-solid fa-cube me-1 text-muted"></i> سیستەم</th>
                                         <td>{{ $department->system->name }}</td>
                                     </tr>

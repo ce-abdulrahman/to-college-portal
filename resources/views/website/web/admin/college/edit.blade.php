@@ -63,6 +63,13 @@
                             @enderror
                         </div>
 
+                        <div class="col-12">
+                                <label class="form-label">ناوی کۆلێژ (ئینگلیزی)</label>
+                                <input type="text" name="name_en" class="form-control" required
+                                    value="{{ old('name_en', $college->name_en) }}" placeholder="نموونە: هەولێر">
+                                <div class="invalid-feedback">ناو پێویستە.</div>
+                            </div>
+
                         {{-- Area (optional) --}}
                         <div class="mb-3">
                             <label class="form-label">GeoJSON (Optional)</label>
@@ -91,6 +98,11 @@
                             </div>
                             <div class="form-text">لەسەر نەخشە کلیک بکە، lat/lng خۆکار پڕ دەبن.</div>
                         </div>
+
+                        <div class="col-12 col-md-6">
+                                <label class="form-label">وێنە</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
+                            </div>
 
                         <div class="mb-3">
                             <label for="status" class="form-label">دۆخ</label>

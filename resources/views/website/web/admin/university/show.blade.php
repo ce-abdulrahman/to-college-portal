@@ -44,6 +44,14 @@
                                     </tr>
 
                                     <tr>
+                                        <th style="width:260px"><i class="fa-solid fa-image me-1 text-muted"></i> وێنە</th>
+                                        <td>
+                                            <img src="{{ $university->image }}" alt="{{ $university->name }}"
+                                                style="height:80px;max-width:100%;border-radius:6px;object-fit:cover">
+                                        </td>
+                                    </tr>
+
+                                    <tr>
                                         <th><i class="fa-solid fa-map-pin me-1 text-muted"></i> {{ __('پارێزگا') }}</th>
                                         <td>{{ $university->province->name ?? '—' }}</td>
                                     </tr>

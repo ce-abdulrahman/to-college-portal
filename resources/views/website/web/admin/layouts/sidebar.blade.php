@@ -16,9 +16,11 @@
     <div class="drawer-content">
         <nav class="drawer-nav">
             @php
-                function navActive($route)
-                {
-                    return request()->routeIs($route) ? 'active' : '';
+                if (!function_exists('navActive')) {
+                    function navActive($route)
+                    {
+                        return request()->routeIs($route) ? 'active' : '';
+                    }
                 }
             @endphp
 

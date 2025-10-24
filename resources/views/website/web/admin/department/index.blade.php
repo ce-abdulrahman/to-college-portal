@@ -134,9 +134,10 @@
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th>وێنە</th>
                                 <th>ناو</th>
-                                <th>نمرەی ناوەندی</th>
-                                <th>نمرەی ناوخۆی</th>
+                                <th>ن. نمرەی</th>
+                                <th>د. نمرەی</th>
                                 {{--  <th>جۆر</th>
                                 <th>ڕەگەز</th>  --}}
                                 <th>دۆخ</th>
@@ -158,6 +159,12 @@
                                     data-university-id="{{ $department->university_id }}"
                                     data-college-id="{{ $department->college_id }}">
                                     <td>{{ $i + 1 }}</td>
+
+                                    <td class="fw-semibold">
+                                        <img src="{{ $department->image }}" alt="{{ $department->name }}"
+                                            style="height:40px;max-width:100%;border-radius:6px;object-fit:cover">
+                                    </td>
+
                                     <td>
                                         <div class="fw-semibold">{{ $department->name }}</div>
                                         <div class="text-muted small">
@@ -170,7 +177,7 @@
                                                 class="fa-solid fa-cube me-1"></i>{{ $systemName }}</span>
                                     </td>
                                     <td>{{ $department->local_score ?? '—' }}</td>
-                                    <td>{{ $department->internal_score ?? '—' }}</td>
+                                    <td>{{ $department->external_score ?? '—' }}</td>
                                     <td>
                                         @if ($department->status)
                                             <span class="badge bg-success">چاڵاک</span>

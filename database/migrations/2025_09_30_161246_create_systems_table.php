@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('systems', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+
+            $table->string('name_en')->unique();
+
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

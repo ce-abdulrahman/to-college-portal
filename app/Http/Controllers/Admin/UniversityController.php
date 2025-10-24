@@ -10,10 +10,11 @@ use App\Models\University;
 use App\Models\College;
 use App\Models\Department;
 use App\Http\Controllers\Concerns\HandlesGeo;
+use App\Traits\FileUploadTrait;
 
 class UniversityController extends Controller
 {
-    use HandlesGeo;
+    use HandlesGeo, FileUploadTrait;
 
     /**
      * Display a listing of the resource.
@@ -37,35 +38,41 @@ class UniversityController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-{
-    $data = $request->validate([
-        'name' => ['required', 'string', 'max:255', 'unique:universities,name'],
-        'province_id' => ['required', 'exists:provinces,id'],
-        'status' => ['required', 'boolean'],
-        'geojson_text' => ['nullable', 'string'],
-        'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
-        'lat' => ['nullable', 'numeric', 'between:-90,90'],
-        'lng' => ['nullable', 'numeric', 'between:-180,180'],
-    ]);
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:universities,name'],
+            'name_en' => ['required', 'string', 'max:255', 'unique:universities,name_en'],
+            'province_id' => ['required', 'exists:provinces,id'],
+            'status' => ['required', 'boolean'],
+            'geojson_text' => ['nullable', 'string'],
+            'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
+            'lat' => ['nullable', 'numeric', 'between:-90,90'],
+            'lng' => ['nullable', 'numeric', 'between:-180,180'],
+            'image' => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
+        ]);
 
-    $payload = [
-        'name' => $data['name'],
-        'province_id' => (int)$data['province_id'],
-        'status' => (bool)$data['status'],
-    ];
+        $imagePath = $this->UploadImage($request, 'image');
 
-    if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
-        $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        $payload = [
+            'name' => $data['name'],
+            'name_en' => $data['name_en'],
+            'province_id' => (int) $data['province_id'],
+            'status' => (bool) $data['status'],
+            'image' => !empty($imagePath) ? $imagePath : null,
+        ];
+
+        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
+            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        }
+        if ($request->filled('lat') && $request->filled('lng')) {
+            $payload['lat'] = (float) $data['lat'];
+            $payload['lng'] = (float) $data['lng'];
+        }
+
+        University::create($payload);
+
+        return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتووی زیاد کرا.');
     }
-    if ($request->filled('lat') && $request->filled('lng')) {
-        $payload['lat'] = (float)$data['lat'];
-        $payload['lng'] = (float)$data['lng'];
-    }
-
-    University::create($payload);
-
-    return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتووی زیاد کرا.');
-}
 
     /**
      * Display the specified resource.
@@ -96,6 +103,7 @@ class UniversityController extends Controller
 
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:universities,name,' . $university->id],
+            'name_en' => ['required', 'string', 'max:255', 'unique:universities,name_en,' . $university->id],
             'province_id' => ['required', 'exists:provinces,id'],
             'status' => ['required', 'boolean'],
 
@@ -103,10 +111,15 @@ class UniversityController extends Controller
             'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
+            'image' => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
         ]);
+
+        $imagePath = $this->UploadImage($request, 'image', $university->image);
+        $data['image'] = !empty($imagePath) ? $imagePath : $university->image;
 
         $payload = [
             'name' => $data['name'],
+            'name_en' => $data['name_en'],
             'province_id' => (int) $data['province_id'],
             'status' => (bool) $data['status'],
         ];
@@ -132,6 +145,13 @@ class UniversityController extends Controller
     public function destroy(string $id)
     {
         $university = University::findOrFail($id);
+
+        if (!empty($university->geojson_path)) {
+            Storage::disk('public')->delete($university->geojson_path);
+        }
+
+        $this->DeleteImage($university->image);
+
         $university->delete();
 
         return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتوویی سڕایەوە.');

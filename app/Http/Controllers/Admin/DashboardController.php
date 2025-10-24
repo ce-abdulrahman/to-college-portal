@@ -50,8 +50,9 @@ class DashboardController extends Controller
     /**
      * API: هەرکات لەسەر پارێزگایەک کلیک کرا → زانکۆ/کۆلێژ/پەیمانگاەکان بگەڕێنەوە بە lat/lng
      */
-    public function universitiesByProvince(Province $province)
+    public function universitiesByProvince(string $id)
     {
+        $province = Province::findOrFail($id);
         // پێشبینی: universities تیایدا columns: id, name, type('University','College','Institute'), province_id, lat, lng
         $items = University::query()
             ->where('province_id', $province->id)

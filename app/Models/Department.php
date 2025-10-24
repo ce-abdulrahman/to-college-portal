@@ -15,11 +15,13 @@ class Department extends Model
         'university_id',
         'college_id',
         'name',
+        'name_en',
         'local_score',
-        'internal_score',
+        'external_score',
         'type',
         'sex',
         'lat', 'lng',
+        'image',
         'description',
         'status',
     ];
@@ -44,5 +46,10 @@ class Department extends Model
     public function college()
     {
         return $this->belongsTo(College::class);
+    }
+
+    public function picture()
+    {
+        return $this->hasMany(Picture::class);
     }
 }

@@ -14,23 +14,25 @@ class Province extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'system_id',
         'name',
+        'name_en',
         'status',
-        'geojson'
+        'geojson',
+        'image'
     ];
 
     protected $casts = [
+        'status' => 'boolean',
         'geojson' => 'array',
     ];
-
-    public function system()
-    {
-        return $this->belongsTo(System::class);
-    }
 
     public function university()
     {
         return $this->hasMany(University::class, 'province_id', 'id');
+    }
+
+    public function picture()
+    {
+        return $this->hasMany(Picture::class);
     }
 }

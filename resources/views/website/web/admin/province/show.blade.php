@@ -46,6 +46,13 @@
                                         <td>{{ $province->id }}</td>
                                     </tr>
                                     <tr>
+                                        <th style="width:260px"><i class="fa-solid fa-image me-1 text-muted"></i> وێنە</th>
+                                        <td>
+                                            <img src="{{ $province->image }}" alt="{{ $province->name }}"
+                                                style="height:80px;max-width:100%;border-radius:6px;object-fit:cover">
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <th><i class="fa-solid fa-map-pin me-1 text-muted"></i> ناو</th>
                                         <td class="fw-semibold">{{ $province->name }}</td>
                                     </tr>

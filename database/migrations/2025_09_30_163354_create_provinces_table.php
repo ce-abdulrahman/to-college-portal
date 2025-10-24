@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('provinces', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->string('name_en')->unique();
             $table->longText('geojson')->nullable(); // Polygon/MultiPolygon بە GeoJSON
             $table->boolean('status')->default(1);
+            $table->string('geojson_path')->nullable();
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

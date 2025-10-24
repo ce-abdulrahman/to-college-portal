@@ -90,9 +90,11 @@
                         <thead>
                             <tr>
                                 <th style="width:60px">#</th>
+                                <th>وێنە</th>
                                 <th>پارێزگا</th>
                                 <th>زانکۆ</th>
                                 <th>کۆلێژ</th>
+                                <th>کۆلێژ (ئینگلیزی)</th>
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:160px">کردار</th>
                             </tr>
@@ -103,10 +105,21 @@
                                     data-university-id="{{ $college->university_id }}"
                                     data-status="{{ (int) $college->status }}">
                                     <td>{{ $index + 1 }}</td>
+                                    <td class="fw-semibold">
+                                        <img src="{{ $college->image }}" alt="{{ $college->name }}"
+                                            style="height:40px;max-width:100%;border-radius:6px;object-fit:cover">
+                                    </td>
+
                                     <td>{{ $college->university->province->name ?? '—' }}</td>
+                                    
                                     <td>{{ $college->university->name ?? '—' }}</td>
+
+
                                     <td class="fw-semibold">
                                         <i class="fa-solid fa-building-columns me-1 text-muted"></i> {{ $college->name }}
+                                    </td>
+                                    <td class="fw-semibold">
+                                        <i class="fa-solid fa-building-columns me-1 text-muted"></i> {{ $college->name_en }}
                                     </td>
                                     <td>
                                         @if ($college->status)

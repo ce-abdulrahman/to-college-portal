@@ -27,6 +27,7 @@ class DepartmentUpdateRequest extends FormRequest
             'university_id'     => 'required|exists:universities,id',
             'college_id'        => 'required|exists:colleges,id',
             'name'              => 'required|string|max:255',
+            'name_en'           => ['required','string','max:255'],
             'local_score'       => 'nullable|numeric|min:50',
             'external_score'    => 'nullable|numeric|min:50',
             'type'              => 'required|in:زانستی,وێژەیی,زانستی و وێژەیی',
@@ -35,6 +36,7 @@ class DepartmentUpdateRequest extends FormRequest
             'lng'               => ['nullable','numeric','between:-180,180'],
             'description'       => 'nullable|string',
             'status'            => 'required|boolean',
+            'image'             => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
         ];
     }
 }

@@ -6,20 +6,20 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Province;
 use App\Models\University;
-use App\Http\Controllers\Concerns\HandlesGeo;
+use Illuminate\Support\Facades\Storage;
+use App\Traits\FileUploadTrait;
 
 class ProvinceController extends Controller
 {
-    use HandlesGeo;
+    use FileUploadTrait;
 
     /**
      * Display a listing of the resource.
      */
-    public function index(Province $province)
+    public function index()
     {
-        $provinces = Province::all();
-        $province = Province::findOrFail($province);
-        return view('website.web.admin.province.index', compact('provinces', 'province'));
+        $provinces = Province::latest()->paginate(15);
+        return view('website.web.admin.province.index', compact('provinces'));
     }
 
     /**
@@ -36,19 +36,39 @@ class ProvinceController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'         => ['required','string','max:255','unique:provinces,name'],
-            'status'       => ['required','boolean'],
-            'geojson_text' => ['nullable','string'],
-            'geojson_file' => ['nullable','file','mimes:json,geojson,txt','max:20480'],
+            'name' => ['required', 'string', 'max:255', 'unique:provinces,name'],
+            'name_en' => ['required', 'string', 'max:255', 'unique:provinces,name_en'],
+            'status' => ['required', 'in:0,1'], // یان ['required','boolean']
+            'geojson_text' => ['nullable', 'string'],
+            'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
+            'image' => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
         ]);
 
+        $imagePath = $this->UploadImage($request, 'image');
+
         $payload = [
-            'name'   => $data['name'],
-            'status' => (bool)$data['status'],
+            'name' => $data['name'],
+            'name_en' => $data['name_en'],
+            'status' => (bool) $data['status'],
+            'image' => !empty($imagePath) ? $imagePath : null,
         ];
 
-        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
-            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        // Resolve GeoJSON from text or uploaded file
+        $geojson = null;
+        if (!empty($data['geojson_text'])) {
+            $geojson = json_decode($data['geojson_text'], true);
+        }
+        if ($request->hasFile('geojson_file')) {
+            $path = $request->file('geojson_file')->store('geojson/provinces', 'public');
+            $payload['geojson_path'] = $path;
+
+            $fileJson = json_decode($request->file('geojson_file')->get(), true);
+            if ($fileJson) {
+                $geojson = $fileJson;
+            }
+        }
+        if (!is_null($geojson)) {
+            $payload['geojson'] = $geojson;
         }
 
         Province::create($payload);
@@ -62,7 +82,7 @@ class ProvinceController extends Controller
     public function show(string $id)
     {
         $province = Province::findOrFail($id);
-        $universities = University::where('province_id', $province->id)->get(); // Assuming a Province has many Universities
+        $universities = University::all();
         return view('website.web.admin.province.show', compact('province', 'universities'));
     }
 
@@ -83,24 +103,46 @@ class ProvinceController extends Controller
         $province = Province::findOrFail($id);
 
         $data = $request->validate([
-            'name'         => ['required','string','max:255','unique:provinces,name,'.$province->id],
-            'status'       => ['required','boolean'],
-            'geojson_text' => ['nullable','string'],
-            'geojson_file' => ['nullable','file','mimes:json,geojson,txt','max:20480'],
+            'name' => ['required', 'string', 'max:255', 'unique:provinces,name,' . $province->id],
+            'name_en' => ['required', 'string', 'max:255', 'unique:provinces,name_en,' . $province->id],
+            'status' => ['required', 'in:0,1'], // یان ['required','boolean']
+            'geojson_text' => ['nullable', 'string'],
+            'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
+            'image' => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
         ]);
 
+        $imagePath = $this->uploadImage($request, 'image', $province->image);
+        $data['image'] = !empty($imagePath) ? $imagePath : $province->image;
+
         $payload = [
-            'name'   => $data['name'],
-            'status' => (bool)$data['status'],
+            'name' => $data['name'],
+            'name_en' => $data['name_en'],
+            'status' => (bool) $data['status'],
         ];
 
-        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
-            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        // Refresh GeoJSON only if new text/file provided
+        if (!empty($data['geojson_text'])) {
+            $payload['geojson'] = json_decode($data['geojson_text'], true);
+        }
+
+        if ($request->hasFile('geojson_file')) {
+            // optionally delete old file
+            if (!empty($province->geojson_path)) {
+                Storage::disk('public')->delete($province->geojson_path);
+            }
+
+            $path = $request->file('geojson_file')->store('geojson/provinces', 'public');
+            $payload['geojson_path'] = $path;
+
+            $fileJson = json_decode($request->file('geojson_file')->get(), true);
+            if ($fileJson) {
+                $payload['geojson'] = $fileJson;
+            }
         }
 
         $province->update($payload);
 
-        return redirect()->route('admin.provinces.index')->with('success', 'پاریزگا بە سەرکەوتووی نوێ کراوە.');
+        return redirect()->route('admin.provinces.index')->with('success', 'پاریزگا بە سەرکەوتووی نوێکراوە.');
     }
 
     /**
@@ -108,6 +150,16 @@ class ProvinceController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $province = Province::findOrFail($id);
+
+        if (!empty($province->geojson_path)) {
+            Storage::disk('public')->delete($province->geojson_path);
+        }
+
+        $this->DeleteImage($province->image);
+
+        $province->delete();
+
+        return redirect()->route('admin.provinces.index')->with('success', 'پاریزگا سڕایەوە.');
     }
 }

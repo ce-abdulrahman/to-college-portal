@@ -29,8 +29,10 @@
                         <thead>
                             <tr>
                                 <th style="width:60px">#</th>
+                                <th>وێنە</th>
                                 <th>پارێزگا</th>
                                 <th>ناوی زانکۆ</th>
+                                <th>ناوی زانکۆ (ئینگلیزی)</th>
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:180px">کردار</th>
                             </tr>
@@ -39,10 +41,17 @@
                             @foreach ($universities as $index => $university)
                                 <tr>
                                     <td>{{ ++$index }}</td>
+                                    <td class="fw-semibold">
+                                        <img src="{{ $university->image }}" alt="{{ $university->name }}"
+                                            style="height:40px;max-width:100%;border-radius:6px;object-fit:cover">
+                                    </td>
                                     <td><i class="fa-solid fa-map-pin me-1 text-muted"></i>
                                         {{ $university->province->name }}</td>
                                     <td class="fw-semibold">
                                         <i class="fa-solid fa-school me-1 text-muted"></i> {{ $university->name }}
+                                    </td>
+                                    <td class="fw-semibold">
+                                        <i class="fa-solid fa-school me-1 text-muted"></i> {{ $university->name_en }}
                                     </td>
                                     <td>
                                         @if ($university->status)

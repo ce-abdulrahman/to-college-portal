@@ -9,10 +9,11 @@ use App\Models\College;
 use App\Models\Department;
 use App\Models\Province;
 use App\Http\Controllers\Concerns\HandlesGeo;
+use App\Traits\FileUploadTrait;
 
 class CollegeController extends Controller
 {
-    use HandlesGeo;
+    use HandlesGeo, FileUploadTrait;
 
     /**
      * Display a listing of the resource.
@@ -40,6 +41,7 @@ class CollegeController extends Controller
     {
         $data = $request->validate([
             'name'          => ['required','string','max:255','unique:colleges,name'],
+            'name_en'      => ['required','string','max:255','unique:colleges,name_en'],
             'university_id' => ['required','exists:universities,id'],
             'status'        => ['required','boolean'],
 
@@ -47,12 +49,17 @@ class CollegeController extends Controller
             'geojson_file'  => ['nullable','file','mimes:json,geojson,txt','max:20480'],
             'lat'           => ['nullable','numeric','between:-90,90'],
             'lng'           => ['nullable','numeric','between:-180,180'],
+            'image' => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
         ]);
+
+        $imagePath = $this->UploadImage($request, 'image');
 
         $payload = [
             'name'          => $data['name'],
+            'name_en' => $data['name_en'],
             'university_id' => (int)$data['university_id'],
             'status'        => (bool)$data['status'],
+            'image'        => !empty($imagePath) ? $imagePath : null,
         ];
 
         if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
@@ -96,6 +103,7 @@ class CollegeController extends Controller
         $college = College::findOrFail($id);
         $data = $request->validate([
             'name'          => ['required','string','max:255','unique:colleges,name,'.$college->id],
+            'name_en'      => ['required','string','max:255','unique:colleges,name_en,'.$college->id],
             'university_id' => ['required','exists:universities,id'],
             'status'        => ['required','boolean'],
 
@@ -103,10 +111,15 @@ class CollegeController extends Controller
             'geojson_file'  => ['nullable','file','mimes:json,geojson,txt','max:20480'],
             'lat'           => ['nullable','numeric','between:-90,90'],
             'lng'           => ['nullable','numeric','between:-180,180'],
+            'image' => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
         ]);
+
+        $imagePath = $this->uploadImage($request, 'image', $college->image);
+        $data['image'] = !empty($imagePath) ? $imagePath : $college->image;
 
         $payload = [
             'name'          => $data['name'],
+            'name_en'      => $data['name_en'],
             'university_id' => (int)$data['university_id'],
             'status'        => (bool)$data['status'],
         ];
@@ -131,6 +144,13 @@ class CollegeController extends Controller
     public function destroy(string $id)
     {
         $college = College::findOrFail($id);
+
+        if (!empty($college->geojson_path)) {
+            Storage::disk('public')->delete($college->geojson_path);
+        }
+
+        $this->DeleteImage($college->image);
+
         $college->delete();
 
         return redirect()->route('admin.colleges.index')->with('success', 'کۆلێژ یان پەیمانگا بە سەرکەوتوویی سڕیاوە.');

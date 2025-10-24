@@ -14,18 +14,21 @@ use App\Http\Requests\Admin\DepartmentStoreRequest;
 use App\Http\Requests\Admin\DepartmentUpdateRequest;
 use App\Http\Resources\UniversityResource;
 use App\Http\Resources\CollegeResource;
+use App\Traits\FileUploadTrait;
 
 class DepartmentController extends Controller
 {
+    use FileUploadTrait;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $systems = System::where('status', 1)->get();
-        $provinces = Province::where('status', 1)->get();
-        $universities = University::where('status', 1)->get();
-        $departments = Department::with('college.university.province.system')->get();
+        $systems = System::all();
+        $provinces = Province::all();
+        $universities = University::all();
+        $departments = Department::all();
         return view('website.web.admin.department.index', compact('departments', 'systems', 'universities', 'provinces'));
     }
 
@@ -54,6 +57,8 @@ class DepartmentController extends Controller
             $data['lng'] = (float) $request->lng;
         }
 
+        $data['image'] = $this->UploadImage($request, 'image');
+
         // status هەیە لە rules → دڵنیابە پاشەکەوت دەبێت
         // هەروەها هەموو خانەکانی rules هەمانە دێنە ناو $data
 
@@ -67,7 +72,7 @@ class DepartmentController extends Controller
      */
     public function show(string $id)
     {
-        $department = Department::with('college.university.province.system')->findOrFail($id);
+        $department = Department::findOrFail($id);
         return view('website.web.admin.department.show', compact('department'));
     }
 
@@ -80,7 +85,7 @@ class DepartmentController extends Controller
         $provinces = Province::where('status', 1)->get();
         $universities = University::where('status', 1)->get();
         $colleges = College::where('status', 1)->get();
-        $department = Department::with('college.university.province.system')->findOrFail($id);
+        $department = Department::findOrFail($id);
 
         $compact = compact('department', 'colleges', 'universities', 'provinces', 'systems');
 
@@ -103,6 +108,9 @@ class DepartmentController extends Controller
             unset($data['lat'], $data['lng']);
         }
 
+        $imagePath = $this->UploadImage($request, 'image', $department->image);
+        $data['image'] = !empty($imagePath) ? $imagePath : $department->image;
+        //dd($data['image']);
         $department->update($data);
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی نوێکرا.');
@@ -114,6 +122,13 @@ class DepartmentController extends Controller
     public function destroy(string $id)
     {
         $department = Department::findOrFail($id);
+
+        if (!empty($department->geojson_path)) {
+            Storage::disk('public')->delete($department->geojson_path);
+        }
+
+        $this->DeleteImage($department->image);
+
         $department->delete();
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی سڕاوە.');

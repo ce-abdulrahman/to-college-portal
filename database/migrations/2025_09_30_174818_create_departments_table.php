@@ -18,13 +18,15 @@ return new class extends Migration
             $table->foreignId('university_id')->constrained('universities')->onDelete('cascade');
             $table->foreignId('college_id')->constrained('colleges')->onDelete('cascade');
             $table->string('name');
+            $table->string('name_en');
             $table->float('local_score')->default(50);
-            $table->float('internal_score')->default(50);
+            $table->float('external_score')->default(50);
             $table->enum('type', ['زانستی', 'وێژەیی', 'زانستی و وێژەیی'])->default('زانستی');
             $table->string('sex');
             $table->double('lat', 10, 6)->nullable();
             $table->double('lng', 10, 6)->nullable();
             $table->text('description')->nullable();
+            $table->string('image')->nullable();
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

@@ -46,6 +46,13 @@
                                     <div class="invalid-feedback">ناو پێویستە.</div>
                                 </div>
 
+                                <div class="col-12">
+                                    <label class="form-label">ناوی پارێزگا (ئینگلیزی)</label>
+                                    <input type="text" name="name_en" class="form-control" required
+                                        value="{{ old('name_en', $province->name_en) }}" placeholder="نموونە: هەولێر">
+                                    <div class="invalid-feedback">ناو پێویستە.</div>
+                                </div>
+
                                 <div class="mb-3">
                                     <textarea name="geojson_text" rows="6" class="form-control">{{ is_array($province->geojson) ? json_encode($province->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $province->geojson }}</textarea>
 
@@ -54,6 +61,12 @@
                                 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                                 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                                 <div id="map" style="height:420px;border-radius:12px" class="mt-3"></div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label">وێنە</label>
+                                    <input type="file" name="image" class="form-control" accept="image/*">
+                                    <div class="invalid-feedback">وێنە دیاری بکە.</div>
+                                </div>
 
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">دۆخ</label>

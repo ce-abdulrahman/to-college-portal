@@ -80,6 +80,16 @@
                                     value="{{ old('name', $department->name) }}" required>
                             </div>
 
+                            <div class="col-12 col-md-6">
+                                <label for="name_en" class="form-label">ناوی بەش (ئینگلیزی)</label>
+                                <input id="name_en" name="name_en" type="text"
+                                    class="form-control @error('name_en') is-invalid @enderror" value="{{ old('name_en', $department->name) }}"
+                                    required>
+                                @error('name_en')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="col-12 col-md-3">
                                 <label for="local_score" class="form-label">ن. ناوەندی</label>
                                 <input id="local_score" name="local_score" type="number" step="0.01"
@@ -92,7 +102,7 @@
                                     class="form-control" value="{{ old('external_score', $department->external_score) }}">
                             </div>
 
-                            <div class="col-12 col-md-6">
+                            <div class="col-12 col-md-3">
                                 <label for="type" class="form-label">جۆر</label>
                                 <select id="type" name="type" class="form-select">
                                     <option value="زانستی" @selected(old('type', $department->type) === 'زانستی')>زانستی</option>
@@ -102,7 +112,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-12 col-md-6">
+                            <div class="col-12 col-md-3">
                                 <label for="sex" class="form-label">ڕەگەز</label>
                                 <select id="sex" name="sex" class="form-select">
                                     <option value="نێر" @selected(old('sex', $department->sex) === 'نێر')>نێر</option>
@@ -131,6 +141,11 @@
                             <div class="col-12">
                                 <label for="description" class="form-label">وەسف</label>
                                 <textarea id="description" name="description" rows="3" class="form-control">{{ old('description', $department->description) }}</textarea>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">وێنە</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
                             </div>
 
                             <div class="col-12 col-md-6">

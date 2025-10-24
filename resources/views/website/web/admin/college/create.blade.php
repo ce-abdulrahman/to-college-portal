@@ -7,7 +7,7 @@
         <a href="{{ route('admin.colleges.index') }}" class="btn btn-outline mb-4">
             <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
         </a>
-        
+
         <div class="d-none d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
                 <i class="fa-solid fa-building-columns me-1 text-muted"></i> دروستکردنی کۆلێژ یان پەیمانگا
@@ -34,7 +34,8 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.colleges.store') }}" method="POST" class="needs-validation" enctype="multipart/form-data" novalidate>
+                    <form action="{{ route('admin.colleges.store') }}" method="POST" class="needs-validation"
+                        enctype="multipart/form-data" novalidate>
                         @csrf
 
                         <div class="mb-3">
@@ -61,6 +62,13 @@
                             @enderror
                         </div>
 
+                        <div class="col-12">
+                            <label class="form-label">ناوی کۆلێژ (ئینگلیزی)</label>
+                            <input type="text" name="name_en" class="form-control" required value="{{ old('name_en') }}"
+                                placeholder="نموونە: هەولێر">
+                            <div class="invalid-feedback">ناو پێویستە.</div>
+                        </div>
+
                         {{-- Area (optional) --}}
                         <div class="mb-3">
                             <label class="form-label">GeoJSON (Optional)</label>
@@ -71,7 +79,7 @@
                             <input type="file" name="geojson_file" class="form-control" accept=".geojson,.json,.txt">
                         </div>
 
-                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                         <div id="map" style="height:420px;border-radius:12px" class="m-3"></div>
 
@@ -88,6 +96,11 @@
                                     class="form-control">
                             </div>
                             <div class="form-text">لەسەر نەخشە کلیک بکە، lat/lng خۆکار پڕ دەبن.</div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">وێنە</label>
+                            <input type="file" name="image" class="form-control" accept="image/*">
                         </div>
 
                         <div class="mb-3">
