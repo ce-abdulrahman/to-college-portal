@@ -83,7 +83,7 @@
                             <div class="col-12 col-md-6">
                                 <label for="name_en" class="form-label">ناوی بەش (ئینگلیزی)</label>
                                 <input id="name_en" name="name_en" type="text"
-                                    class="form-control @error('name_en') is-invalid @enderror" value="{{ old('name_en', $department->name) }}"
+                                    class="form-control @error('name_en') is-invalid @enderror" value="{{ old('name_en', $department->name_en) }}"
                                     required>
                                 @error('name_en')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>

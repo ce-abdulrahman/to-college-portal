@@ -22,8 +22,10 @@ class Province extends Model
     ];
 
     protected $casts = [
-        'status' => 'boolean',
         'geojson' => 'array',
+        'lat' => 'float',
+        'lng' => 'float',
+        'status' => 'boolean',
     ];
 
     public function university()

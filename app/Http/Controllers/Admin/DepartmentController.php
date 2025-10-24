@@ -110,7 +110,8 @@ class DepartmentController extends Controller
 
         $imagePath = $this->UploadImage($request, 'image', $department->image);
         $data['image'] = !empty($imagePath) ? $imagePath : $department->image;
-        //dd($data['image']);
+        //dd($data);
+
         $department->update($data);
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی نوێکرا.');

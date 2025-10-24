@@ -13,6 +13,9 @@ class College extends Model
 
     protected $casts = [
         'geojson' => 'array',
+        'lat' => 'float',
+        'lng' => 'float',
+        'status' => 'boolean',
     ];
 
     public function university()

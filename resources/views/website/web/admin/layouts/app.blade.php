@@ -22,6 +22,8 @@
 
     {{-- Optional per-page <head> extras --}}
     @stack('head-scripts')
+
+
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -40,41 +42,52 @@
 
 </body>
 
-    <!-- ======================== JavaScript Libraries ======================== -->
+<!-- ======================== JavaScript Libraries ======================== -->
 
-    <!-- jQuery (must be loaded before DataTables v1 style plugins) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- jQuery (must be loaded before DataTables v1 style plugins) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- Bootstrap Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- DataTables -->
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 
-    {{--  <!-- Chart.js (optional for dashboard) -->
+{{--  <!-- Chart.js (optional for dashboard) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  --}}
 
-    <!-- ======================== Your App Scripts ======================== -->
-    <script src="{{ asset('assets/admin/js/app-core.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/table-kit.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/dept-filters.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/forms-validate.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/drawer.js') }}"></script>
+<!-- ======================== Your App Scripts ======================== -->
+<script src="{{ asset('assets/admin/js/app-core.js') }}"></script>
+<script src="{{ asset('assets/admin/js/table-kit.js') }}"></script>
+<script src="{{ asset('assets/admin/js/dept-filters.js') }}"></script>
+<script src="{{ asset('assets/admin/js/forms-validate.js') }}"></script>
+<script src="{{ asset('assets/admin/js/drawer.js') }}"></script>
 
-    {{--  <script src="{{ asset('js/iraq-map.js') }}"></script>
+{{--  <script src="{{ asset('js/iraq-map.js') }}"></script>
     <script src="{{ asset('js/vector-maps.init.js') }}"></script>
     <script src="{{ asset('js/jsvectormap/js/jsvectormap.min.js') }}"></script>
     <script src="{{ asset('js/maps/world-merc.js') }}"></script>  --}}
 
-    @stack('scripts')
+{{-- Leaflet JS ـی سەرەکی --}}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script>
-        // Bootstrap tooltips
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-            document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
-        });
-    </script>
+{{-- URL ـی GeoJSON ـی پارێزگاکان (پێش لودکردنی map.js دیاری بکە باشترە) --}}
+<script>
+    window.PROVINCES_URL = "{{ route('provinces.geojson') }}";
+</script>
+
+{{-- فایلە خۆمان لە public/js --}}
+<script src="{{ asset('js/dashboard-map.js') }}" defer></script>
+
+@stack('scripts')
+
+<script>
+    // Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+        document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
+    });
+</script>
 
 
 </html>

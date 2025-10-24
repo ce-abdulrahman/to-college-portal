@@ -2,6 +2,7 @@
 
 @section('content')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
@@ -15,6 +16,10 @@
             overflow: auto;
         }
     </style>
+
+    <h1 style="text-align: center" class="m-3">
+        سیستەمێکی گەورەی Geo-Education Dashboard
+    </h1>
 
     <div class="container-fluid mb-3">
         <div class="row g-3 g-md-4">
@@ -101,120 +106,22 @@
             </div>
         </div>
     </div>
+
 @endsection
 
-@push('scripts')
-    <script>
-        // دیتای GeoJSON لە سرڤەر
-        const PROVINCES = @json($provinceGeoJSON);
-        const API_UNI = "{{ url('/dashboard/provinces') }}/"; // + {id} + "/universities"
+@section('scripts')
+  {{-- Leaflet JS --}}
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-        // map init — ناوچەی کوردستان
-        const map = L.map('map', {
-                zoomControl: true,
-                preferCanvas: true
-            })
-            .setView([36.2, 44.0], 7);
+  {{-- 🔽 یەکێک هەڵبژێرە: Vite یان public/js  --}}
+  {{-- Option A: Vite --}}
+  {{--  @vite('resources/js/dashboard-map.js')  --}}
 
-        // base tiles (free)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
+  {{-- Option B: public/js  (ئەگەر Vite بەکارناهیەنیت، ئەم هەڵەی خوارەوە بکەرەوە و ژووری سەروو بکاڕەوە) --}}
+  <script src="{{ asset('js/dashboard-map.js') }}"></script>
 
-        // style بۆ پارێزگا
-        function provinceStyle() {
-            return {
-                color: '#2563eb',
-                weight: 2,
-                fillColor: '#3b82f6',
-                fillOpacity: 0.15
-            };
-        }
-
-        const markersLayer = L.layerGroup().addTo(map);
-
-        function renderInstitutions(list, provinceName) {
-            markersLayer.clearLayers();
-            const ul = document.getElementById('inst-list');
-            ul.innerHTML = '';
-
-            if (!list.length) {
-                ul.innerHTML = '<li class="text-gray-400">هیچ پۆینتەکی تۆمارنەکراو بۆ ئەم پارێزگایە (lat/lng) 🔎</li>';
-                return;
-            }
-
-            const bounds = [];
-            list.forEach(item => {
-                const m = L.marker([item.lat, item.lng]).addTo(markersLayer)
-                    .bindPopup(`<strong>${item.name}</strong><br><small>${item.type}</small>`);
-                bounds.push([item.lat, item.lng]);
-
-                const li = document.createElement('li');
-                li.innerHTML = `<div class="rounded-lg border p-2">
-          <div class="font-medium">${item.name}</div>
-          <div class="text-gray-500 text-xs">${item.type} • ${provinceName}</div>
-        </div>`;
-                ul.appendChild(li);
-            });
-
-            if (bounds.length) {
-                map.fitBounds(bounds, {
-                    padding: [20, 20]
-                });
-            }
-        }
-
-        function onProvinceClick(e) {
-            const props = e.target.feature.properties;
-            document.getElementById('province-title').textContent = props.name;
-
-            fetch(API_UNI + props.id + '/universities')
-                .then(r => r.json())
-                .then(json => {
-                    renderInstitutions(json.institutions || [], props.name);
-                })
-                .catch(() => {
-                    renderInstitutions([], props.name);
-                });
-        }
-
-        function onProvinceHover(e) {
-            const layer = e.target;
-            layer.setStyle({
-                weight: 3,
-                fillOpacity: 0.25
-            });
-            layer.bringToFront();
-        }
-
-        function onProvinceOut(e) {
-            provincesLayer.resetStyle(e.target);
-        }
-
-        function eachProvince(feature, layer) {
-            layer.on({
-                click: onProvinceClick,
-                mouseover: onProvinceHover,
-                mouseout: onProvinceOut,
-            });
-            const n = feature.properties?.name ?? '';
-            layer.bindTooltip(n, {
-                sticky: true,
-                direction: 'top'
-            });
-        }
-
-        const provincesLayer = L.geoJSON(PROVINCES, {
-            style: provinceStyle,
-            onEachFeature: eachProvince
-        }).addTo(map);
-
-        // ڕەحەمی سەرەتایی: باندی هەموو پارێزگاكان
-        try {
-            map.fitBounds(provincesLayer.getBounds(), {
-                padding: [20, 20]
-            });
-        } catch {}
-    </script>
-@endpush
+  {{-- URL ـی GeoJSON ـی پارێزگاکان لە Laravel --}}
+  <script>
+    window.PROVINCES_URL = "{{ route('provinces.geojson') }}";
+  </script>
+@endsection

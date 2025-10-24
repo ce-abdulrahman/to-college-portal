@@ -26,7 +26,12 @@ class Department extends Model
         'status',
     ];
 
-    protected $casts = ['geojson' => 'array'];
+    protected $casts = [
+        'geojson' => 'array',
+        'lat' => 'float',
+        'lng' => 'float',
+        'status' => 'boolean',
+    ];
 
     public function system()
     {
@@ -46,10 +51,5 @@ class Department extends Model
     public function college()
     {
         return $this->belongsTo(College::class);
-    }
-
-    public function picture()
-    {
-        return $this->hasMany(Picture::class);
     }
 }
