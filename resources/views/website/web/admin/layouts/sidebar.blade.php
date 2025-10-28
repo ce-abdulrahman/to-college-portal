@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="{{ asset('assets/admin/css/nav.css') }}">
 <!-- Drawer/Sidebar -->
 <div class="drawer-overlay" onclick="closeDrawer()"></div>
 <div class="drawer">

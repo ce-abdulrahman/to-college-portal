@@ -15,10 +15,7 @@ class Province extends Model
 
     protected $fillable = [
         'name',
-        'name_en',
-        'status',
-        'geojson',
-        'image'
+        'name_en'
     ];
 
     protected $casts = [
@@ -31,10 +28,5 @@ class Province extends Model
     public function university()
     {
         return $this->hasMany(University::class, 'province_id', 'id');
-    }
-
-    public function picture()
-    {
-        return $this->hasMany(Picture::class);
     }
 }

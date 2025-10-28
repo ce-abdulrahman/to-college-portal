@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Department;
+use App\Models\College;
+use App\Models\University;
+use App\Models\Province;
 
 class CascadeController extends Controller
 {

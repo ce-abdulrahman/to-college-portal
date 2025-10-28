@@ -9,7 +9,7 @@ class University extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['province_id', 'name', 'name_en', 'lat', 'lng', 'status', 'geojson', 'image'];
+    protected $fillable = ['province_id', 'name', 'name_en'];
 
     protected $casts = [
         'geojson' => 'array',
@@ -28,8 +28,4 @@ class University extends Model
         return $this->hasMany(College::class);
     }
 
-    public function picture()
-    {
-        return $this->hasMany(Picture::class);
-    }
 }

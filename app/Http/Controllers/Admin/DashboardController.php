@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\College;
 use App\Models\University;
 use App\Models\Province;
+use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
 {
@@ -57,193 +58,151 @@ class DashboardController extends Controller
      * API: هەرکات لەسەر پارێزگایەک کلیک کرا → زانکۆ/کۆلێژ/پەیمانگاەکان بگەڕێنەوە بە lat/lng
      */
     // ===== Helper ها =====
-    private function decodeGeo($json)
+    private function decodeGeo($jsonOrPath)
     {
-        if ($json === null) {
-            return null;
-        }
+        if ($jsonOrPath === null) return null;
+        if (is_array($jsonOrPath)) return $jsonOrPath;
 
-        if (is_array($json)) {
-            // هەندێک داتابەیس تەنیا coordinates دەنێرن
-            if (isset($json['type'])) {
-                return $json;
+        if (is_string($jsonOrPath)) {
+            $t = trim($jsonOrPath);
+            if ($t === '') return null;
+            // If looks like JSON
+            if ($t[0] === '{' || $t[0] === '[') {
+                $a = json_decode($t, true);
+                return is_array($a) ? $a : null;
             }
-            if (isset($json['coordinates'])) {
-                return ['type' => 'Polygon', 'coordinates' => $json['coordinates']];
+            // Else treat as storage path
+            if (Storage::exists($jsonOrPath)) {
+                $txt = Storage::get($jsonOrPath);
+                $a = json_decode($txt, true);
+                return is_array($a) ? $a : null;
             }
-            return null;
         }
-
-        if ($json instanceof \JsonSerializable) {
-            $j = $json->jsonSerialize();
-            if (is_array($j)) {
-                if (isset($j['type'])) {
-                    return $j;
-                }
-                if (isset($j['coordinates'])) {
-                    return ['type' => 'Polygon', 'coordinates' => $j['coordinates']];
-                }
-            }
-            return null;
-        }
-
-        if (is_object($json)) {
-            $a = json_decode(json_encode($json), true);
-            if (is_array($a)) {
-                if (isset($a['type'])) {
-                    return $a;
-                }
-                if (isset($a['coordinates'])) {
-                    return ['type' => 'Polygon', 'coordinates' => $a['coordinates']];
-                }
-            }
-            return null;
-        }
-
-        if (is_string($json) && $json !== '') {
-            $a = json_decode($json, true);
-            if (is_array($a)) {
-                if (isset($a['type'])) {
-                    return $a;
-                }
-                if (isset($a['coordinates'])) {
-                    return ['type' => 'Polygon', 'coordinates' => $a['coordinates']];
-                }
-            }
-            return null;
-        }
-
         return null;
     }
 
-    private function imgUrl(?string $path): ?string
-    {
-        if (!$path) {
-            return null;
-        }
-        if (preg_match('~^https?://~i', $path)) {
-            return $path;
-        }
-        return asset($path);
-    }
-
-    private function mapRow($row, $kind = null)
-    {
-        $base = [
-            'id' => $row->id,
-            'name' => $row->name,
-            'name_en' => $row->name_en ?? null,
-            'lat' => isset($row->lat) ? ($row->lat === null ? null : (float) $row->lat) : null,
-            'lng' => isset($row->lng) ? ($row->lng === null ? null : (float) $row->lng) : null,
-            'image' => $row->image ?? ($row->image ?? null),
-            'geojson' => $this->decodeGeo($row->geojson ?? null),
-            'kind' => $kind, // uni | col | dep (بۆ front-end)
-        ];
-
-        if ($kind === 'dep') {
-            // خانە تایبەتی بەش
-            $base['local_score'] = $row->local_score ?? null;
-            $base['external_score'] = $row->external_score ?? null;
-            $base['type'] = $row->type ?? null;
-            $base['sex'] = $row->sex ?? null;
-            $base['description'] = $row->description ?? null;
-
-            // Breadcrumb names + images
-            $base['province_name'] = $row->province->name ?? null;
-            $base['province_name_en'] = $row->province->name_en ?? null;
-            $base['province_image'] = $row->province->image ?? null;
-
-            $base['university_name'] = $row->university->name ?? null;
-            $base['university_name_en'] = $row->university->name_en ?? null;
-            $base['university_image'] = $row->university->image ?? null;
-
-            $base['college_name'] = $row->college->name ?? null;
-            $base['college_name_en'] = $row->college->name_en ?? null;
-            $base['college_image'] = $row->college->image ?? null;
-        }
-
-        return $base;
-    }
-
-    /** helper: safely pick columns that actually exist in table */
     private function takeExistingCols(string $table, array $wanted): array
     {
         return array_values(array_filter($wanted, fn($c) => Schema::hasColumn($table, $c)));
     }
-    // ===== Endpoints =====
 
-    // Basemap: Provinces GeoJSON (FeatureCollection)
-    public function provincesGeoJSON()
+    private function mapRow(object $row, ?string $kind = null): array
     {
+        $base = [
+            'id'       => $row->id,
+            'name'     => $row->name ?? null,
+            'name_en'  => $row->name_en ?? null,
+            'lat'      => isset($row->lat) ? (float) $row->lat : null,
+            'lng'      => isset($row->lng) ? (float) $row->lng : null,
+            'image'    => $row->image ?? null,
+            'image_url'=> $row->image_url ?? ($row->image ?? null),
+            'geojson'  => $this->decodeGeo($row->geojson ?? ($row->geojson_path ?? null)),
+        ];
+
+        if ($kind === 'dep') {
+            $base += [
+                'local_score'    => $row->local_score ?? null,
+                'external_score' => $row->external_score ?? null,
+                'type'           => $row->type ?? null,
+                'sex'            => $row->sex ?? null,
+                'description'    => $row->description ?? null,
+            ];
+            $base['province_name']      = $row->province->name   ?? null;
+            $base['university_name']    = $row->university->name ?? null;
+            $base['college_name']       = $row->college->name    ?? null;
+        }
+        return $base;
+    }
+
+    // GET /api/provinces/geojson
+    public function getProvincesGeoJSON(): JsonResponse
+    {
+        $cols = $this->takeExistingCols('provinces', ['id','name','name_en','geojson','geojson_path','status','image']);
         $rows = Province::query()
-            ->where('status', 1)
-            ->get(['id', 'name', 'name_en', 'geojson']);
+            ->when(Schema::hasColumn('provinces','status'), fn($q)=>$q->where('status',1))
+            ->get($cols);
 
         $features = [];
         foreach ($rows as $p) {
-            $geom = $this->decodeGeo($p->geojson ?? null); // mixed-safe وەشانەکەی پێشومان
-            if (!$geom) {
-                continue;
+            $geom = $this->decodeGeo($p->geojson ?? $p->geojson_path);
+            if (!$geom) continue;
+
+            // Accept Feature/FeatureCollection/Geometry
+            if (($geom['type'] ?? null) === 'FeatureCollection' && isset($geom['features'])) {
+                foreach ($geom['features'] as $f) {
+                    if (!isset($f['geometry'])) continue;
+                    $features[] = [
+                        'type' => 'Feature',
+                        'properties' => ['id'=>$p->id,'name'=>$p->name,'name_en'=>$p->name_en,'image'=>$p->image],
+                        'geometry' => $f['geometry']
+                    ];
+                }
+            } else {
+                $geometry = $geom['geometry'] ?? $geom;
+                if (!$geometry) continue;
+                $features[] = [
+                    'type' => 'Feature',
+                    'properties' => ['id'=>$p->id,'name'=>$p->name,'name_en'=>$p->name_en,'image'=>$p->image],
+                    'geometry' => $geometry
+                ];
             }
-            $features[] = [
-                'type' => 'Feature',
-                'properties' => [
-                    'id' => $p->id,
-                    'name' => $p->name,
-                    'name_en' => $p->name_en,
-                ],
-                'geometry' => $geom,
-            ];
         }
 
+        return response()->json(['type'=>'FeatureCollection','features'=>$features]);
+    }
+
+    // GET /api/provinces/{id}/universities
+    public function getUniversitiesByProvince(int $provinceId): JsonResponse
+    {
+        $cols = $this->takeExistingCols('universities', ['id','name','name_en','lat','lng','image','image_url','geojson','status','province_id']);
+        $rows = University::query()
+            ->where('province_id',$provinceId)
+            ->when(Schema::hasColumn('universities','status'), fn($q)=>$q->where('status',1))
+            ->get($cols);
+
         return response()->json([
-            'type' => 'FeatureCollection',
-            'features' => $features,
+            'items'=>$rows->map(fn($r)=>$this->mapRow($r,'uni'))->values(),
+            'counts' => [
+                'universities' => $rows->count(),
+                'colleges' => $rows->sum('colleges_count'),
+                'departments' => $rows->sum('departments_count'),
+            ]
         ]);
     }
 
-    // /dashboard/provinces/{province}/universities
-    public function universitiesByProvince($provinceId)
+    // GET /api/universities/{id}/colleges
+    public function getCollegesByUniversity(int $universityId): JsonResponse
     {
-        $rows = University::where('province_id', $provinceId)
-            ->when(Schema::hasColumn('universities', 'status'), fn($q) => $q->where('status', 1))
-            ->get(['id', 'name', 'name_en', 'lat', 'lng', 'image', 'geojson']);
-        return response()->json(['items' => $rows->map(fn($r) => $this->mapRow($r, 'uni'))->values()]);
+        $cols = $this->takeExistingCols('colleges', ['id','name','name_en','lat','lng','image','image_url','geojson','status','university_id','type']);
+        $rows = College::query()
+            ->where('university_id',$universityId)
+            ->when(Schema::hasColumn('colleges','status'), fn($q)=>$q->where('status',1))
+            ->get($cols);
+
+        return response()->json([
+            'university' => University::find($universityId, ['id','name','name_en','image']),
+            'items'      => $rows->map(fn($r)=>$this->mapRow($r,'col'))->values()
+        ]);
     }
 
-    // /dashboard/universities/{university}/colleges
-    public function collegesByUniversity($universityId)
+    // GET /api/colleges/{id}/departments
+    public function getDepartmentsByCollege(int $collegeId): JsonResponse
     {
-        $rows = College::where('university_id', $universityId)
-            ->when(Schema::hasColumn('colleges', 'status'), fn($q) => $q->where('status', 1))
-            ->get(['id', 'name', 'name_en', 'lat', 'lng', 'image', 'geojson']);
-        return response()->json(['items' => $rows->map(fn($r) => $this->mapRow($r, 'col'))->values()]);
-    }
+        $cols = $this->takeExistingCols('departments', [
+            'id','name','name_en','lat','lng','image','image_url', // safe
+            // 'geojson', // only if exists in schema
+            'local_score','external_score','type','sex','description',
+            'province_id','university_id','college_id','status'
+        ]);
 
-    // /dashboard/colleges/{college}/departments
-    // GET /dashboard/colleges/{college}/departments
-    public function departmentsByCollege($collegeId)
-    {
-        try {
-            // دڵنیابە ریلیشنەکانت لە Department مۆدێڵ هەیە: province(), university(), college()
-            $rows = Department::with(['province:id,name,name_en,image', 'university:id,name,name_en,image', 'college:id,name,name_en,image'])
-                ->where('college_id', $collegeId)
-                ->when(Schema::hasColumn('departments', 'status'), fn($q) => $q->where('status', 1))
-                ->get(['id', 'name', 'name_en', 'lat', 'lng', 'image', 'local_score', 'external_score', 'type', 'sex', 'description', 'province_id', 'university_id', 'college_id']);
+        $rows = Department::with(['province:id,name','university:id,name','college:id,name'])
+            ->where('college_id',$collegeId)
+            ->when(Schema::hasColumn('departments','status'), fn($q)=>$q->where('status',1))
+            ->get($cols);
 
-            return response()->json([
-                'items' => $rows->map(fn($r) => $this->mapRow($r, 'dep'))->values(),
-            ]);
-        } catch (\Throwable $e) {
-            return response()->json(
-                [
-                    'message' => 'Departments endpoint failed',
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                ],
-                500,
-            );
-        }
+        return response()->json([
+            'college' => College::find($collegeId, ['id','name','name_en','image']),
+            'items'   => $rows->map(fn($r)=>$this->mapRow($r,'dep'))->values()
+        ]);
     }
 }

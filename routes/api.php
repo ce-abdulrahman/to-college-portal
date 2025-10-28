@@ -6,10 +6,27 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Api\V1\AuthController;
 //use App\Http\Controllers\Api\V1\CascadeController;
 use App\Http\Controllers\Api\V1\LookupController;
+use \App\Http\Controllers\Admin\DashboardController;
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::name('admin.api.')->group(function () {
+});
+Route::get('/provinces/{id}/universities', [DashboardController::class, 'getUniversitiesByProvince'])
+    ->name('admin.api.provinces.universities');
+
+Route::get('/universities/{id}/colleges', [DashboardController::class, 'getCollegesByUniversity'])
+    ->name('admin.api.universities.colleges');
+
+Route::get('/colleges/{id}/departments', [DashboardController::class, 'getDepartmentsByCollege'])
+    ->name('admin.api.colleges.departments');
+
+// GeoJSON of all provinces
+Route::get('/provinces/geojson', [DashboardController::class, 'getProvincesGeoJSON'])
+    ->name('admin.api.provinces.geojson');
 
 // Auth (token issuance for Flutter/mobile)
 //Route::post('/auth/login', [AuthController::class, 'login']); // دەگرێت token

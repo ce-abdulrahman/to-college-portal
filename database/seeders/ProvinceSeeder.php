@@ -2498,7 +2498,7 @@ class ProvinceSeeder extends Seeder
         ]);
         Province::create([
             'name' => 'سلێمانی',
-            'name_en' => 'As-Sulaymaniyah',
+            'name_en' => 'Sulaymaniyah',
             'geojson' => '{
         "type": "Polygon",
         "coordinates": [

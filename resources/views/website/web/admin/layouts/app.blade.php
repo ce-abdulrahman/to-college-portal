@@ -19,6 +19,11 @@
     {{-- App CSS --}}
     <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/css/nav.css') }}">
+    {{--  <link rel="stylesheet" href="{{ asset('assets/admin/cs/s/maps.css') }}">  --}}
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    {{--  <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">  --}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     {{-- Optional per-page <head> extras --}}
     @stack('head-scripts')
@@ -71,13 +76,14 @@
 {{-- Leaflet JS ـی سەرەکی --}}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-{{-- URL ـی GeoJSON ـی پارێزگاکان (پێش لودکردنی map.js دیاری بکە باشترە) --}}
-<script>
-    window.PROVINCES_URL = "{{ route('provinces.geojson') }}";
-</script>
+{{-- Leaflet.markercluster --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
-{{-- فایلە خۆمان لە public/js --}}
-<script src="{{ asset('js/dashboard-map.js') }}" defer></script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ asset('assets/js/dashboard.js') }}"></script>
 
 @stack('scripts')
 
