@@ -15,13 +15,13 @@ class Province extends Model
 
     protected $fillable = [
         'name',
-        'name_en'
+        'name_en',
+        'lat' => 'float',
+        'lng' => 'float',
     ];
 
     protected $casts = [
         'geojson' => 'array',
-        'lat' => 'float',
-        'lng' => 'float',
         'status' => 'boolean',
     ];
 

@@ -148,75 +148,142 @@
 
 @push('scripts')
     <script>
-        const mapU = L.map('map-province').setView([36.2, 44.0], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(mapU);
+        (function() {
+            // 1) پێش هەموو شتێک، دڵنیابە container هەیە
+            const ID = 'map-province';
+            const el = document.getElementById(ID);
+            if (!el) return; // پەڕەکە container نییە، هیچ مەکە
 
-        const area = L.geoJSON(null, {
-            style: {
-                color: '#16a34a',
-                weight: 2,
-                fillColor: '#22c55e',
-                fillOpacity: 0.12
-            }
-        }).addTo(mapU);
-        const markers = L.layerGroup().addTo(mapU);
+            // 2) ڕێگری لە دوبارە-دەستپێکردن
+            if (el._leaflet_id) el._leaflet_id = null;
 
-        let any = false;
+            // 3) دابینکردنی مەپ
+            const mapU = L.map(ID).setView([36.2, 44.0], 8);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(mapU);
 
-        // province geojson
-        @if ($province->geojson)
-            try {
-                const gj = @json($province->geojson);
-                area.addData(gj);
-                const b = area.getBounds();
-                if (b.isValid()) {
-                    mapU.fitBounds(b, {
-                        padding: [20, 20]
-                    });
-                    any = true;
+            const area = L.geoJSON(null, {
+                style: {
+                    color: '#16a34a',
+                    weight: 2,
+                    fillColor: '#22c55e',
+                    fillOpacity: 0.12
                 }
-            } catch (e) {
-                console.error(e);
-            }
-        @endif
+            }).addTo(mapU);
+            const markers = L.layerGroup().addTo(mapU);
 
-        // University marker
-        @if ($province->lat && $province->lng)
-            L.marker([{{ $province->lat }}, {{ $province->lng }}]).addTo(markers)
-                .bindPopup(`<strong>{{ addslashes($province->name) }}</strong>`);
-            any = true;
-        @endif
-
-        // province markers
-        @foreach ($universities as $university)
-            @if ($university->lat && $university->lng)
-                L.marker([{{ $university->lat }}, {{ $university->lng }}]).addTo(markers)
-                    .bindPopup(`<strong>{{ addslashes($university->name) }}</strong>`);
-                any = true;
-            @endif
-            @if ($university->geojson)
+            // 4) یارمەتیدەری پارس و نۆرمەڵکردنی GeoJSON
+            function normalizeGeoJSON(input) {
                 try {
-                    const gj = @json($university->geojson);
-                    L.geoJSON(gj, {
-                        style: {
-                            color: '#2563eb',
-                            weight: 2,
-                            fillColor: '#3b82f6',
-                            fillOpacity: 0.15
+                    // ئەگەر string ـە، parse بکە
+                    if (typeof input === 'string') input = JSON.parse(input);
+                } catch (e) {
+                    return null; // ناتوێت بخوێنرێت
+                }
+                if (!input) return null;
+
+                // ئەگەر لیستی Features ـە، بیکە بە FeatureCollection
+                if (Array.isArray(input)) {
+                    return {
+                        type: 'FeatureCollection',
+                        features: input
+                    };
+                }
+
+                // ئەگەر Geometry خاوەنی type/coordinates ـە، بیکە بە Feature
+                if (input.type && input.coordinates) {
+                    return {
+                        type: 'Feature',
+                        geometry: input,
+                        properties: {}
+                    };
+                }
+
+                // ئەگەر Feature/FeatureCollection هەیە، هەمانە بڕەوە
+                if (input.type === 'Feature' || input.type === 'FeatureCollection') {
+                    return input;
+                }
+
+                return null;
+            }
+
+            let any = false;
+
+            // 5) Province GeoJSON
+            @php
+                // لە Blade: ئەگەر DB ـت TEXT هەیە، بۆ دڵنیابوون بۆ JS هەمیشە array بده‌ین
+                $pGeo = is_string($province->geojson) ? json_decode($province->geojson, true) : $province->geojson;
+            @endphp
+            @if (!empty($pGeo))
+                try {
+                    const gjRaw = @json($pGeo); // هەرگیز string لەوێ نەهێنن
+                    const gj = normalizeGeoJSON(gjRaw);
+                    if (gj) {
+                        area.addData(gj);
+                        const b = area.getBounds();
+                        if (b.isValid()) {
+                            mapU.fitBounds(b, {
+                                padding: [20, 20]
+                            });
+                            any = true;
                         }
-                    }).addTo(mapU);
-                    any = true;
+                    } else {
+                        console.warn('Province GeoJSON invalid.');
+                    }
                 } catch (e) {
                     console.error(e);
                 }
             @endif
-        @endforeach
 
-        if (!any) {
-            mapU.setView([36.2, 44.0], 8);
-        }
+            // 6) Province marker (lat/lng: تێبینی—GeoJSON لە ڕێکەوتی [lng,lat] ـە)
+            @if ($province->lat && $province->lng)
+                L.marker([{{ $province->lat }}, {{ $province->lng }}])
+                    .addTo(markers)
+                    .bindPopup(`<strong>{{ e($province->name) }}</strong>`);
+                any = true;
+            @endif
+
+            // 7) Universities
+            @isset($universities)
+                @foreach ($universities as $university)
+                    @php
+                        $uGeo = is_string($university->geojson ?? null) ? json_decode($university->geojson, true) : $university->geojson ?? null;
+                    @endphp
+                    @if ($university->lat && $university->lng)
+                        L.marker([{{ $university->lat }}, {{ $university->lng }}])
+                            .addTo(markers)
+                            .bindPopup(`<strong>{{ e($university->name) }}</strong>`);
+                        any = true;
+                    @endif
+                    @if (!empty($uGeo))
+                        try {
+                            const ugjRaw = @json($uGeo);
+                            const ugj = normalizeGeoJSON(ugjRaw);
+                            if (ugj) {
+                                L.geoJSON(ugj, {
+                                    style: {
+                                        color: '#2563eb',
+                                        weight: 2,
+                                        fillColor: '#3b82f6',
+                                        fillOpacity: 0.15
+                                    }
+                                }).addTo(mapU);
+                                any = true;
+                            } else {
+                                console.warn('University GeoJSON invalid for: {{ e($university->name) }}');
+                            }
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    @endif
+                @endforeach
+            @endisset
+
+            if (!any) mapU.setView([36.2, 44.0], 8);
+
+            setTimeout(() => mapU.invalidateSize(), 300);
+        })();
     </script>
 @endpush

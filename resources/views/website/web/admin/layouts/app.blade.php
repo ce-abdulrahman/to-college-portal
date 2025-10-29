@@ -23,7 +23,7 @@
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     {{--  <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">  --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{--  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  --}}
 
     {{-- Optional per-page <head> extras --}}
     @stack('head-scripts')
@@ -82,16 +82,25 @@
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{{ asset('assets/js/dashboard.js') }}"></script>
 
+@stack('head-scripts')
 @stack('scripts')
 
 <script>
+    if (L.DomUtil.get('map') !== null) {
+        L.DomUtil.get('map')._leaflet_id = null;
+    }
+
     // Bootstrap tooltips
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         document.querySelectorAll('.toast').forEach(el => new bootstrap.Toast(el).show());
+    });
+
+    dt.on('draw', () => {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            .forEach(el => new bootstrap.Tooltip(el));
     });
 </script>
 

@@ -112,8 +112,8 @@
 
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <h4 class="card-title mb-4">
-                        <i class="fa-solid fa-building me-2"></i> کۆلێژ/پەیمانگاکانی ئەم زانکۆیە
-                    </h4>
+                            <i class="fa-solid fa-building me-2"></i> کۆلێژ/پەیمانگاکانی ئەم زانکۆیە
+                        </h4>
                         <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی:
                             {{ count($colleges) }}</span>
                     </div>
@@ -185,75 +185,121 @@
 
 @push('scripts')
     <script>
-        const mapU = L.map('map-university').setView([36.2, 44.0], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(mapU);
+        (function() {
+            const ID = 'map-university';
+            const el = document.getElementById(ID);
+            if (!el) return;
 
-        const area = L.geoJSON(null, {
-            style: {
-                color: '#16a34a',
-                weight: 2,
-                fillColor: '#22c55e',
-                fillOpacity: 0.12
-            }
-        }).addTo(mapU);
-        const markers = L.layerGroup().addTo(mapU);
+            // ڕێگری لە دوبارە-دەستپێکردن
+            if (el._leaflet_id) el._leaflet_id = null;
 
-        let any = false;
+            const mapU = L.map(ID).setView([36.2, 44.0], 8);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(mapU);
 
-        // University geojson
-        @if ($university->geojson)
-            try {
-                const gj = @json($university->geojson);
-                area.addData(gj);
-                const b = area.getBounds();
-                if (b.isValid()) {
-                    mapU.fitBounds(b, {
-                        padding: [20, 20]
-                    });
-                    any = true;
+            const area = L.geoJSON(null, {
+                style: {
+                    color: '#16a34a',
+                    weight: 2,
+                    fillColor: '#22c55e',
+                    fillOpacity: 0.12
                 }
-            } catch (e) {
-                console.error(e);
-            }
-        @endif
+            }).addTo(mapU);
+            const markers = L.layerGroup().addTo(mapU);
 
-        // University marker
-        @if ($university->lat && $university->lng)
-            L.marker([{{ $university->lat }}, {{ $university->lng }}]).addTo(markers)
-                .bindPopup(`<strong>{{ addslashes($university->name) }}</strong>`);
-            any = true;
-        @endif
+            let any = false;
 
-        // Colleges markers
-        @foreach ($colleges as $college)
-            @if ($college->lat && $college->lng)
-                L.marker([{{ $college->lat }}, {{ $college->lng }}]).addTo(markers)
-                    .bindPopup(`<strong>{{ addslashes($college->name) }}</strong>`);
-                any = true;
-            @endif
-            @if ($college->geojson)
+            // یارمەتیدەر: نۆرمەڵکردنی GeoJSON (string/array/Feature/FC/Geometry)
+            function normalizeGeoJSON(input) {
                 try {
-                    const gj = @json($college->geojson);
-                    L.geoJSON(gj, {
-                        style: {
-                            color: '#2563eb',
-                            weight: 2,
-                            fillColor: '#3b82f6',
-                            fillOpacity: 0.15
+                    if (typeof input === 'string') input = JSON.parse(input);
+                } catch (_) {
+                    return null;
+                }
+                if (!input) return null;
+                if (Array.isArray(input)) return {
+                    type: 'FeatureCollection',
+                    features: input
+                };
+                if (input.type === 'Feature' || input.type === 'FeatureCollection') return input;
+                if (input.type && input.coordinates) return {
+                    type: 'Feature',
+                    geometry: input,
+                    properties: {}
+                };
+                return null;
+            }
+
+            // University geojson
+            @php
+                $uGeo = is_string($university->geojson ?? null) ? json_decode($university->geojson, true) : $university->geojson ?? null;
+            @endphp
+            @if (!empty($uGeo))
+                try {
+                    const gjRaw = @json($uGeo);
+                    const gj = normalizeGeoJSON(gjRaw);
+                    if (gj) {
+                        area.addData(gj);
+                        const b = area.getBounds();
+                        if (b.isValid()) {
+                            mapU.fitBounds(b, {
+                                padding: [20, 20]
+                            });
+                            any = true;
                         }
-                    }).addTo(mapU);
-                    any = true;
+                    } else {
+                        console.warn('University GeoJSON invalid');
+                    }
                 } catch (e) {
                     console.error(e);
                 }
             @endif
-        @endforeach
 
-        if (!any) {
-            mapU.setView([36.2, 44.0], 8);
-        }
+            // University marker
+            @if ($university->lat && $university->lng)
+                L.marker([{{ $university->lat }}, {{ $university->lng }}]).addTo(markers)
+                    .bindPopup(`<strong>{{ e($university->name) }}</strong>`);
+                any = true;
+            @endif
+
+            // Colleges markers + polygons
+            @foreach ($colleges as $college)
+                @php
+                    $cGeo = is_string($college->geojson ?? null) ? json_decode($college->geojson, true) : $college->geojson ?? null;
+                @endphp
+                @if ($college->lat && $college->lng)
+                    L.marker([{{ $college->lat }}, {{ $college->lng }}]).addTo(markers)
+                        .bindPopup(`<strong>{{ e($college->name) }}</strong>`);
+                    any = true;
+                @endif
+                @if (!empty($cGeo))
+                    try {
+                        const cgjRaw = @json($cGeo);
+                        const cgj = normalizeGeoJSON(cgjRaw);
+                        if (cgj) {
+                            L.geoJSON(cgj, {
+                                style: {
+                                    color: '#2563eb',
+                                    weight: 2,
+                                    fillColor: '#3b82f6',
+                                    fillOpacity: 0.15
+                                }
+                            }).addTo(mapU);
+                            any = true;
+                        } else {
+                            console.warn('College GeoJSON invalid: {{ e($college->name) }}');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                @endif
+            @endforeach
+
+            if (!any) mapU.setView([36.2, 44.0], 8);
+
+            setTimeout(() => mapU.invalidateSize(), 300);
+        })();
     </script>
 @endpush

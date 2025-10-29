@@ -1,14 +1,12 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-
-
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('admin.departments.index') }}" class="btn btn-outline-success mb-4">
             <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
         </a>
         <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">زیادکردنی بەش بۆ کۆلێژ یان پەیمانگا </div>
+            <div class="navbar-page-title">زیادکردنی بەش بۆ کۆلێژ یان پەیمانگا</div>
         </div>
     </div>
 
@@ -29,11 +27,12 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.departments.store') }}" method="POST" class="needs-validation" enctype="multipart/form-data"
-                        novalidate>
+                    <form action="{{ route('admin.departments.store') }}" method="POST" class="needs-validation"
+                        enctype="multipart/form-data" novalidate>
                         @csrf
 
                         <div class="row g-3">
+                            {{-- System --}}
                             <div class="col-12 col-md-6">
                                 <label for="system_id" class="form-label">سیستەم</label>
                                 <select id="system_id" name="system_id"
@@ -49,6 +48,7 @@
                                 @enderror
                             </div>
 
+                            {{-- Province --}}
                             <div class="col-12 col-md-6">
                                 <label for="province_id" class="form-label">پارێزگا</label>
                                 <select id="province_id" name="province_id"
@@ -64,6 +64,7 @@
                                 @enderror
                             </div>
 
+                            {{-- University (depends on province) --}}
                             <div class="col-12 col-md-6">
                                 <label for="university_id" class="form-label">زانکۆ</label>
                                 <select id="university_id" name="university_id"
@@ -75,6 +76,7 @@
                                 @enderror
                             </div>
 
+                            {{-- College (depends on university) --}}
                             <div class="col-12 col-md-6">
                                 <label for="college_id" class="form-label">کۆلێژ/پەیمانگا</label>
                                 <select id="college_id" name="college_id"
@@ -86,6 +88,7 @@
                                 @enderror
                             </div>
 
+                            {{-- Names --}}
                             <div class="col-12 col-md-6">
                                 <label for="name" class="form-label">ناوی بەش</label>
                                 <input id="name" name="name" type="text"
@@ -99,13 +102,14 @@
                             <div class="col-12 col-md-6">
                                 <label for="name_en" class="form-label">ناوی بەش (ئینگلیزی)</label>
                                 <input id="name_en" name="name_en" type="text"
-                                    class="form-control @error('name_en') is-invalid @enderror" value="{{ old('name_en') }}"
-                                    required>
+                                    class="form-control @error('name_en') is-invalid @enderror"
+                                    value="{{ old('name_en') }}" required>
                                 @error('name_en')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
 
+                            {{-- Scores --}}
                             <div class="col-12 col-md-3">
                                 <label for="local_score" class="form-label">ن. ناوەندی</label>
                                 <input id="local_score" name="local_score" type="number" step="0.01"
@@ -118,13 +122,13 @@
                                     class="form-control" value="{{ old('external_score') }}">
                             </div>
 
+                            {{-- Type / Sex --}}
                             <div class="col-12 col-md-3">
                                 <label for="type" class="form-label">لق</label>
                                 <select id="type" name="type" class="form-select">
                                     <option value="زانستی" @selected(old('type') === 'زانستی')>زانستی</option>
                                     <option value="وێژەیی" @selected(old('type') === 'وێژەیی')>وێژەیی</option>
-                                    <option value="زانستی و وێژەیی" @selected(old('type') === 'زانستی و وێژەیی')>هەردوو
-                                    </option>
+                                    <option value="زانستی و وێژەیی" @selected(old('type') === 'زانستی و وێژەیی')>هەردوو</option>
                                 </select>
                             </div>
 
@@ -136,34 +140,36 @@
                                 </select>
                             </div>
 
-                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-                            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                            {{-- Leaflet map (CSS/JS already in layout) --}}
                             <div id="map" style="height:420px;border-radius:12px" class="m-3"></div>
 
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Latitude</label>
-                                    <input id="lat" name="lat" value="{{ old('lat', $department->lat ?? null) }}"
+                                    <input id="lat" name="lat" value="{{ old('lat') }}"
                                         class="form-control">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Longitude</label>
-                                    <input id="lng" name="lng"
-                                        value="{{ old('lng', $department->lng ?? null) }}" class="form-control">
+                                    <input id="lng" name="lng" value="{{ old('lng') }}"
+                                        class="form-control">
                                 </div>
-                                <div class="form-text">لەسەر نەخشە کلیک بکە بۆ دابنانی شوێن.</div>
+                                <div class="form-text">لەسەر نەخشە کلیک بکە بۆ دیاریکردنی شوێن.</div>
                             </div>
 
+                            {{-- Description (Summernote) --}}
                             <div class="col-12">
                                 <label for="description" class="form-label">وەسف</label>
-                                <textarea id="description" name="description" rows="3" class="form-control">{{ old('description') }}</textarea>
+                                <textarea id="description" name="description" class="form-control summernote" rows="4">{{ old('description') }}</textarea>
                             </div>
 
+                            {{-- Image --}}
                             <div class="col-12 col-md-6">
                                 <label class="form-label">وێنە</label>
                                 <input type="file" name="image" class="form-control" accept="image/*">
                             </div>
 
+                            {{-- Status --}}
                             <div class="col-12 col-md-6">
                                 <label for="status" class="form-label">دۆخ</label>
                                 <select id="status" name="status" class="form-select" required>
@@ -179,35 +185,25 @@
                             </button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
 @endsection
 
+@push('head-scripts')
+    {{-- Summernote CSS (Kurdî-friendly) --}}
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css" rel="stylesheet">
+@endpush
+
 @push('scripts')
-    <script src="{{ asset('assets/admin/js/pages/departments/form.js') }}" defer></script>
-
+    {{-- Summernote JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js"></script>
+    {{-- API base urls (تا hardcode نەکەین) --}}
     <script>
-        const lat0 = {{ $department->lat ?? 36.2 }};
-        const lng0 = {{ $department->lng ?? 44.0 }};
-        const map = L.map('map').setView([lat0, lng0], {{ $department->lat ?? false ? 15 : 9 }});
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18
-        }).addTo(map);
-
-        const layer = L.layerGroup().addTo(map);
-        let marker = null;
-
-        @if (!empty($department->lat) && !empty($department->lng))
-            marker = L.marker([{{ $department->lat }}, {{ $department->lng }}]).addTo(layer);
-        @endif
-
-        map.on('click', (e) => {
-            if (marker) layer.clearLayers();
-            marker = L.marker(e.latlng).addTo(layer);
-            document.getElementById('lat').value = e.latlng.lat.toFixed(6);
-            document.getElementById('lng').value = e.latlng.lng.toFixed(6);
-        });
+        window.API_UNI = "{{ route('admin.api.universities') }}"; // ?province_id=ID
+        window.API_COLLS = "{{ route('admin.api.colleges') }}"; // ?university_id=ID
     </script>
+    <script src="{{ asset('assets/admin/js/pages/departments/create.js') }}" defer></script>
 @endpush

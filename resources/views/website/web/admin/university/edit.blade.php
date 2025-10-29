@@ -21,8 +21,8 @@
                         <i class="fa-solid fa-pen-to-square me-2"></i> نوێکردنەوەی زانکۆ
                     </h4>
 
-                    <form action="{{ route('admin.universities.update', $university->id) }}" method="POST" enctype="multipart/form-data"
-                        class="needs-validation" novalidate>
+                    <form action="{{ route('admin.universities.update', $university->id) }}" method="POST"
+                        enctype="multipart/form-data" class="needs-validation" novalidate>
                         @csrf
                         @method('PUT')
 
@@ -66,32 +66,27 @@
                             {{-- Area (optional) --}}
                             <div class="mb-3">
                                 <label class="form-label">GeoJSON (Optional)</label>
-                            <textarea name="geojson_text" rows="6" class="form-control">{{ is_array($university->geojson) ? json_encode($university->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $university->geojson }}</textarea>
-
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Upload GeoJSON (Optional)</label>
-                                <input type="file" name="geojson_file" class="form-control" accept=".geojson,.json,.txt">
+                                <textarea name="geojson" rows="6" class="form-control">{{ is_array($university->geojson) ? json_encode($university->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $university->geojson }}</textarea>
                             </div>
 
-                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                             <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                             <div id="map" style="height:420px;border-radius:12px" class="mt-3"></div>
 
-                            {{-- Point (optional) --}}
+
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Latitude</label>
-                                    <input id="lat" name="lat" value="{{ old('lat', $university->lat ?? null) }}"
-                                        class="form-control">
+                                    <input id="lat" name="lat" type="number" step="any"
+                                        value="{{ old('lat', $university->lat ?? null) }}" class="form-control">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Longitude</label>
-                                    <input id="lng" name="lng" value="{{ old('lng', $university->lng ?? null) }}"
-                                        class="form-control">
+                                    <input id="lng" name="lng" type="number" step="any"
+                                        value="{{ old('lng', $university->lng ?? null) }}" class="form-control">
                                 </div>
-                                <div class="form-text">لەسەر نەخشە کلیک بکە، lat/lng خۆکار پڕ دەبن.</div>
                             </div>
+
 
                             <div class="col-12 col-md-6">
                                 <label class="form-label">وێنە</label>
@@ -129,79 +124,6 @@
 @endsection
 
 @push('scripts')
-
-    <script>
-        const map = L.map('map').setView([36.2, 44.0], 8);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18
-        }).addTo(map);
-        const area = L.geoJSON(null, {
-            style: {
-                color: '#16a34a',
-                weight: 2,
-                fillColor: '#22c55e',
-                fillOpacity: 0.12
-            }
-        }).addTo(map);
-        const markers = L.layerGroup().addTo(map);
-        let marker = null;
-
-        // preload (edit)
-        @isset($university)
-            @if (!empty($university->geojson))
-                try {
-                    const gj = @json($university->geojson);
-                    area.addData(gj);
-                    const b = area.getBounds();
-                    if (b.isValid()) map.fitBounds(b, {
-                        padding: [20, 20]
-                    });
-                } catch (e) {}
-            @endif
-            @if (!empty($university->lat) && !empty($university->lng))
-                marker = L.marker([{{ $university->lat }}, {{ $university->lng }}]).addTo(markers);
-                map.setView([{{ $university->lat }}, {{ $university->lng }}], 15);
-            @endif
-        @endisset
-
-        // paste-preview
-        const ta = document.querySelector('textarea[name="geojson_text"]');
-        if (ta) {
-            let t;
-            ta.addEventListener('input', () => {
-                clearTimeout(t);
-                t = setTimeout(() => {
-                    try {
-                        const gj = JSON.parse(ta.value);
-                        area.clearLayers().addData(gj);
-                        const b = area.getBounds();
-                        if (b.isValid()) map.fitBounds(b, {
-                            padding: [20, 20]
-                        });
-                    } catch (e) {}
-                }, 350);
-            });
-        }
-
-        map.on('click', (e) => {
-            if (marker) markers.clearLayers();
-            marker = L.marker(e.latlng).addTo(markers);
-            document.getElementById('lat').value = e.latlng.lat.toFixed(6);
-            document.getElementById('lng').value = e.latlng.lng.toFixed(6);
-        });
-
-
-        (() => {
-            const forms = document.querySelectorAll('.needs-validation');
-            forms.forEach(form => {
-                form.addEventListener('submit', e => {
-                    if (!form.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                });
-            });
-        })();
-    </script>
+  <script src="{{ asset('assets/admin/js/pages/universities/edit.js') }}"></script>
 @endpush
+

@@ -59,7 +59,8 @@
                                         <td>{{ $college->university->name ?? '—' }}</td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fa-solid fa-building-columns me-1 text-muted"></i> {{ __('ناو') }}
+                                        <th><i class="fa-solid fa-building-columns me-1 text-muted"></i>
+                                            {{ __('ناو') }}
                                         </th>
                                         <td class="fw-semibold">{{ $college->name }}</td>
                                     </tr>
@@ -102,14 +103,6 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-3">
-                        <a href="{{ route('admin.colleges.edit', $college->id) }}" class="btn btn-primary">
-                            <i class="fa-solid fa-pen-to-square me-1"></i> گۆڕین
-                        </a>
-                        <a href="{{ route('admin.colleges.index') }}" class="btn btn-outline">
-                            <i class="fa-solid fa-list me-1"></i> لیستەکە
-                        </a>
-                    </div>
                 </div>
             </div>
             {{-- Colleges / Institutes of this University --}}
@@ -191,54 +184,125 @@
 
 @push('scripts')
     <script>
-        const map = L.map('map-college').setView([36.2, 44.0], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
-        const layer = L.geoJSON(null, {
-            style: {
-                color: '#2563eb',
-                weight: 2,
-                fillColor: '#3b82f6',
-                fillOpacity: 0.15
+        (function() {
+            const MAP_ID = 'map-college';
+
+            // اگر پەیجەکە دووبارە render بوو
+            function resetLeafletContainer(id) {
+                const n = L.DomUtil.get(id);
+                if (n && n._leaflet_id) n._leaflet_id = null;
             }
-        }).addTo(map);
 
-        let any = false;
-
-        @if ($college->geojson)
-            try {
-                const gj = @json($college->geojson);
-                layer.addData(gj);
-                const b = layer.getBounds();
-                if (b.isValid()) {
-                    map.fitBounds(b, {
-                        padding: [20, 20]
-                    });
-                    any = true;
+            function normalizeGeoJSON(input) {
+                try {
+                    if (typeof input === 'string') input = JSON.parse(input);
+                } catch (_) {
+                    return null;
                 }
-            } catch (e) {
-                console.error(e);
+                if (!input) return null;
+                if (Array.isArray(input)) return {
+                    type: 'FeatureCollection',
+                    features: input
+                };
+                if (input.type === 'Feature' || input.type === 'FeatureCollection') return input;
+                if (input.type && input.coordinates) return {
+                    type: 'Feature',
+                    geometry: input,
+                    properties: {}
+                };
+                return null;
             }
-        @endif
 
-        @if ($college->lat && $college->lng)
-            L.marker([{{ $college->lat }}, {{ $college->lng }}]).addTo(map)
-                .bindPopup(`<strong>{{ addslashes($college->name) }}</strong>`);
-            any = true;
-        @endif
+            const el = document.getElementById(MAP_ID);
+            if (!el) return;
 
-        @foreach ($departments as $department)
-            @if ($department->lat && $department->lng)
-                L.marker([{{ $department->lat }}, {{ $department->lng }}]).addTo(map)
-                    .bindPopup(`<strong>{{ addslashes($department->name) }}</strong>`);
-                any = true;
+            resetLeafletContainer(MAP_ID);
+
+            const map = L.map(MAP_ID).setView([36.2, 44.0], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            const area = L.geoJSON(null, {
+                style: {
+                    color: '#2563eb',
+                    weight: 2,
+                    fillColor: '#3b82f6',
+                    fillOpacity: 0.15
+                }
+            }).addTo(map);
+            const markers = L.layerGroup().addTo(map);
+
+            // 1) لایەرەکان پڕ بکە
+            let anything = false;
+
+            // College GeoJSON
+            @if ($college->geojson)
+                try {
+                    const gj = normalizeGeoJSON(@json($college->geojson));
+                    if (gj) {
+                        area.addData(gj);
+                        anything = true;
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
             @endif
-        @endforeach
 
-        if (!any) {
-            map.setView([36.2, 44.0], 8);
-        }
+            // College point
+            @if ($college->lat && $college->lng)
+                L.marker([{{ $college->lat }}, {{ $college->lng }}]).addTo(markers)
+                    .bindPopup(`<strong>{{ addslashes($college->name) }}</strong>`);
+                anything = true;
+            @endif
+
+            // Departments
+            @isset($departments)
+                @foreach ($departments as $department)
+                    @if ($department->lat && $department->lng)
+                        L.marker([{{ $department->lat }}, {{ $department->lng }}]).addTo(markers)
+                            .bindPopup(`<strong>{{ addslashes($department->name) }}</strong>`);
+                        anything = true;
+                    @endif
+                    @if ($department->geojson)
+                        try {
+                            const dgj = normalizeGeoJSON(@json($department->geojson));
+                            if (dgj) {
+                                L.geoJSON(dgj, {
+                                    style: {
+                                        color: '#16a34a',
+                                        weight: 2,
+                                        fillColor: '#22c55e',
+                                        fillOpacity: 0.12
+                                    }
+                                }).addTo(map);
+                                anything = true;
+                            }
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    @endif
+                @endforeach
+            @endisset
+
+            // 2) Bounds: تەنها لەیره‌کان بخە ناو گرووپ، نەخێر LayerGroup ـەکە خۆی
+            if (anything) {
+                const layersForBounds = [];
+                // هەموو لەیره‌کانی area
+                area.eachLayer(l => layersForBounds.push(l));
+                // هەموو markers ـەکانی tak
+                markers.eachLayer(m => layersForBounds.push(m));
+                const boundsGroup = L.featureGroup(layersForBounds);
+                const b = boundsGroup.getBounds();
+                if (b.isValid()) map.fitBounds(b, {
+                    padding: [20, 20]
+                });
+            } else {
+                map.setView([36.2, 44.0], 8);
+            }
+
+            setTimeout(() => map.invalidateSize(), 300);
+        })();
     </script>
 @endpush

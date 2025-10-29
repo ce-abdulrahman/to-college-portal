@@ -54,7 +54,7 @@
                                 {{-- GeoJSON (Optional) --}}
                                 <div class="mb-3">
                                     <label class="form-label">ڕووبەر (GeoJSON)</label>
-                                    <textarea name="geojson_text" rows="8" class="form-control" placeholder='{"type":"Polygon","coordinates":[...]'>{{ old('geojson_text') }}</textarea>
+                                    <textarea name="geojson" rows="8" class="form-control" placeholder='{"type":"Polygon","coordinates":[...]'>{{ old('geojson') }}</textarea>
                                     <div class="form-text">دەتوانیت GeoJSON paste بکەیت یان فایل upload بکەیت.</div>
                                 </div>
                                 <div class="mb-3">
@@ -98,36 +98,6 @@
 {{-- Preview Map --}}
 
 @push('scripts')
-    <script>
-        const map = L.map('map').setView([36.2, 44.0], 7);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18
-        }).addTo(map);
-        const layer = L.geoJSON(null, {
-            style: {
-                color: '#2563eb',
-                weight: 2,
-                fillColor: '#3b82f6',
-                fillOpacity: 0.15
-            }
-        }).addTo(map);
-
-        const ta = document.querySelector('textarea[name="geojson_text"]');
-        if (ta) {
-            let t;
-            ta.addEventListener('input', () => {
-                clearTimeout(t);
-                t = setTimeout(() => {
-                    try {
-                        const gj = JSON.parse(ta.value);
-                        layer.clearLayers().addData(gj);
-                        const b = layer.getBounds();
-                        if (b.isValid()) map.fitBounds(b, {
-                            padding: [20, 20]
-                        });
-                    } catch (e) {}
-                }, 350);
-            });
-        }
-    </script>
+  <script src="{{ asset('assets/admin/js/pages/provinces/create.js') }}"></script>   {{-- یان edit/show --}}
 @endpush
+

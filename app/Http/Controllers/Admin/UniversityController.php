@@ -44,8 +44,7 @@ class UniversityController extends Controller
             'name_en' => ['required', 'string', 'max:255', 'unique:universities,name_en'],
             'province_id' => ['required', 'exists:provinces,id'],
             'status' => ['required', 'boolean'],
-            'geojson_text' => ['nullable', 'string'],
-            'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
+            'geojson' => ['nullable', 'string'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
             'image' => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
@@ -61,15 +60,34 @@ class UniversityController extends Controller
             'image' => !empty($imagePath) ? $imagePath : null,
         ];
 
-        if (!empty($data['geojson_text']) || $request->hasFile('geojson_file')) {
-            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        $geojson = null;
+
+        if (!empty($data['geojson']) || $request->hasFile('geojson')) {
+            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson'] ?? null, $request->file('geojson'));
         }
         if ($request->filled('lat') && $request->filled('lng')) {
             $payload['lat'] = (float) $data['lat'];
             $payload['lng'] = (float) $data['lng'];
         }
 
-        University::create($payload);
+        if (!is_null($geojson)) {
+            $payload['geojson'] = $geojson;
+        }
+
+        $university = new University();
+        $university->province_id = $payload['province_id'];
+        $university->name = $payload['name'];
+        $university->name_en = $payload['name_en'];
+        $university->image = $payload['image'];
+        $university->status = $payload['status'];
+        $university->lat = $payload['lat']; 
+        $university->lng = $payload['lng'];
+
+        if (!empty($payload['geojson'])) {
+            $university->geojson = json_encode($payload['geojson']);
+        }
+
+        $university->save();
 
         return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتووی زیاد کرا.');
     }
@@ -105,36 +123,71 @@ class UniversityController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:universities,name,' . $university->id],
             'name_en' => ['required', 'string', 'max:255', 'unique:universities,name_en,' . $university->id],
             'province_id' => ['required', 'exists:provinces,id'],
-            'status' => ['required', 'boolean'],
-
-            'geojson_text' => ['nullable', 'string'],
-            'geojson_file' => ['nullable', 'file', 'mimes:json,geojson,txt', 'max:20480'],
+            'status' => ['required', 'in:0,1'], // boolean لە select، 0/1 دێت
+            'geojson' => ['nullable', 'string'],
             'lat' => ['nullable', 'numeric', 'between:-90,90'],
             'lng' => ['nullable', 'numeric', 'between:-180,180'],
-            'image' => ['nullable', 'file', 'image', 'max:2048'], // optional image upload
+            'image' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        $imagePath = $this->UploadImage($request, 'image', $university->image);
-        $data['image'] = !empty($imagePath) ? $imagePath : $university->image;
+        // وێنە
+        $imagePath = $this->uploadImage($request, 'image', $university->image); // یەکێک بکە بە uploadImage
+        $image = $imagePath ?: $university->image;
 
+        // بنیات نانینی payload سادە
         $payload = [
             'name' => $data['name'],
             'name_en' => $data['name_en'],
             'province_id' => (int) $data['province_id'],
-            'status' => (bool) $data['status'],
+            'status' => (bool) $data['status'], // 0/1 → bool
+            'image' => $image,
+            'geojson' => $data['geojson'],
         ];
 
-        if ($data['geojson_text'] !== null || $request->hasFile('geojson_file')) {
-            $payload['geojson'] = $this->resolveGeojsonInput($data['geojson_text'] ?? null, $request->file('geojson_file'));
+        // هەڵی پاککردنەوەی GeoJSON بە ئاشکرا
+        if (!empty($data['clear_geojson'])) {
+            $payload['geojson'] = null;
         } else {
-            $payload['geojson'] = null; // سڕینەوەی geojson ئەگەر هیچ نەبوو
+            // هەوڵی نوێکردنەوە لە تێکست/فایل
+            $geojson = null;
+
+            if (!empty($data['geojson'])) {
+                $parsed = json_decode($data['geojson'], true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $geojson = $parsed;
+                } else {
+                    return back()
+                        ->withErrors(['geojson' => 'GeoJSON دروست نییە.'])
+                        ->withInput();
+                }
+            }
+
+            // تەنها کاتێ نوێیەک هەیە بنووسە؛ وەڵامی دیارناکراو = پاراستنی کۆن
+            if (!is_null($geojson)) {
+                $payload['geojson'] = $geojson; // casts=['geojson'=>'array']
+            }
         }
+
+        // lat/lng: بەتاڵ نەبوون
         if ($request->filled('lat') && $request->filled('lng')) {
             $payload['lat'] = (float) $data['lat'];
             $payload['lng'] = (float) $data['lng'];
         }
 
-        $university->update($payload);
+        $university->name = $payload['name'];
+        $university->province_id = $payload['province_id'];
+        $university->name_en = $payload['name_en'];
+        $university->image = $payload['image'];
+        $university->lat = $payload['lat'];
+        $university->lng = $payload['lng'];
+
+        if (!empty($payload['geojson'])) {
+            $university->geojson = json_encode($payload['geojson']);
+        }
+
+        $university->status = (bool) $data['status'];
+
+        $university->save();
 
         return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتوویی نوێ کرایەوە.');
     }
@@ -150,8 +203,9 @@ class UniversityController extends Controller
             Storage::disk('public')->delete($university->geojson_path);
         }
 
-        $this->DeleteImage($university->image);
-
+        if (!empty($university->image)) {
+            $this->DeleteImage($university->image);
+        }
         $university->delete();
 
         return redirect()->route('admin.universities.index')->with('success', 'زانکۆ بە سەرکەوتوویی سڕایەوە.');
