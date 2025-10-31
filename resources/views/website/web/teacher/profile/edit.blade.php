@@ -1,7 +1,7 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <a href="{{ route('admin.students.index') }}" class="btn btn-outline mb-4">
+    <a href="{{ route('teacher.students.index') }}" class="btn btn-outline mb-4">
         <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
     </a>
 
@@ -25,7 +25,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.users.update', $user->id) }}" method="POST" class="needs-validation"
+                    <form action="{{ route('teacher.profile.update', $user->id) }}" method="POST" class="needs-validation"
                         novalidate>
                         @csrf
                         @method('PUT')

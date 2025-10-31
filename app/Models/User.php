@@ -12,10 +12,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'name',
-        'code',
-        'password',
-        'role',
+        'name', 'code', 'password', 'role', 'status', 'phone', 'rand_code',
     ];
 
     protected $hidden = [
@@ -26,6 +23,7 @@ class User extends Authenticatable
     protected $casts = [
         // Remove email_verified_at if you don't use emails
         'code' => 'integer',          // ✅ make code an integer
+        'rand_code' => 'integer',     // ✅ make rand_code an integer
         'password' => 'hashed',
     ];
 
@@ -36,7 +34,7 @@ class User extends Authenticatable
     {
         return 'code';                // ✅ use 'code' for auth
     }
-    
+
     public function student()
     {
         return $this->hasOne(Student::class);

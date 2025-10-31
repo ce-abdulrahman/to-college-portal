@@ -2,14 +2,12 @@
 
 @section('content')
     {{-- Actions bar --}}
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">{{ __('لیستی قوتابیان') }}</div>
+            <div class="navbar-page-title" style="font-size: 32px">
+                <i class="fa-solid fa-users me-2"></i> لیستی مامۆستایان
+            </div>
         </div>
-
-        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-            <i class="fa-solid fa-user-plus me-1"></i> {{ __('زیادکردنی بەکارهێنەری نوێ') }}
-        </a>
     </div>
 
     <div class="card glass fade-in">
@@ -44,15 +42,14 @@
                                 <th style="width:60px">#</th>
                                 <th>ناو</th>
                                 <th>کۆد</th>
-                                <th>{{ __('پەیوەندیدانی قوتابی') }}</th>
+                                <th>ژمارە</th>
                                 <th>دەسەڵات</th>
-                                <th style="width:120px">{{ __('دۆخ') }}</th>
-                                <th style="width:160px">{{ __('کردار') }}</th>
+                                <th>کۆدی بانگکردن</th>
+                                <th>دۆخ</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($users as $index => $user)
-                                @if (auth()->user()->id != $user->id)
                                     <tr>
                                         <td>{{ ++$index }}</td>
                                         <td class="fw-semibold">
@@ -61,49 +58,28 @@
                                         </td>
                                         <td>{{ $user->code }}</td>
                                         <td>
-                                            @if ($user->student)
-                                                <a href="{{ route('admin.students.show', $user->student->id) }}"
-                                                    class="text-decoration-none">
-                                                    <i class="fa-solid fa-link me-1"></i>
-                                                    {{ $user->name }}
-                                                </a>
-                                            @else
-                                                <span class="text-muted">{{ __('هیچ پەیوەندیدانێک نییە') }}</span>
+                                            {{ $user->phone }}
+                                        </td>
+                                        <td>
+                                            @if ($user->role === 'center')
+                                                <span class="badge bg-info">سەنتەر</span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if ($user->role === 'admin')
-                                                <span class="badge bg-info">{{ __('ئەدمین') }}</span>
-                                            @else
-                                                <span class="badge bg-secondary">قوتابی</span>
-                                            @endif
+                                            {{ $user->rand_code }}
                                         </td>
                                         <td>
                                             @if ($user->status)
-                                                <span class="badge bg-success">{{ __('چاڵاک') }}</span>
+                                                <span class="badge bg-success">چاڵاک</span>
                                             @else
-                                                <span class="badge bg-danger">{{ __('ناچاڵاک') }}</span>
+                                                <span class="badge bg-danger">ناچاڵاک</span>
                                             @endif
                                         </td>
-                                        <td class="actions">
-                                            <a href="{{ route('admin.users.edit', $user->id) }}"
-                                                class="btn btn-sm btn-primary" data-bs-toggle="tooltip"
-                                                data-bs-title="{{ __('دەستکاری') }}">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </a>
-                                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
-                                                class="d-inline"
-                                                onsubmit="return confirm('{{ __('دڵنیایت لە سڕینەوەی ئەم بەکارهێنەرە؟') }}');">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger"
-                                                    data-bs-toggle="tooltip" data-bs-title="{{ __('سڕینەوە') }}">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
                                     </tr>
-                                @endif
                             @endforeach
+                            <tr>
+                                <td colspan="6" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
+                            </tr>
                         </tbody>
                     </table>
 

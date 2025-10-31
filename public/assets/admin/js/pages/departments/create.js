@@ -1,125 +1,61 @@
-// Departments Create: Summernote (description) + Province→University→College cascade
-// + Leaflet clean map (click to set lat/lng) + Bootstrap validation
-
-(function ($) {
-  "use strict";
-
-  // ---------- helpers ----------
-  const $id = (s) => document.getElementById(s);
-  const enable = (el, on = true) => el && (el.disabled = !on);
-  const fillSelect = (el, items, placeholder) => {
-    if (!el) return;
-    el.innerHTML = `<option value="">${placeholder}</option>`;
-    (items || []).forEach(it => {
-      const o = document.createElement('option');
-      o.value = it.id;
-      o.textContent = it.name;
-      el.appendChild(o);
-    });
-  };
-
-  function resetLeafletContainer(id) {
-    if (!window.L || !L.DomUtil) return;
-    const node = L.DomUtil.get(id);
-    if (node && node._leaflet_id) node._leaflet_id = null;
+(function() {
+  // ===== Force a clean map container (avoid leftover Leaflet instances) =====
+  const MAP_ID = 'dept-map'; // دڵنیابە لە blade — <div id="dept-map">
+  const container = L.DomUtil.get(MAP_ID);
+  if (!container) return;
+  if (container._leaflet_id) { // reset if any previous map was bound to same element
+    container._leaflet_id = null;
   }
 
-  $(function () {
-    // -------- Summernote (optional if .summernote exists) --------
-    if ($.fn.summernote && $('.summernote').length) {
-      $('.summernote').summernote({
-        placeholder: 'وەسف/ڕونکردنەوە بنووسە...',
-        height: 180,
-        minHeight: 150,
-        toolbar: [
-          ['style', ['bold', 'italic', 'underline', 'clear']],
-          ['para',  ['ul', 'ol', 'paragraph']],
-          ['insert',['link']],
-          ['view',  ['fullscreen', 'codeview']]
-        ]
-      });
-    }
+  // ===== Init map (no provinces, no previous markers) =====
+  const latInput = document.getElementById('lat');
+  const lngInput = document.getElementById('lng');
 
-    // -------- Cascade: Province → University → College --------
-    const selProv = $id('province_id');
-    const selUni  = $id('university_id');
-    const selColl = $id('college_id');
+  const map = L.map(MAP_ID).setView([36.2, 44.0], 9); // هەمیشە پاک ـ بی‌داتا
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
 
-    // API endpoints (ئەمەکان لە Blade دەتوانیت set بکەیت، ئەگەر نەبوون fallback دەکات)
-    const UNI_API   = window.API_UNI   || '/admin/api/universities'; // ?province_id=ID
-    const COLLS_API = window.API_COLLS || '/admin/api/colleges';     // ?university_id=ID
+  // Only a single selection layer
+  const layer = L.featureGroup().addTo(map);
+  let marker = null;
 
-    // Province change → load universities
-    selProv?.addEventListener('change', () => {
-      const pid = selProv.value;
-      fillSelect(selUni, [], 'هەموو زانکۆكان');  enable(selUni, false);
-      fillSelect(selColl, [], 'هەموو کۆلێژەکان'); enable(selColl, false);
-
-      if (!pid) return;
-      fetch(`${UNI_API}?province_id=${encodeURIComponent(pid)}`)
-        .then(r => r.json())
-        .then(list => { fillSelect(selUni, list, 'هەموو زانکۆكان'); enable(selUni, true); })
-        .catch(() => fillSelect(selUni, [], 'هەڵە ڕوویدا'));
-    });
-
-    // University change → load colleges
-    selUni?.addEventListener('change', () => {
-      const uid = selUni.value;
-      fillSelect(selColl, [], 'هەموو کۆلێژەکان'); enable(selColl, false);
-
-      if (!uid) return;
-      fetch(`${COLLS_API}?university_id=${encodeURIComponent(uid)}`)
-        .then(r => r.json())
-        .then(list => { fillSelect(selColl, list, 'هەموو کۆلێژەکان'); enable(selColl, true); })
-        .catch(() => fillSelect(selColl, [], 'هەڵە ڕوویدا'));
-    });
-
-    // -------- Leaflet clean map: click → set lat/lng --------
-    const MAP_ID = 'map';
-    const mapEl = $id(MAP_ID);
-    if (mapEl && window.L) {
-      resetLeafletContainer(MAP_ID);
-
-      const $lat = $id('lat');
-      const $lng = $id('lng');
-
-      const hasLat = $lat && $lat.value !== '' && !Number.isNaN(parseFloat($lat.value));
-      const hasLng = $lng && $lng.value !== '' && !Number.isNaN(parseFloat($lng.value));
-
-      const lat0 = hasLat ? parseFloat($lat.value) : 36.2;
-      const lng0 = hasLng ? parseFloat($lng.value) : 44.0;
-      const zoom0 = (hasLat && hasLng) ? 15 : 9;
-
-      const map = L.map(MAP_ID).setView([lat0, lng0], zoom0);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
-
-      const layer = L.layerGroup().addTo(map);
-      let marker = null;
-
-      if (hasLat && hasLng) {
-        marker = L.marker([lat0, lng0]).addTo(layer);
-      }
-
-      map.on('click', (e) => {
-        if (marker) layer.clearLayers();
-        marker = L.marker(e.latlng).addTo(layer);
-        if ($lat) $lat.value = e.latlng.lat.toFixed(6);
-        if ($lng) $lng.value = e.latlng.lng.toFixed(6);
-      });
-
-      // if in tabs/modals
-      setTimeout(() => map.invalidateSize(), 300);
-    }
-
-    // -------- Bootstrap validation --------
-    document.querySelectorAll('.needs-validation').forEach(form => {
-      form.addEventListener('submit', e => {
-        if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
-        form.classList.add('was-validated');
-      });
-    });
+  map.on('click', (e) => {
+    layer.clearLayers();
+    marker = L.marker(e.latlng).addTo(layer);
+    if (latInput) latInput.value = e.latlng.lat.toFixed(6);
+    if (lngInput) lngInput.value = e.latlng.lng.toFixed(6);
   });
-})(jQuery);
+
+  // ===== Summers description (auto-fill + counter) =====
+  $(function() {
+    const summersKu =
+`دیزاینی “Summers” هەستی گەرمیدا، رۆشنایی و قەبارەی هاوسەنگی تابستان دەبیندێت.
+پەلتەی ڕەنگ هێنراوە لە زەردی خۆر، شینی دەریا و گۆڵەپەمەیی؛ ڕووکاری پاک و هەوا هەیە،
+فۆنتە چەماوەکان، سێبەیریە ناتوندەکان و وێنەکارییە نزمەکان.
+پەیام: ئازادی، ئاسایشی دەریا و کاتژمێرە خۆشحاڵانەکان.`;
+
+    const $desc = $('#description');
+    // تەنیا ئەگەر بەتاڵە یان تەنیا اسپەیس هەیە → پڕی بکە
+    if ($desc.length && $desc.val().trim() === '') {
+      $desc.val(summersKu);
+    }
+
+    // Focus style (ئاختیاری)
+    $desc.on('focus', function() {
+      $(this).css('background-color', '#fffbe6');
+    }).on('blur', function() {
+      $(this).css('background-color', '#fff');
+    });
+
+    // Counter
+    const maxLen = 600;
+    if ($('#descCount').length === 0) {
+      $('<small id="descCount" class="form-text text-muted d-block mt-1"></small>').insertAfter($desc);
+    }
+    const updateCounter = () => {
+      const len = $desc.val().length;
+      $('#descCount').text(len + '/' + maxLen + ' پیت').toggleClass('text-danger', len > maxLen);
+    };
+    $desc.on('input', updateCounter);
+    updateCounter();
+  });
+})();

@@ -194,5 +194,29 @@
             document.getElementById('lat').value = e.latlng.lat.toFixed(6);
             document.getElementById('lng').value = e.latlng.lng.toFixed(6);
         });
+        // ===== Summers description (auto-fill + counter) =====
+  $(function() {
+
+    const $desc = $('#description');
+
+    // Focus style (ئاختیاری)
+    $desc.on('focus', function() {
+      $(this).css('background-color', '#fffbe6');
+    }).on('blur', function() {
+      $(this).css('background-color', '#fff');
+    });
+
+    // Counter
+    const maxLen = 600;
+    if ($('#descCount').length === 0) {
+      $('<small id="descCount" class="form-text text-muted d-block mt-1"></small>').insertAfter($desc);
+    }
+    const updateCounter = () => {
+      const len = $desc.val().length;
+      $('#descCount').text(len + '/' + maxLen + ' پیت').toggleClass('text-danger', len > maxLen);
+    };
+    $desc.on('input', updateCounter);
+    updateCounter();
+  });
     </script>
 @endpush

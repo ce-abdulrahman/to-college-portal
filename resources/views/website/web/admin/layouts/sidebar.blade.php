@@ -14,73 +14,118 @@
         </div>
     </div>
 
+    @php
+        if (!function_exists('navActive')) {
+            function navActive($route)
+            {
+                return request()->routeIs($route) ? 'active' : '';
+            }
+        }
+    @endphp
     <div class="drawer-content">
-        <nav class="drawer-nav">
-            @php
-                if (!function_exists('navActive')) {
-                    function navActive($route)
-                    {
-                        return request()->routeIs($route) ? 'active' : '';
-                    }
-                }
-            @endphp
+        @if (auth()->check() && auth()->user()->role === 'admin')
+            <nav class="drawer-nav">
 
-            <a href="{{ route('admin.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
+                <a href="{{ route('admin.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
+                    <i class="bi bi-house"></i><span>ماڵەوە</span>
+                </a>
+
+
+                <a href="{{ route('admin.systems.index') }}"
+                    class="drawer-nav-item {{ navActive('admin.systems.index') }}">
+                    <i class="bi bi-building"></i>
+                    <span>سیستەمەکان</span>
+                </a>
+                <a href="{{ route('admin.provinces.index') }}"
+                    class="drawer-nav-item {{ navActive('admin.provinces.index') }}">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>پارێزگاکان</span>
+                </a>
+                <a href="{{ route('admin.universities.index') }}"
+                    class="drawer-nav-item {{ navActive('admin.universities.index') }}">
+                    <i class="bi bi-mortarboard"></i>
+                    <span>زانکۆکان</span>
+                </a>
+                <a href="{{ route('admin.colleges.index') }}"
+                    class="drawer-nav-item {{ navActive('admin.colleges.index') }}">
+                    <i class="bi bi-bank"></i>
+                    <span>کۆلێژەکان</span>
+                </a>
+                <a href="{{ route('admin.departments.index') }}"
+                    class="drawer-nav-item {{ navActive('admin.departments.index') }}">
+                    <i class="fa-regular fa-building"></i>
+                    <span>بەشەکانی</span>
+                </a>
+
+                <a href="{{ route('admin.students.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.students.index') }}">
+                    <i class="fa-regular fa-id-card"></i>
+                    <span>قوتابیان</span>
+                </a>
+
+                <a href="{{ route('admin.centers.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.centers.index') }}">
+                    <i class="fa-regular fa-id-card"></i>
+                    <span>سەنتەرەکان</span>
+                </a>
+
+                <a href="{{ route('admin.teachers.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.teachers.index') }}">
+                    <i class="fa-regular fa-id-card"></i>
+                    <span>مامۆستایەکان</span>
+                </a>
+
+                <a href="{{ route('admin.results.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.results.index') }}">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>ئەنجامی هەڵبژاردنەکانی قوتابیان</span>
+                </a>
+
+                <a href="{{ route('admin.users.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.users.index') }}">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>بەکارهێنەر</span>
+                </a>
+            </nav>
+        @endif
+
+        @if (auth()->check() && auth()->user()->role === 'teacher')
+            <a href="{{ route('teacher.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
                 <i class="bi bi-house"></i><span>ماڵەوە</span>
             </a>
-
-
-            <a href="{{ route('admin.systems.index') }}" class="drawer-nav-item {{ navActive('admin.systems.index') }}">
-                <i class="bi bi-building"></i>
-                <span>سیستەمەکان</span>
-            </a>
-            <a href="{{ route('admin.provinces.index') }}"
-                class="drawer-nav-item {{ navActive('admin.provinces.index') }}">
-                <i class="bi bi-geo-alt"></i>
-                <span>پارێزگاکان</span>
-            </a>
-            <a href="{{ route('admin.universities.index') }}"
-                class="drawer-nav-item {{ navActive('admin.universities.index') }}">
-                <i class="bi bi-mortarboard"></i>
-                <span>زانکۆکان</span>
-            </a>
-            <a href="{{ route('admin.colleges.index') }}"
-                class="drawer-nav-item {{ navActive('admin.colleges.index') }}">
-                <i class="bi bi-bank"></i>
-                <span>کۆلێژەکان</span>
-            </a>
-            <a href="{{ route('admin.departments.index') }}"
-                class="drawer-nav-item {{ navActive('admin.departments.index') }}">
+            <a href="{{ route('teacher.departments.index') }}"
+                class="drawer-nav-item {{ navActive('teacher.departments.index') }}">
                 <i class="fa-regular fa-building"></i>
                 <span>بەشەکانی</span>
             </a>
-
-            <a href="{{ route('admin.students.index') }}"
-                class="drawer-nav-item back-btn {{ navActive('admin.students.index') }}">
-                <i class="fa-regular fa-id-card"></i>
-                <span>قوتابیان</span>
+            <a href="{{ route('teacher.students.index') }}"
+                class="drawer-nav-item {{ navActive('teacher.students.index') }}">
+                <i class="fa-regular fa-users"></i>
+                <span>قوتابیەکانم</span>
             </a>
+        @endif
 
-            <a href="{{ route('admin.results.index') }}"
-                class="drawer-nav-item back-btn {{ navActive('admin.results.index') }}">
-                <i class="fa-solid fa-receipt"></i>
-                <span>ئەنجامی هەڵبژاردنەکانی قوتابیان</span>
-            </a>
-
-            <a href="{{ route('admin.users.index') }}"
-                class="drawer-nav-item back-btn {{ navActive('admin.users.index') }}">
-                <i class="fa-solid fa-users-gear"></i>
-                <span>بەکارهێنەر</span>
-            </a>
-        </nav>
     </div>
 
     <div class="drawer-footer">
-        <button class="drawer-btn change-password-btn"
-            onclick="window.location.href='{{ route('admin.users.edit', auth()->user()->id) }}'">
-            <i class="bi bi-person"></i>
-            <span>پرۆفایل</span>
-        </button>
+        @if (auth()->check() && auth()->user()->role === 'admin')
+            <button class="drawer-btn change-password-btn"
+                onclick="window.location.href='{{ route('admin.users.edit', auth()->user()->id) }}'">
+                <i class="bi bi-person"></i>
+                <span>پرۆفایل</span>
+            </button>
+        @endif
+
+
+        @if (auth()->check() && auth()->user()->role === 'teacher')
+            <button class="drawer-btn change-password-btn"
+                onclick="window.location.href='{{ route('teacher.profile.edit', auth()->user()->id) }}'">
+                <i class="bi bi-person"></i>
+                <span>پرۆفایل</span>
+            </button>
+        @endif
+
+
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button class="drawer-btn logout-btn w-100" type="submit">

@@ -16,9 +16,11 @@ return new class extends Migration
             $table->string('name');
             $table->integer('code')->unique();   // instead of email
             $table->string('password');
-            $table->enum('role', ['admin', 'student'])->default('student');
+            $table->string('phone')->nullable();
+            $table->enum('role', ['admin', 'center', 'teacher', 'student'])->default('student');
+            $table->string('rand_code')->unique()->default(0);   // instead of email
             $table->boolean('status')->default(1);
-            $table->rememberToken();
+            $table->rememberToken(); 
             $table->timestamps();
         });
     }

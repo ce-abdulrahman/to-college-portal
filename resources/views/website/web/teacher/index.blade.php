@@ -35,7 +35,7 @@
             <div class="search-container">
                 <div class="search-box">
                     <div class="row">
-                        <a href="{{ route('admin.departments.index') }}">
+                        <a href="{{ route('teacher.departments.index') }}">
 
                             <button class="button">
                                 <div class="bg"></div>

@@ -17,7 +17,7 @@ class StudentController extends Controller
     public function index()
     {
         $users = User::where('role', 'student')->get();
-        return view('website.web.admin.student.index', compact('users'));
+        return view('website.web.admin.user.student.index', compact('users'));
     }
 
     /**
@@ -51,7 +51,7 @@ class StudentController extends Controller
             })
             ->get();
 
-        return view('website.web.admin.student.show', compact('user', 'student', 'result_deps'));
+        return view('website.web.admin.user.student.show', compact('user', 'student', 'result_deps'));
     }
 
     /**
@@ -60,7 +60,7 @@ class StudentController extends Controller
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
-        return view('website.web.admin.student.edit', compact('user'));
+        return view('website.web.admin.user.student.edit', compact('user'));
     }
 
     /**

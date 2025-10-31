@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Teacher\TeacherByStudentController;
+use App\Http\Controllers\Teacher\TeacherDashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Teacher\TeacherProfileController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -23,3 +26,18 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 
+Route::middleware(['auth', 'teacher']) // 'teacher' middlewareی خۆمان
+    ->prefix('teacher')
+    ->as('teacher.')
+    ->group(function () {
+
+        Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/departments', [TeacherDashboardController::class, 'departments'])->name('departments.index');
+
+        Route::resource('/students', TeacherByStudentController::class);
+
+        Route::get('/profile/edit/{id}', [TeacherProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile/{id}', [TeacherProfileController::class, 'update'])->name('profile.update');
+
+    });

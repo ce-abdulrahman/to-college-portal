@@ -5,7 +5,7 @@
 
     <div class="row g-3">
         <div class="col-12 col-md-6">
-            <label for="mark" class="form-label">نمرە</label>
+            <label for="mark" class="form-label">نمرەی قوتابی</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-star-half-stroke"></i></span>
                 <input type="number" class="form-control @error('mark') is-invalid @enderror" id="mark"
@@ -42,7 +42,7 @@
         </div>
 
         <div class="col-12 col-md-6">
-            <label for="type" class="form-label">جۆر</label>
+            <label for="type" class="form-label">لق</label>
             <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" required>
                 <option value="زانستی" @selected(old('type') === 'زانستی')>زانستی</option>
                 <option value="وێژەیی" @selected(old('type') === 'وێژەیی')>وێژەیی</option>
@@ -79,10 +79,8 @@
 
         <div class="col-12 col-md-6">
             <label for="referral_code" class="form-label">کۆدی بانگێشت</label>
-            <select id="referral_code" name="referral_code"
-                class="form-select @error('referral_code') is-invalid @enderror" style="width:100%">
-                <option value="">کۆدی بانگێشت هەلبژێرە...</option>
-            </select>
+            <input type="number" class="form-control @error('referral_code') is-invalid @enderror" id="referral_code"
+            name="referral_code" value="{{ auth()->user()->rand_code }}" readonly>
             @error('referral_code')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -164,43 +162,3 @@
 
     </div>
 </div>
-
-
-@push('scripts')
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        $(function() {
-            $('#referral_code').select2({
-                placeholder: 'کۆدی بانگێشت هەلبژێرە...',
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('admin.users.searchByCode') }}', // دڵنیابە ئەمە هەمان /sadm/...ە
-                    dataType: 'json',
-                    delay: 250,
-                    data: params => ({
-                        q: params.term || ''
-                    }),
-                    processResults: function(resp) {
-                        // هەردوو شێوە کاری پێ بکەن: یان {results:[...]} یان [...]
-                        const arr = Array.isArray(resp) ? resp : (resp.results || []);
-                        return {
-                            results: arr.map(x => {
-                                // ئەگەر سێرڤەر لە شێوەی {rand_code: "..."} بگێڕێتەوە
-                                const code = x.rand_code ?? x.id ?? x.code ?? '';
-                                const text = x.text ?? code;
-                                return {
-                                    id: code,
-                                    text: text
-                                };
-                            })
-                        };
-                    },
-                    cache: true
-                },
-                minimumInputLength: 1
-            });
-        });
-    </script>
-@endpush

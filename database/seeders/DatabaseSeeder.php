@@ -6,6 +6,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Nette\Utils\Random;
 
 
 
@@ -36,6 +37,7 @@ class DatabaseSeeder extends Seeder
             'code' => '100',
             'password' => Hash::make('password'),
             'role' => 'admin',
+            'rand_code' => Random::generate(6),
         ]);
 
         User::create([
@@ -43,6 +45,7 @@ class DatabaseSeeder extends Seeder
             'code' => '1002',
             'password' => Hash::make('password'),
             'role' => 'student',
+            'rand_code' => Random::generate(6),
         ]);
     }
 }

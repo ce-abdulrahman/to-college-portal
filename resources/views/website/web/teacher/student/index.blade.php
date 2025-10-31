@@ -12,26 +12,16 @@
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <a href="{{ route('admin.users.create') }}" class="btn btn-outline-primary">
+        <a href="{{ route('teacher.students.create') }}" class="btn btn-outline-primary">
             <i class="fa-solid fa-user-plus me-1"></i> زیادکردنی بەکارهێنەری نوێ
         </a>
-        <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی: {{ count($users) }}</span>
+        {{--  <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی: {{ count($users) }}</span>  --}}
     </div>
 
     <div class="card glass mb-3">
         <div class="card-body">
             <div class="row g-2 align-items-end">
-                {{-- System --}}
-                <div class="col-12 col-md-2">
-                    <label class="form-label"><i class="fa-solid fa-cube me-1 text-muted"></i> بەکارهێنەر</label>
-                    <select id="filter-user" class="form-select">
-                        <option value="">هەموو</option>
-                        <option value="admin">ئەدمینەکان</option>
-                        <option value="center">سەنتەرەکان</option>
-                        <option value="teacher">مامۆستاکان</option>
-                        <option value="student">قوتابیەکان</option>
-                    </select>
-                </div>
+                
                 {{-- Search --}}
                 <div class="col-12 col-md-4 mt-2">
                     <label class="form-label"><i class="fa-solid fa-magnifying-glass me-1 text-muted"></i> گەڕانی
@@ -74,58 +64,45 @@
                                 <th style="width:60px">#</th>
                                 <th>ناو</th>
                                 <th>کۆد</th>
-                                <th>پەیوەندیدانی قوتابی</th>
                                 <th>دەسەڵات</th>
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:160px">کردار</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($users as $index => $user)
-                                @if (auth()->user()->id != $user->id)
+
+                            @foreach ($students as $index => $student)
+                                @if (auth()->user()->id != $student->id)
                                     <tr>
                                         <td>{{ ++$index }}</td>
                                         <td class="fw-semibold">
                                             <i class="fa-regular fa-user me-1 text-muted"></i>
-                                            {{ $user->name }}
+                                            {{ $student->user->name }}
                                         </td>
-                                        <td>{{ $user->code }}</td>
+                                        <td>{{ $student->user->code }}</td>
                                         <td>
-                                            @if ($user->role === 'student')
-                                                <a href="{{ route('admin.students.show', $user->id) }}"
-                                                    class="text-decoration-none">
-                                                    <i class="fa-solid fa-link me-1"></i>
-                                                    {{ $user->name }}
-                                                </a>
-                                            @else
-                                                <span class="text-muted">هیچ پەیوەندیدانێک نییە</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($user->role === 'admin')
-                                                <span class="badge bg-info">ئەدمین</span>
-                                            @elseif ($user->role === 'center')
-                                                <span class="badge bg-danger">سەنتەر</span>
-                                            @elseif ($user->role === 'teacher')
-                                                <span class="badge bg-warning text-dark">مامۆستا</span>
-                                            @else
+                                            @if ($student->user->role === 'student')
                                                 <span class="badge bg-secondary">قوتابی</span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if ($user->status)
+                                            @if ($student->status)
                                                 <span class="badge bg-success">چاڵاک</span>
                                             @else
                                                 <span class="badge bg-danger">ناچاڵاک</span>
                                             @endif
                                         </td>
                                         <td class="actions">
-                                            <a href="{{ route('admin.users.edit', $user->id) }}"
+                                            <a href="{{ route('teacher.students.show', $student->user->id) }}"
+                                                    class="text-decoration-none btn-outline-light">
+                                                    <i class="fa fa-eye me-1"></i>
+                                                </a>
+                                            <a href="{{ route('teacher.students.edit', $student->id) }}"
                                                 class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
                                                 data-bs-title="دەستکاری">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
-                                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                                            <form action="{{ route('teacher.students.destroy', $student->id) }}" method="POST"
                                                 class="d-inline"
                                                 onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم بەکارهێنەرە؟');">
                                                 @csrf @method('DELETE')

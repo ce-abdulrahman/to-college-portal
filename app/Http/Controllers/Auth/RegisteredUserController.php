@@ -34,14 +34,18 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
             'code' => ['required', 'integer', 'unique:users,code'],
+            'phone' => ['nullable', 'string', 'max:11'],
             'password' => ['required', Rules\Password::defaults()],
-            'role' => ['nullable', Rule::in(['admin', 'student'])], // or remove to force default
+            'rand_code' => ['required', 'integer', 'unique:users,rand_code'],
+            'role' => ['nullable', Rule::in(['admin', 'center', 'teacher', 'student'])], // or remove to force default
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'code' => (int) $request->code,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
+            'rand_code' => (int) $request->rand_code,
             'role' => $request->filled('role') ? $request->role : 'student', // default student
         ]);
 
@@ -52,8 +56,16 @@ class RegisteredUserController extends Controller
         //Auth::login($user);
 
         // check role and redirect accordingly
-        if ($user->role === 'admin') {
+        if (Auth::user()->role === 'super_admin') {
+            return redirect(RouteServiceProvider::SUPER_ADMIN_DASHBOARD);
+        }
+
+        if (Auth::user()->role === 'admin') {
             return redirect(RouteServiceProvider::ADMIN_DASHBOARD);
+        }
+
+        if (Auth::user()->role === 'teacher') {
+            return redirect(RouteServiceProvider::TEACHER_DASHBOARD);
         }
 
         return redirect()->route('login')->with('success', 'قوتابی نوێ بە سەرکەوتووی دروست کرا.');

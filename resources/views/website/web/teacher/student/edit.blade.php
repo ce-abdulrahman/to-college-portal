@@ -1,7 +1,7 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <a href="{{ route('admin.students.index') }}" class="btn btn-outline mb-4">
+    <a href="{{ route('teacher.students.index') }}" class="btn btn-outline mb-4">
         <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
     </a>
 
@@ -56,7 +56,34 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">ژمارەی مۆبایل</label>
+                                <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                    id="phone" name="phone" value="{{ old('phone', $user->phone) }}">
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="role" class="form-label">ڕۆڵ</label>
+                                <select class="form-select @error('role') is-invalid @enderror" id="role"
+                                    name="role" required>
+                                    <option value="admin" @selected(old('role') === 'admin')>ئەدمین</option>
+                                    <option value="center" @selected(old('role') === 'center')>سەنتەر</option>
+                                    <option value="teacher" @selected(old('role') === 'teacher')>مامۆستا</option>
+                                    <option value="student" @selected(old('role') === 'student')>قوتابی</option>
+                                </select>
+                                @error('role')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="form-text">تەنها ئەدمین دەتوانێت ڕۆڵ دیاری بکات.</div>
+                                @enderror
+                            </div>
+
                         </div>
+
 
                         <hr class="my-4">
 

@@ -20,7 +20,8 @@ class Department extends Model
         'external_score',
         'type',
         'sex',
-        'description'
+        'description',
+        'image'
     ];
 
     protected $casts = [

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->enum('type', ['زانستی','وێژەیی'])->default('زانستی');
             $table->enum('gender', ['نێر','مێ'])->default('نێر');
             $table->integer('year');
+            $table->string('referral_code')->nullable();
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

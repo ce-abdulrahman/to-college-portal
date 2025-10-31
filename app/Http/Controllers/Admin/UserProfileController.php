@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 
-
 class UserProfileController extends Controller
 {
     /**
@@ -22,7 +21,7 @@ class UserProfileController extends Controller
      */
     public function index()
     {
-        $users = User::where('role', 'admin')->get();
+        $users = User::all();
         $provinces = Province::all();
         return view('website.web.admin.user.index', compact('users', 'provinces'));
     }
@@ -41,80 +40,86 @@ class UserProfileController extends Controller
      */
     public function store(Request $request, DepartmentSelector $selector)
     {
-        $data = $request->validate([
-            'name'     => ['required','string','max:255'],
-            'code'     => ['required','string','max:255','unique:users,code'],
-            'password' => ['required','string','min:8'],
-            'role'     => ['required', Rule::in(['admin','student'])],
-
-            // only when role = student
-            'mark'     => ['required_if:role,student','numeric'],
-            'province' => ['required_if:role,student','string','max:255'],
-            'type'     => ['required_if:role,student','string', Rule::in(['زانستی','وێژەیی'])],
-            'gender'   => ['required_if:role,student','string', Rule::in(['نێر','مێ'])],
-            'year'     => ['required_if:role,student','integer','min:1'],
-
-            // هەڵبژاردنەکان (هاوکار بۆ ڕێزبەندی)
-            'zankoline_num' => ['nullable','integer','min:0'],
-            'parallel_num'  => ['nullable','integer','min:0'],
-            'evening_num'   => ['nullable','integer','min:0'],
-
-            // دکمه‌/چێکبوکس: ئایا ڕێزبەندی بکرێت؟
-            'queue' => ['sometimes','string'],
+        // 1) ڤالیدەیشنی بنەڕەتی
+        $base = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'code' => ['required', 'string', 'max:255', 'unique:users,code'],
+            'phone' => ['nullable', 'string', 'max:11'],
+            'password' => ['required', 'string', 'min:8'],
+            'rand_code' => ['required', 'integer', 'unique:users,rand_code'],
+            'role' => ['required', Rule::in(['admin', 'center', 'teacher', 'student'])],
+            // هەرکە لە فۆرمەکەت هەیە، ڕاگرتووە؛ دەتوانیت دابنێیت:
+            'status' => ['required', 'in:1,0'],
         ]);
 
+        $student = [];
+        if ($request->role === 'student') {
+            // 2) ڤالیدەیشنی تایبەتی قوتابی
+            $student = $request->validate([
+                'mark' => ['required', 'numeric'],
+                'province' => ['required', 'string', 'max:255'],
+                'type' => ['required', 'string', Rule::in(['زانستی', 'وێژەیی'])],
+                'gender' => ['required', 'string', Rule::in(['نێر', 'مێ'])],
+                'year' => ['required', 'integer', 'min:1'],
+                'referral_code' => ['nullable', 'string', 'max:255'],
+
+                // تەنیا کاتێک queue = yes → پێویست، هەروەها بە numeric/min:0
+                'queue' => ['nullable', 'in:yes,no'],
+                'zankoline_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
+                'parallel_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
+                'evening_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
+            ]);
+        }
+
+        // هەردوو set ـەکە پێکبخە
+        $data = array_merge($base, $student);
+
         try {
-            DB::transaction(function () use ($data, $selector, $request) {
-                // 1) دروستکردنی بەکارهێنەر
+            DB::transaction(function () use ($data, $selector) {
+                // 3) دروستکردنی بەکارهێنەر
                 $user = User::create([
-                    'name'     => $data['name'],
-                    'code'     => $data['code'],
+                    'name' => $data['name'],
+                    'code' => $data['code'],
                     'password' => Hash::make($data['password']),
-                    'role'     => $data['role'],
+                    'role' => $data['role'],
+                    // ئەگەر status هەیە لە فۆرم:
+                    'status' => (int) $data['status'],
+                    'phone' => $data['phone'] ?? null,
+                    'rand_code' => (int) $data['rand_code'] ?? 0,
                 ]);
 
-                // 2) ئەگەر student ـە → خەزنکردنی تەنیا خانەکانی students
+                // 4) تەنیا بۆ قوتابی
                 if ($data['role'] === 'student') {
-                    // ئەگەر پێشووتر create کردووە، create دەکەین؛
-                    // ئەگەر دەتەوێت duplicate نەبێت، updateOrCreate بەکاربهێنە.
                     Student::updateOrCreate(
                         ['user_id' => $user->id],
                         [
-                            'mark'     => (float)$data['mark'],
+                            'mark' => (float) $data['mark'],
                             'province' => $data['province'],
-                            'type'     => $data['type'],    // 'زانستی'/'وێژەیی'
-                            'gender'   => $data['gender'],  // 'نێر'/'مێ'
-                            'year'     => (int)$data['year'],
-                            'status'   => 1,
-                        ]
+                            'type' => $data['type'],
+                            'gender' => $data['gender'],
+                            'year' => (int) $data['year'],
+                            'referral_code' => $data['referral_code'] ?? auth()->user()->rand_code,
+                            'status' => 1,
+                        ],
                     );
 
-                    // 3) ئەگەر queue==true → ڕێزبەندی بکە و result_deps پڕ بکە
+                    // 5) ئەگەر queue=yes → ڕێزبەندی
                     if (($data['queue'] ?? 'no') === 'yes') {
-                        $selector->build(
-                            $user->id,
-                            $data['province'],
-                            $data['type'],
-                            $data['gender'],
-                            (int)$data['year'],
-                            (float)$data['mark'],
-                            $data['zankoline_num'] ?? null,
-                            $data['parallel_num']  ?? null,
-                            $data['evening_num']   ?? null,
-                        );
+                        $selector->build($user->id, $data['province'], $data['type'], $data['gender'], (int) $data['year'], (float) $data['mark'], $data['zankoline_num'] ?? null, $data['parallel_num'] ?? null, $data['evening_num'] ?? null);
                     }
                 }
             });
         } catch (InvalidArgumentException $e) {
-            // نموونە: کۆی هەڵبژاردنەکان دەبێت 50 بێت
-            return back()->withErrors(['choices' => $e->getMessage()])->withInput();
+            return back()
+                ->withErrors(['choices' => $e->getMessage()])
+                ->withInput();
         } catch (\Throwable $e) {
-            return back()->withErrors(['error' => 'هەڵە ڕوویدا: '.$e->getMessage()])->withInput();
+            return back()
+                ->withErrors(['error' => 'هەڵە ڕوویدا: ' . $e->getMessage()])
+                ->withInput();
         }
 
-        return redirect()
-            ->route('admin.users.index')
-            ->with('success', 'بەکارهێنەر دروستکرا بەسەرکەوتوویی.');
+        return redirect()->route('admin.users.index')->with('success', 'بەکارهێنەر دروستکرا بەسەرکەوتوویی.');
     }
 
     /**
@@ -161,10 +166,14 @@ class UserProfileController extends Controller
             $request->validate([
                 'name' => 'required|string|max:255',
                 'code' => 'required|string|max:255|unique:users,code,' . $user->id,
+                'phone' => 'nullable',
+                'role' => 'required',
             ]);
             $user->update([
                 'name' => $request->name,
                 'code' => $request->code,
+                'phone' => $request->phone,
+                'role' => $request->role,
             ]);
         }
         return redirect()->route('admin.users.index')->with('success', 'ئەدمینی نوێکردنەوە بەسەرکەوتوویی تەواو بوو.');
@@ -178,5 +187,35 @@ class UserProfileController extends Controller
         $user = User::findOrfail($id);
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'بەکارهێنەر سڕایەوە بەسەرکەوتوویی.');
+    }
+
+    // GET /sadm/users/search-by-code?q=...
+    public function searchByCode(Request $request)
+    {
+        $q = $request->get('q', '');
+
+        $users = User::query()
+            ->select('id', 'name', 'code', 'role', 'rand_code')
+            ->when(
+                $q,
+                fn($qr) => $qr->where(function ($w) use ($q) {
+                    $w->where('code', 'like', "%{$q}%")
+                        ->orWhere('name', 'like', "%{$q}%")
+                        ->orWhere('rand_code', 'like', "%{$q}%");
+                }),
+            )
+            ->limit(20)
+            ->get();
+
+        // فۆرماتێکی Select2: { results: [{id,text},...] }
+        return response()->json([
+            'results' => $users->map(
+                fn($u) => [
+                    // تۆ وتویت “تەنها rand_code بێت” → id/text هەردووکیان rand_code
+                    'id' => (string) $u->rand_code,
+                    'text' => (string) $u->rand_code,
+                ],
+            ),
+        ]);
     }
 }

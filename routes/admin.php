@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\CenterController;
+use App\Http\Controllers\Admin\TeacherController;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SystemController;
@@ -32,6 +34,12 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
 
         // users routes will be here
         Route::resource('users', UserProfileController::class)->names('users');
+        Route::get('/users/search-by-code', [UserProfileController::class, 'searchByCode'])->name('users.searchByCode');
+
+        Route::get('/centers', [CenterController::class, 'index'])->name('centers.index');
+        Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
+
+
 
         // student routes will be here
         Route::resource('students', StudentController::class)->names('students');

@@ -112,13 +112,13 @@
                             {{-- Scores --}}
                             <div class="col-12 col-md-3">
                                 <label for="local_score" class="form-label">ن. ناوەندی</label>
-                                <input id="local_score" name="local_score" type="number" step="0.01"
+                                <input id="local_score" name="local_score" type="number" step="0.001"
                                     class="form-control" value="{{ old('local_score') }}">
                             </div>
 
                             <div class="col-12 col-md-3">
                                 <label for="external_score" class="form-label">ن. ناوخۆی</label>
-                                <input id="external_score" name="external_score" type="number" step="0.01"
+                                <input id="external_score" name="external_score" type="number" step="0.001"
                                     class="form-control" value="{{ old('external_score') }}">
                             </div>
 
