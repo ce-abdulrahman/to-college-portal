@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureAdmin
+class CheckedTeacherRole
 {
     /**
      * Handle an incoming request.
@@ -18,13 +18,13 @@ class EnsureAdmin
         // Breeze (session) یان Sanctum (token) هەردوو ڕێشەکا پۆش دەکرێن
         $user = $request->user();
 
-        if (!$user || $user->role !== 'admin') {
+        if (!$user || $user->role !== 'teacher') {
             // API: هەڵەی JSON بدە
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'Forbidden (admin only)'], 403);
+                return response()->json(['message' => 'Forbidden (teacher only)'], 403);
             }
             // Web: گەڕانەوە
-            abort(403, 'دەسەڵاتی پێویستت نییە (admin)');
+            abort(403, 'پیشەی پێویستت نییە (teacher)');
         }
 
         return $next($request);

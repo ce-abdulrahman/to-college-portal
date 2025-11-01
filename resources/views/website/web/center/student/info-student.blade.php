@@ -9,7 +9,7 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-star-half-stroke"></i></span>
                 <input type="number" class="form-control @error('mark') is-invalid @enderror" id="mark"
-                    name="mark" value="{{ old('mark') }}" required min="0" step="0.001"
+                    name="mark" value="{{ old('mark') }}" required min="0" step="0.01"
                     placeholder="نموونە: 89.50">
                 @error('mark')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -78,10 +78,10 @@
         </div>
 
         <div class="col-12 col-md-6">
-            <label for="referral_student_code" class="form-label">کۆدی بانگێشت</label>
-            <input type="number" class="form-control @error('referral_student_code') is-invalid @enderror" id="referral_code"
-            name="referral_student_code" value="{{ auth()->user()->rand_code }}" readonly>
-            @error('referral_student_code')
+            <label for="referral_code" class="form-label">کۆدی بانگێشت</label>
+            <input type="number" class="form-control @error('referral_code') is-invalid @enderror" id="referral_code"
+            name="referral_code" value="{{ auth()->user()->rand_code }}" readonly>
+            @error('referral_code')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>

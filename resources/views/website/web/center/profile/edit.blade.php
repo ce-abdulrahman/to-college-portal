@@ -1,7 +1,7 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <a href="{{ route('admin.students.index') }}" class="btn btn-outline mb-4">
+    <a href="{{ route('center.students.index') }}" class="btn btn-outline mb-4">
         <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
     </a>
 
@@ -25,7 +25,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.users.update', $user->id) }}" method="POST" class="needs-validation"
+                    <form action="{{ route('center.profile.update', $user->id) }}" method="POST" class="needs-validation"
                         novalidate>
                         @csrf
                         @method('PUT')
@@ -70,15 +70,12 @@
                                 <label for="role" class="form-label">پیشە</label>
                                 <select class="form-select @error('role') is-invalid @enderror" id="role"
                                     name="role" required>
-                                    <option value="admin" @selected(old('role') === 'admin')>ئەدمین</option>
                                     <option value="center" @selected(old('role') === 'center')>سەنتەر</option>
-                                    <option value="teacher" @selected(old('role') === 'teacher')>مامۆستا</option>
-                                    <option value="student" @selected(old('role') === 'student')>قوتابی</option>
                                 </select>
                                 @error('role')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @else
-                                    <div class="form-text">تەنها ئەدمین دەتوانێت پیشە دیاری بکات.</div>
+                                    <div class="form-text">تەنها سەنتەر دەتوانێت پیشە دیاری بکات.</div>
                                 @enderror
                             </div>
 
@@ -128,21 +125,6 @@
                         </div>
 
                         <hr class="my-4">
-
-                        {{-- Role/Status --}}
-                        @if (auth()->user()->role == 'admin')
-                            <div class="col-12 col-md-6 mb-3">
-                                <label for="status" class="form-label">پیشە</label>
-                                <select class="form-select @error('status') is-invalid @enderror" id="status"
-                                    name="status" required>
-                                    <option value="1" @selected($user->status == 1)>ئەدمین</option>
-                                    <option value="0" @selected($user->status == 0)>قوتابی</option>
-                                </select>
-                                @error('status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        @endif
 
                         <div class="d-flex justify-content-end mt-4">
                             <button type="submit" class="btn btn-primary">

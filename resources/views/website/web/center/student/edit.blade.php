@@ -4,7 +4,7 @@
 @section('content')
     <div class="row">
         <div class="col-12 col-xl-8 mx-auto">
-            <a href="{{ route('teacher.students.index') }}" class="btn btn-outline mb-3">
+            <a href="{{ route('center.students.index') }}" class="btn btn-outline mb-3">
                 <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
             </a>
 
@@ -26,7 +26,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('teacher.students.update', $student->id) }}" method="POST"
+                    <form action="{{ route('center.students.update', $student->id) }}" method="POST"
                         class="needs-validation" novalidate>
                         @csrf
                         @method('PUT')

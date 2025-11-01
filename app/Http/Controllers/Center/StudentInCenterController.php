@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\Center;
 
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Province;
 use App\Models\ResultDep;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Services\DepartmentSelector;
@@ -15,36 +16,28 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 
-
-
-class TeacherByStudentController extends Controller
+class StudentInCenterController extends Controller
 {
     public function index()
     {
-        $teacher = auth()->user();
-        if (! $teacher) {
+        $center = auth()->user();
+        if (!$center) {
             abort(403);
         }
 
         $users = User::where('role', 'student')->get();
 
-        $students = Student::with('user')
-            ->where('referral_code', $teacher->rand_code)
-            ->whereHas('user', fn($q) => $q->where('role', 'student'))
-            ->get();
+        $students = Student::with('user')->where('referral_code', $center->rand_code)->whereHas('user', fn($q) => $q->where('role', 'student'))->get();
 
-        return view('website.web.teacher.student.index', compact('students', 'users'));
+        return view('website.web.center.student.index', compact('students', 'users'));
     }
 
     public function create()
     {
         $provinces = Province::where('status', 1)->get();
-        return view('website.web.teacher.student.create', compact('provinces'));
+        return view('website.web.center.student.create', compact('provinces'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request, DepartmentSelector $selector)
     {
         // 1) Validation یەکخستراو
@@ -119,7 +112,7 @@ class TeacherByStudentController extends Controller
         }
 
         // 6) Redirect بەپێی role
-        return redirect()->route('teacher.students.index')->with('success', 'قوتابی دروستکرا بە سەرکەوتوویی.');
+        return redirect()->route('center.students.index')->with('success', 'قوتابی دروستکرا بە سەرکەوتوویی.');
     }
 
     public function show(string $id)
@@ -132,7 +125,7 @@ class TeacherByStudentController extends Controller
 
         $NameDep = Department::whereIn('id', $result_deps->pluck('department_id'))->get();
 
-        return view('website.web.teacher.student.show', compact('user', 'student', 'result_deps', 'NameDep'));
+        return view('website.web.center.student.show', compact('user', 'student', 'result_deps', 'NameDep'));
     }
 
     public function edit(Student $student)
@@ -142,7 +135,7 @@ class TeacherByStudentController extends Controller
 
         $provinces = Province::where('status', 1)->get();
 
-        return view('website.web.teacher.student.edit', compact('student', 'provinces'));
+        return view('website.web.center.student.edit', compact('student', 'provinces'));
     }
 
     /** Persist the update */
@@ -179,7 +172,7 @@ class TeacherByStudentController extends Controller
         });
 
         return redirect()
-            ->route('teacher.students.index')
+            ->route('center.students.index')
             ->with('success', 'زانیاری قوتابی بەسەرکەوتوویی نوێکرایەوە.');
     }
 
@@ -189,6 +182,7 @@ class TeacherByStudentController extends Controller
 
         $user->delete();
 
-        return redirect()->route('teacher.students.index')->with('success', 'زانکۆ بە سەرکەوتوویی سڕایەوە.');
+        return redirect()->route('center.students.index')->with('success', 'زانکۆ بە سەرکەوتوویی سڕایەوە.');
     }
+
 }

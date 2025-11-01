@@ -9,6 +9,7 @@
         <div class="d-none d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title">زانیاری بەش</div>
         </div>
+
     </div>
 
     <div class="row">
@@ -73,16 +74,6 @@
                                         <td>{{ $department->sex ?? '—' }}</td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fa-solid fa-toggle-on me-1 text-muted"></i> دۆخ</th>
-                                        <td>
-                                            @if ($department->status)
-                                                <span class="badge bg-success">چاڵاک</span>
-                                            @else
-                                                <span class="badge bg-danger">ناچاڵاک</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    <tr>
                                         <th><i class="fa-solid fa-align-left me-1 text-muted"></i> وەسف</th>
                                         <td>{!! nl2br(e($department->description)) !!}</td>
                                     </tr>
@@ -91,6 +82,7 @@
                         </div>
 
                     </div>
+
 
                 </div>
             </div>
@@ -126,7 +118,7 @@
 
         @if ($department->lat && $department->lng)
             const m = L.marker([{{ $department->lat }}, {{ $department->lng }}]).addTo(map)
-                .bindPopup(`<strong>{{ addslashes($department->image) }}<br />{{ addslashes($department->name) }}</strong>`);
+                .bindPopup(`<strong>{{ addslashes($department->name) }}</strong>`);
             map.setView([{{ $department->lat }}, {{ $department->lng }}], 15);
             any = true;
         @endif

@@ -6,7 +6,7 @@
             <div class="card glass fade-in">
                 <div class="card-body">
                     <h4 class="card-title mb-4">
-                        <i class="fa-solid fa-table-list me-2"></i> زانیاری قوتابی
+                        <i class="fa-solid fa-table-list me-2"></i> زانیاری تەواوی بەش
                     </h4>
 
                     <div class="table-wrap">
@@ -53,7 +53,7 @@
                                         <td>{{ $user->student->year ?? '—' }}</td>
                                     </tr>
                                     <tr>
-                                        <th><i class="fa-solid fa-percent me-1 text-muted"></i> کۆدی بانگێشت لای مامۆستا
+                                        <th><i class="fa-solid fa-percent me-1 text-muted"></i> کۆدی بانگێشتی سەنتەر
                                         </th>
                                         <td>{{ $user->student->referral_code ?? '—' }}</td>
                                     </tr>
@@ -73,16 +73,18 @@
 
                     </div>
 
+
                 </div>
 
+
             </div>
-
             <div class="card glass fade-in mt-3">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">
-                        <i class="fa-solid fa-table-list me-2"></i> بەشە هەلبژاردنی قوتابی
-                    </h4>
 
+                <div class="card-body">
+
+                    <h4 class="card-title mb-4">
+                        <i class="fa-solid fa-table-list me-2"></i> بەشە هەڵبژێردراوەکانی قوتابی
+                    </h4>
                     <div class="table-wrap">
                         <div class="table-responsive">
                             <table class="table table-bordered align-middle">
@@ -136,8 +138,7 @@
                                             </td>
                                             <td>
                                                 @if ($lat && $lng)
-                                                    <a class="btn btn-sm btn-outline-primary" target="_blank"
-                                                        rel="noopener"
+                                                    <a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener"
                                                         href="https://www.google.com/maps?q={{ $lat }},{{ $lng }}">
                                                         <i class="fa-solid fa-map-pin me-1"></i> نیشان
                                                     </a>
@@ -162,8 +163,9 @@
                             </table>
                         </div>
                     </div>
+
                 </div>
             </div>
-
-        </div>
-    @endsection
+            </div>
+    </div>
+@endsection

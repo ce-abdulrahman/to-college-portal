@@ -46,3 +46,4 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api'])->group(function () 
     // routesی تر...
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 });
+

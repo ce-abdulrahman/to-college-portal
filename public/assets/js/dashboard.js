@@ -8,8 +8,7 @@
   const mapEl = document.getElementById('dashboard-map');
 
   // If not the dashboard page, stop here
-  if (pageAttr !== 'admin.dashboard' && !mapEl) {
-    console.log('⛔ Dashboard JS skipped — not on dashboard page.');
+  if (pageAttr !== 'sadm.dshbd' && !mapEl) {
     return;
   }
 
@@ -1086,7 +1085,6 @@
         // Initialize the map
         window.mapV2 = new DashboardMapV2();
 
-        console.log('✅ Dashboard Map initialized successfully');
     });
 
 })(); // ✅ End of dashboard page guard

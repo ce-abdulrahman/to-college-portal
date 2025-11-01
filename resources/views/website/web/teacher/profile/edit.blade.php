@@ -67,18 +67,15 @@
                             </div>
 
                             <div class="col-12 col-md-6">
-                                <label for="role" class="form-label">ڕۆڵ</label>
+                                <label for="role" class="form-label">پیشە</label>
                                 <select class="form-select @error('role') is-invalid @enderror" id="role"
                                     name="role" required>
-                                    <option value="admin" @selected(old('role') === 'admin')>ئەدمین</option>
-                                    <option value="center" @selected(old('role') === 'center')>سەنتەر</option>
                                     <option value="teacher" @selected(old('role') === 'teacher')>مامۆستا</option>
-                                    <option value="student" @selected(old('role') === 'student')>قوتابی</option>
                                 </select>
                                 @error('role')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @else
-                                    <div class="form-text">تەنها ئەدمین دەتوانێت ڕۆڵ دیاری بکات.</div>
+                                    <div class="form-text">تەنها ئەدمین دەتوانێت پیشە دیاری بکات.</div>
                                 @enderror
                             </div>
 
@@ -132,7 +129,7 @@
                         {{-- Role/Status --}}
                         @if (auth()->user()->role == 'admin')
                             <div class="col-12 col-md-6 mb-3">
-                                <label for="status" class="form-label">دەسەڵات</label>
+                                <label for="status" class="form-label">پیشە</label>
                                 <select class="form-select @error('status') is-invalid @enderror" id="status"
                                     name="status" required>
                                     <option value="1" @selected($user->status == 1)>ئەدمین</option>

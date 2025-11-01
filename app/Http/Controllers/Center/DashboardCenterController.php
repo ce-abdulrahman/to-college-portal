@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Teacher;
+namespace App\Http\Controllers\Center;
 
 use App\Http\Controllers\Controller;
 use App\Models\Department;
@@ -10,14 +10,11 @@ use App\Models\University;
 use App\Models\College;
 use Illuminate\Http\Request;
 
-class TeacherDashboardController extends Controller
+class DashboardCenterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return view('website.web.teacher.index');
+        return view('website.web.center.index');
     }
 
     public function departments()
@@ -28,13 +25,13 @@ class TeacherDashboardController extends Controller
         $colleges = College::where('status', 1)->get();
         $departments = Department::where('status', 1)->get();
 
-        return view('website.web.teacher.departments.index', compact('departments', 'systems', 'provinces', 'universities', 'colleges'));
+        return view('website.web.center.departments.index', compact('departments', 'systems', 'provinces', 'universities', 'colleges'));
     }
 
     public function show(string $id)
     {
         $department = Department::findOrFail($id);
-        return view('website.web.teacher.departments.show', compact('department'));
+        return view('website.web.center.departments.show', compact('department'));
     }
 
 }

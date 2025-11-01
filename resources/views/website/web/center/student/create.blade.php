@@ -1,7 +1,7 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <a href="{{ route('admin.users.index') }}" class="btn btn-outline mb-4">
+    <a href="{{ route('center.students.index') }}" class="btn btn-outline mb-4">
         <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
     </a>
 
@@ -25,7 +25,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.users.store') }}" method="POST" class="needs-validation" novalidate>
+                    <form action="{{ route('center.students.store') }}" method="POST" class="needs-validation" novalidate>
                         @csrf
 
                         {{-- زانیاری سەرەکی --}}
@@ -35,7 +35,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
                                     <input type="text" class="form-control @error('code') is-invalid @enderror"
-                                        id="code" name="code" readonly>
+                                        id="code" name="code">
                                     @error('code')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -70,36 +70,37 @@
                             </div>
 
                             <div class="col-12 col-md-6">
-                                <label for="role" class="form-label">پیشە</label>
+                                <label for="role" class="form-label">قوتابی یان مامۆستا</label>
                                 <select class="form-select @error('role') is-invalid @enderror" id="role"
                                     name="role" required>
-                                    <option value="admin" @selected(old('role') === 'admin')>ئەدمین</option>
-                                    <option value="center" @selected(old('role') === 'center')>سەنتەر</option>
-                                    <option value="teacher" @selected(old('role') === 'teacher')>مامۆستا</option>
                                     <option value="student" @selected(old('role') === 'student')>قوتابی</option>
                                 </select>
                                 @error('role')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @else
-                                    <div class="form-text">تەنها ئەدمین دەتوانێت پیشە دیاری بکات.</div>
+                                    <div class="form-text">تەنها سەنتەر دەتوانێت پیشە دیاری بکات.</div>
                                 @enderror
                             </div>
 
-                            <div class="col-md-6">
-                                <label for="rand_code" class="form-label">کۆدی ڕیلەیشن</label>
-                                <input type="text" class="form-control @error('rand_code') is-invalid @enderror"
-                                    id="rand_code" name="rand_code" value="{{ old('rand_code') }}" readonly>
-                                @error('rand_code')
+                            <div class="col-12 col-md-6">
+                                <label for="referral_teacher_code" class="form-label">کۆدی بانگێشت</label>
+                                <input type="number" class="form-control @error('referral_teacher_code') is-invalid @enderror"
+                                    id="referral_teacher_code" name="referral_teacher_code" value="{{ auth()->user()->rand_code }}"
+                                    readonly>
+                                @error('referral_teacher_code')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            <input type="hidden" id="rand_code" name="rand_code" value="{{ old('rand_code') }}" readonly>
+
                         </div>
 
                         @php
                             $showExtra = old('role') === 'student' || request()->has('student');
                         @endphp
 
-                        @include('website.web.admin.user.info-student', [
+                        @include('website.web.teacher.student.info-student', [
                             'provinces' => $provinces,
                             'showExtra' => $showExtra,
                         ])
@@ -178,8 +179,16 @@
             }
 
             // Random codes
-            const $codeInput = $('#code');
             const $randCodeInput = $('#rand_code');
+
+            if ($randCodeInput.length) {
+                const gen2 = () => $randCodeInput.val(Math.floor(1000 + Math.random() * 9000));
+                gen2();
+                $randCodeInput.on('focus', gen2);
+            }
+
+            // Random codes
+            const $codeInput = $('#code');
 
             if ($codeInput.length) {
                 const gen = () => $codeInput.val(Math.floor(100000 + Math.random() * 900000));
@@ -187,11 +196,6 @@
                 $codeInput.on('focus', gen);
             }
 
-            if ($randCodeInput.length) {
-                const gen2 = () => $randCodeInput.val(Math.floor(1000 + Math.random() * 9000));
-                gen2();
-                $randCodeInput.on('focus', gen2);
-            }
         });
     </script>
 @endpush

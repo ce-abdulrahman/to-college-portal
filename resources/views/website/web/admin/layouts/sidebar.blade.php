@@ -89,6 +89,27 @@
             </nav>
         @endif
 
+        @if (auth()->check() && auth()->user()->role === 'center')
+            <a href="{{ route('center.dashboard') }}" class="drawer-nav-item {{ navActive('center.dashboard') }}">
+                <i class="bi bi-house"></i><span>ماڵەوە</span>
+            </a>
+            <a href="{{ route('center.departments.index') }}"
+                class="drawer-nav-item {{ navActive('center.departments.index') }}">
+                <i class="fa-regular fa-building"></i>
+                <span>بەشەکانی</span>
+            </a>
+            <a href="{{ route('center.teachers.index') }}"
+                class="drawer-nav-item {{ navActive('center.teachers.index') }}">
+                <i class="fa fa-users"></i>
+                <span>مامۆستاکانم</span>
+            </a>
+            <a href="{{ route('center.students.index') }}"
+                class="drawer-nav-item {{ navActive('center.students.index') }}">
+                <i class="fa fa-users"></i>
+                <span>قوتابیەکانم</span>
+            </a>
+        @endif
+
         @if (auth()->check() && auth()->user()->role === 'teacher')
             <a href="{{ route('teacher.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
                 <i class="bi bi-house"></i><span>ماڵەوە</span>
@@ -116,6 +137,13 @@
             </button>
         @endif
 
+        @if (auth()->check() && auth()->user()->role === 'center')
+            <button class="drawer-btn change-password-btn"
+                onclick="window.location.href='{{ route('center.profile.edit', auth()->user()->id) }}'">
+                <i class="bi bi-person"></i>
+                <span>پرۆفایل</span>
+            </button>
+        @endif
 
         @if (auth()->check() && auth()->user()->role === 'teacher')
             <button class="drawer-btn change-password-btn"

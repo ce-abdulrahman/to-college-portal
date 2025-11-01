@@ -69,8 +69,8 @@ class DepartmentController extends Controller
         $dep->college_id = $data['college_id'];
         $dep->name = $data['name'];
         $dep->name_en = $data['name_en'];
-        $dep->local_score = $data['local_score'];
-        $dep->external_score = $data['external_score'];
+        $dep->local_score = (float)$data['local_score'];
+        $dep->external_score = (float)$data['external_score'];
         $dep->type = $data['type'];
         $dep->sex = $data['sex'];
         $dep->image = $data['image'];
@@ -128,7 +128,22 @@ class DepartmentController extends Controller
         $data['image'] = !empty($imagePath) ? $imagePath : $department->image;
         //dd($data);
 
-        $department->update($data);
+        $department->system_id = $data['system_id'];
+        $department->province_id = $data['province_id'];
+        $department->university_id = $data['university_id'];
+        $department->college_id = $data['college_id'];
+        $department->name = $data['name'];
+        $department->name_en = $data['name_en'];
+        $department->local_score = (float)$data['local_score'];
+        $department->external_score = (float)$data['external_score'];
+        $department->type = $data['type'];
+        $department->sex = $data['sex'];
+        $department->image = $data['image'];
+        $department->lat = $data['lat'] ?? null;
+        $department->lng = $data['lng'] ?? null;
+        $department->description = $data['description'] ?? null;
+        $department->status = $data['status'];
+        $department->save();
 
         return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی نوێکرا.');
     }

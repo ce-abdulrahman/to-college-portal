@@ -6,14 +6,14 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-none d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
-                <i class="fa-solid fa-users me-2"></i> لیستی بەکارهێنەران
+                <i class="fa-solid fa-users me-2"></i> لیستی قوتابییەکان
             </div>
         </div>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <a href="{{ route('teacher.students.create') }}" class="btn btn-outline-primary">
-            <i class="fa-solid fa-user-plus me-1"></i> زیادکردنی بەکارهێنەری نوێ
+            <i class="fa-solid fa-user-plus me-1"></i> زیادکردنی قوتابی نوێ
         </a>
         {{--  <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی: {{ count($users) }}</span>  --}}
     </div>
@@ -21,7 +21,7 @@
     <div class="card glass mb-3">
         <div class="card-body">
             <div class="row g-2 align-items-end">
-                
+
                 {{-- Search --}}
                 <div class="col-12 col-md-4 mt-2">
                     <label class="form-label"><i class="fa-solid fa-magnifying-glass me-1 text-muted"></i> گەڕانی
@@ -53,7 +53,7 @@
     <div class="card glass fade-in">
         <div class="card-body">
             <h4 class="card-title mb-3">
-                <i class="fa-solid fa-users me-2"></i> بەکارهێنەران
+                <i class="fa-solid fa-users me-2"></i> قوتابییەکان
             </h4>
 
             <div class="table-wrap">
@@ -64,7 +64,7 @@
                                 <th style="width:60px">#</th>
                                 <th>ناو</th>
                                 <th>کۆد</th>
-                                <th>دەسەڵات</th>
+                                <th>پیشە</th>
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:160px">کردار</th>
                             </tr>
@@ -102,7 +102,7 @@
                                                 data-bs-title="دەستکاری">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
-                                            <form action="{{ route('teacher.students.destroy', $student->id) }}" method="POST"
+                                            <form action="{{ route('teacher.students.destroy', $student->user->id) }}" method="POST"
                                                 class="d-inline"
                                                 onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم بەکارهێنەرە؟');">
                                                 @csrf @method('DELETE')

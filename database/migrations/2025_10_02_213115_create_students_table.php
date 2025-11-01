@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('type', ['زانستی','وێژەیی'])->default('زانستی');
             $table->enum('gender', ['نێر','مێ'])->default('نێر');
             $table->integer('year');
-            $table->string('referral_code')->nullable();
+            $table->string('referral_code')->nullable()->comment('Get Relation in User Role Student column to rand_code');
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

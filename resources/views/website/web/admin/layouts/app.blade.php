@@ -86,7 +86,6 @@
 
 <script src="{{ asset('assets/js/dashboard.js') }}"></script>
 
-@stack('head-scripts')
 @stack('scripts')
 
 <script>

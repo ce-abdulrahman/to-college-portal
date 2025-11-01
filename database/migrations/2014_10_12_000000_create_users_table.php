@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('password');
             $table->string('phone')->nullable();
             $table->enum('role', ['admin', 'center', 'teacher', 'student'])->default('student');
-            $table->string('rand_code')->unique()->default(0);   // instead of email
+            $table->string('rand_code')->unique()->default(0)->comment('Relation to Student column to referral_code and Teacher column to referral_code');   // instead of email
             $table->boolean('status')->default(1);
-            $table->rememberToken(); 
+            $table->rememberToken();
             $table->timestamps();
         });
     }
