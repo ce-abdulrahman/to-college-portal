@@ -3,7 +3,7 @@
 @section('content')
     {{-- Actions bar --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
                 <i class="fa-solid fa-users me-2"></i> لیستی سەنتەرەکان
             </div>
@@ -13,7 +13,7 @@
     <div class="card glass fade-in">
         <div class="card-body">
             <h4 class="card-title mb-3">
-                <i class="fa-solid fa-users me-2"></i> {{ __('بەکارهێنەران') }}
+                <i class="fa-solid fa-users me-2"></i> سەنتەرەکان
             </h4>
 
             {{-- Top toolbar (length + search) --}}
@@ -26,7 +26,6 @@
                         <option value="50">50</option>
                         <option value="100">100</option>
                     </select>
-                    <label class="small text-muted mb-0">{{ __('تۆمار لە هەردەم') }}</label>
                 </div>
 
                 <div class="ms-auto" style="min-width:260px">
@@ -35,7 +34,7 @@
             </div>
 
             <div class="table-wrap">
-                <div class="table-responsive">
+                <div class="table-responsive table-scroll-x">
                     <table id="datatable" class="table align-middle nowrap" style="width:100%">
                         <thead>
                             <tr>
@@ -46,40 +45,49 @@
                                 <th>پیشە</th>
                                 <th>کۆدی بانگکردن</th>
                                 <th>دۆخ</th>
+                                <th>بینین</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($users as $index => $user)
-                                    <tr>
-                                        <td>{{ ++$index }}</td>
-                                        <td class="fw-semibold">
-                                            <i class="fa-regular fa-user me-1 text-muted"></i>
-                                            {{ $user->name }}
-                                        </td>
-                                        <td>{{ $user->code }}</td>
-                                        <td>
-                                            {{ $user->phone }}
-                                        </td>
-                                        <td>
-                                            @if ($user->role === 'center')
-                                                <span class="badge bg-info">سەنتەر</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            {{ $user->rand_code }}
-                                        </td>
-                                        <td>
-                                            @if ($user->status)
-                                                <span class="badge bg-success">چاڵاک</span>
-                                            @else
-                                                <span class="badge bg-danger">ناچاڵاک</span>
-                                            @endif
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>{{ ++$index }}</td>
+                                    <td class="fw-semibold">
+                                        <i class="fa-regular fa-user me-1 text-muted"></i>
+                                        {{ $user->name }}
+                                    </td>
+                                    <td>{{ $user->code }}</td>
+                                    <td>
+                                        {{ $user->phone }}
+                                    </td>
+                                    <td>
+                                        @if ($user->role === 'center')
+                                            <span class="badge bg-info">سەنتەر</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        {{ $user->rand_code }}
+                                    </td>
+                                    <td>
+                                        @if ($user->status)
+                                            <span class="badge bg-success">چاڵاک</span>
+                                        @else
+                                            <span class="badge bg-danger">ناچاڵاک</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('admin.center.show', $user->id) }}"
+                                            class="text-decoration-none btn-outline-light">
+                                            <i class="fa fa-eye me-1"></i>
+                                        </a>
+                                    </td>
+                                </tr>
                             @endforeach
-                            <tr>
-                                <td colspan="6" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
-                            </tr>
+                            @if (count($users) == 0)
+                                <tr>
+                                    <td colspan="6" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
 

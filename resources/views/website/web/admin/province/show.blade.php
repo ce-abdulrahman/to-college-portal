@@ -7,7 +7,7 @@
         </a>
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <div class="d-none d-lg-block text-center flex-grow-1">
+            <div class=" d-lg-block text-center flex-grow-1">
                 <div class="navbar-page-title" style="font-size: 32px">
                     <i class="fa-solid fa-map-pin me-1 text-muted"></i> زانیاری پارێزگا
                 </div>
@@ -38,7 +38,7 @@
                         <i class="fa-solid fa-table-list me-2"></i> زانیاری تەواوی پارێزگا
                     </h4>
                     <div class="table-wrap">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-scroll-x">
                             <table class="table table-bordered align-middle">
                                 <tbody>
                                     <tr>
@@ -98,7 +98,7 @@
                         </div>
 
                         <div class="table-wrap">
-                            <div class="table-responsive">
+                            <div class="table-responsive table-scroll-x">
                                 <table class="table table-bordered align-middle">
                                     <thead>
                                         <tr>

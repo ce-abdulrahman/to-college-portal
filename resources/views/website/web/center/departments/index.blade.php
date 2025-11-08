@@ -124,7 +124,7 @@
             <h4 class="card-title mb-3"><i class="fa-solid fa-table-list me-2"></i> بەشەکان</h4>
 
             <div class="table-wrap">
-                <div class="table-responsive">
+                <div class="table-responsive table-scroll-x">
                     <table id="datatable" class="table align-middle nowrap" style="width:100%">
                         <thead>
                             <tr>

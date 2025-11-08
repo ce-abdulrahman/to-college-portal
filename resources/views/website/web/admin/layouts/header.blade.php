@@ -6,11 +6,8 @@
             <i class="bi bi-list"></i>
         </button>
 
-        <div class="account-info">
-            <div class="account-details">
-                <div class="account-name" id="account-name">{{ auth()->user()->name }}</div>
-                <div class="account-role" id="account-role">{{ auth()->user()->role }}</div>
-            </div>
+        <div class="logo-image">
+            <img src="{{ asset('assets/admin/images/logo.png') }}" alt="" srcset="">
         </div>
 
     </div>

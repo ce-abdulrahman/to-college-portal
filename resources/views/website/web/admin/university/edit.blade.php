@@ -2,11 +2,11 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.universities.index') }}" class="btn btn-outline">
+        <a href="{{ route('admin.universities.index') }}" class="btn btn-outline-success">
             <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
         </a>
 
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
                 <i class="fa-solid fa-map-pin me-1 text-muted"></i> نوێ کردنەوەی زانکۆی
             </div>
@@ -75,12 +75,12 @@
 
 
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label">Latitude</label>
                                     <input id="lat" name="lat" type="number" step="any"
                                         value="{{ old('lat', $university->lat ?? null) }}" class="form-control">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <label class="form-label">Longitude</label>
                                     <input id="lng" name="lng" type="number" step="any"
                                         value="{{ old('lng', $university->lng ?? null) }}" class="form-control">
@@ -94,7 +94,7 @@
                             </div>
 
                             {{-- Status --}}
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label for="status" class="form-label">
                                     <i class="fa-solid fa-toggle-on me-1 text-muted"></i> دۆخ <span
                                         class="text-danger">*</span>

@@ -231,7 +231,7 @@ html[dir="rtl"] .text-end{ text-align:left !important }
 .table .actions .btn{ margin-inline:2px }
 
 /* Make “nowrap” tables scroll nicely */
-.table-responsive, .dataTables_wrapper .dataTables_scroll{
+.table-responsive table-scroll-x, .dataTables_wrapper .dataTables_scroll{
   border-radius:16px; overflow:hidden; background:var(--card);
   box-shadow:var(--shadow); border:1px solid var(--border);
 }
@@ -319,7 +319,7 @@ html[dir="rtl"] .custom-tooltip .tooltip-inner{ text-align:right }
 /* ---------- Helpers to nicely host a table block ----------
    Wrap your table like:
    <div class="table-wrap">
-     <div class="table-responsive">
+     <div class="table-responsive table-scroll-x">
        <table id="datatable" class="table table-bordered dt-responsive nowrap">...</table>
      </div>
    </div>
@@ -529,4 +529,74 @@ html[dir="rtl"] .custom-tooltip .tooltip-inner{ text-align:right }
         right: 10px;
         max-width: none;
     }
+}
+.table-scroll-x {
+    width: 100%;
+    overflow-x: auto;       /* Horizontal scroll */
+    overflow-y: hidden;
+    white-space: nowrap;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+
+/* ✅ table styling */
+.table-scroll table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ✅ sticky header */
+.table-scroll thead th {
+    position: sticky;
+    top: 0;
+    background: #f8fafc;       /* سەوزی فاقی */
+    z-index: 10;
+}
+.table-scroll-both {
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+.table-scroll::-webkit-scrollbar,
+.table-scroll-both::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb,
+.table-scroll-both::-webkit-scrollbar-thumb {
+    background: #cbd5e1;    /* سەوزی خاکستەی */
+    border-radius: 5px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb:hover,
+.table-scroll-both::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ✅ Logo Image inside Navbar */
+.logo-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 45px;           /* Control height */
+}
+
+.logo-image img {
+    height: 100%;
+    width: auto;
+    max-height: 45px;       /* same as container height */
+    object-fit: contain;
+    border-radius: 8px;     /* soft rounded corners */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15); /* subtle depth */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logo-image img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
 }

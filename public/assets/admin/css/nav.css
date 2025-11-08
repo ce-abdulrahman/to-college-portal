@@ -326,3 +326,55 @@
 .drawer-nav-item span {
     font-size: 14px;
 }
+/* ✅ Drawer Scroll Vertical */
+.drawer-content {
+    flex: 1;
+    padding: 25px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #475569 #1e293b;
+    position: relative;
+}
+
+/* Chrome/Edge/Safari Scrollbar */
+.drawer-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.drawer-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.drawer-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #6366f1, #4338ca);
+    border-radius: 10px;
+}
+
+.drawer-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #4f46e5, #3730a3);
+}
+
+/* Optional Hover Shadows (Top/Bottom indicators) */
+.drawer-content::before,
+.drawer-content::after {
+    content: "";
+    position: sticky;
+    left: 0;
+    right: 0;
+    height: 20px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.drawer-content::before {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+}
+
+.drawer-content::after {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+}

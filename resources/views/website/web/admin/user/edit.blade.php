@@ -129,20 +129,6 @@
 
                         <hr class="my-4">
 
-                        {{-- Role/Status --}}
-                        @if (auth()->user()->role == 'admin')
-                            <div class="col-12 col-md-6 mb-3">
-                                <label for="status" class="form-label">پیشە</label>
-                                <select class="form-select @error('status') is-invalid @enderror" id="status"
-                                    name="status" required>
-                                    <option value="1" @selected($user->status == 1)>ئەدمین</option>
-                                    <option value="0" @selected($user->status == 0)>قوتابی</option>
-                                </select>
-                                @error('status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        @endif
 
                         <div class="d-flex justify-content-end mt-4">
                             <button type="submit" class="btn btn-primary">

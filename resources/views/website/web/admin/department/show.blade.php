@@ -6,7 +6,7 @@
             <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
         </a>
 
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title">زانیاری بەش</div>
         </div>
 
@@ -33,7 +33,7 @@
                     </h4>
 
                     <div class="table-wrap">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-scroll-x">
                             <table class="table table-bordered align-middle">
                                 <tbody>
                                     <tr>

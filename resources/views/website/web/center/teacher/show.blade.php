@@ -50,7 +50,7 @@
                         <i class="fa-solid fa-table-list me-2"></i> ناو قوتابیەکانی لەسەر ناوی ئەم مامۆستایە داخیل بوونە
                     </h4>
                     <div class="table-wrap">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-scroll-x">
                             <table class="table table-bordered align-middle">
                                 <thead>
                                     <tr>
@@ -127,7 +127,7 @@
                                                                     </h4>
 
                                                                     <div class="table-wrap">
-                                                                        <div class="table-responsive">
+                                                                        <div class="table-responsive table-scroll-x">
                                                                             <table
                                                                                 class="table table-bordered align-middle">
                                                                                 <thead>

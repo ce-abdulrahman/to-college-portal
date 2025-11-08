@@ -7,7 +7,7 @@
         <a href="{{ route('admin.departments.index') }}" class="btn btn-outline-success mb-4">
             <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
         </a>
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title">نوێ کردنی بەش بۆ کۆلێژ یان پەیمانگا </div>
         </div>
     </div>
@@ -140,7 +140,7 @@
 
                             <div class="col-12">
                                 <label for="description" class="form-label">وەسف</label>
-                                <textarea id="description" name="description" rows="3" class="form-control">{{ old('description', $department->description) }}</textarea>
+                                <textarea id="description" name="description" class="form-control summernote" rows="4">{{ old('description',  $department->description ) }}</textarea>
                             </div>
 
                             <div class="col-12 col-md-6">
@@ -169,54 +169,27 @@
     </div>
 @endsection
 
+@push('head-scripts')
+    {{-- Leaflet CSS (ئەگەر لە layout بارنەکردووە) --}}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    {{-- Summernote CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css" rel="stylesheet">
+@endpush
 
 @push('scripts')
-    <script src="{{ asset('assets/admin/js/pages/departments/form.js') }}" defer></script>
+    {{-- jQuery (پێشو Summernote) --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" defer></script>
+    {{-- Leaflet JS (ئەگەر لە layout بارنەکردووە) --}}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    {{-- Summernote JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js" defer></script>
 
+    {{-- API base urls (hardcode مەکەین) --}}
     <script>
-        const lat0 = {{ $department->lat ?? 36.2 }};
-        const lng0 = {{ $department->lng ?? 44.0 }};
-        const map = L.map('map').setView([lat0, lng0], {{ $department->lat ?? false ? 15 : 9 }});
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18
-        }).addTo(map);
-
-        const layer = L.layerGroup().addTo(map);
-        let marker = null;
-
-        @if (!empty($department->lat) && !empty($department->lng))
-            marker = L.marker([{{ $department->lat }}, {{ $department->lng }}]).addTo(layer);
-        @endif
-
-        map.on('click', (e) => {
-            if (marker) layer.clearLayers();
-            marker = L.marker(e.latlng).addTo(layer);
-            document.getElementById('lat').value = e.latlng.lat.toFixed(6);
-            document.getElementById('lng').value = e.latlng.lng.toFixed(6);
-        });
-        // ===== Summers description (auto-fill + counter) =====
-  $(function() {
-
-    const $desc = $('#description');
-
-    // Focus style (ئاختیاری)
-    $desc.on('focus', function() {
-      $(this).css('background-color', '#fffbe6');
-    }).on('blur', function() {
-      $(this).css('background-color', '#fff');
-    });
-
-    // Counter
-    const maxLen = 600;
-    if ($('#descCount').length === 0) {
-      $('<small id="descCount" class="form-text text-muted d-block mt-1"></small>').insertAfter($desc);
-    }
-    const updateCounter = () => {
-      const len = $desc.val().length;
-      $('#descCount').text(len + '/' + maxLen + ' پیت').toggleClass('text-danger', len > maxLen);
-    };
-    $desc.on('input', updateCounter);
-    updateCounter();
-  });
+        window.API_UNI   = "{{ route('admin.api.universities') }}"; // ?province_id=ID
+        window.API_COLLS = "{{ route('admin.api.colleges') }}";     // ?university_id=ID
     </script>
+
+    {{-- پەیجی JS ـی تایبەتی --}}
+    <script src="{{ asset('assets/admin/js/pages/departments/create.js') }}" defer></script>
 @endpush

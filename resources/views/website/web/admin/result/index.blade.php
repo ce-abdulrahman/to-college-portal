@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title mb-3" style="font-size: 24px;">لیستی ئەنجامەکانی قوتابیان</div>
         </div>
     </div>
@@ -66,7 +66,7 @@
             <h4 class="card-title mb-3"><i class="fa-solid fa-table-list me-2"></i> بەشەکان</h4>
 
             <div class="table-wrap">
-                <div class="table-responsive">
+                <div class="table-responsive table-scroll-x">
                     <table id="datatable" class="table align-middle nowrap" style="width:100%">
                         <thead>
                             <tr>

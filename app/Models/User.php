@@ -35,6 +35,11 @@ class User extends Authenticatable
         return 'code';                // ✅ use 'code' for auth
     }
 
+    public function teacher()
+    {
+        return $this->hasOne(Teacher::class);
+    }
+
     public function student()
     {
         return $this->hasOne(Student::class);

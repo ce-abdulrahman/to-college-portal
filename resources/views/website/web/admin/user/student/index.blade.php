@@ -3,7 +3,7 @@
 @section('content')
     {{-- Actions bar --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
                 <i class="fa-solid fa-users me-2"></i> لیستی قوتابیایان
             </div>
@@ -13,38 +13,37 @@
     <div class="card glass fade-in">
         <div class="card-body">
             <h4 class="card-title mb-3">
-                <i class="fa-solid fa-users me-2"></i> {{ __('بەکارهێنەران') }}
+                <i class="fa-solid fa-users me-2"></i> قوتابیایان
             </h4>
 
             {{-- Top toolbar (length + search) --}}
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <label class="small text-muted mb-0">{{ __('پیشاندانی') }}</label>
+                    <label class="small text-muted mb-0">پیشاندانی</label>
                     <select id="page-length" class="form-select form-select-sm" style="width:auto">
                         <option value="10" selected>10</option>
                         <option value="25">25</option>
                         <option value="50">50</option>
                         <option value="100">100</option>
                     </select>
-                    <label class="small text-muted mb-0">{{ __('تۆمار لە هەردەم') }}</label>
                 </div>
 
                 <div class="ms-auto" style="min-width:260px">
-                    <input id="custom-search" type="search" class="form-control" placeholder="{{ __('گەڕان... (ناو)') }}">
+                    <input id="custom-search" type="search" class="form-control" placeholder="گەڕان... (ناو)">
                 </div>
             </div>
 
             <div class="table-wrap">
-                <div class="table-responsive">
+                <div class="table-responsive table-scroll-x">
                     <table id="datatable" class="table align-middle nowrap" style="width:100%">
                         <thead>
                             <tr>
                                 <th style="width:60px">#</th>
                                 <th>ناو</th>
                                 <th>کۆد</th>
-                                <th>{{ __('پەیوەندیدانی قوتابی') }}</th>
                                 <th>پیشە</th>
-                                <th style="width:120px">{{ __('دۆخ') }}</th>
+                                <th style="width:120px">دۆخ</th>
+                                <th style="width:120px">بینین</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,36 +57,37 @@
                                         </td>
                                         <td>{{ $user->code }}</td>
                                         <td>
-                                            @if ($user->student)
-                                                <a href="{{ route('admin.students.show', $user->student->id) }}"
-                                                    class="text-decoration-none">
-                                                    <i class="fa-solid fa-link me-1"></i>
-                                                    {{ $user->name }}
-                                                </a>
-                                            @else
-                                                <span class="text-muted">{{ __('هیچ پەیوەندیدانێک نییە') }}</span>
-                                            @endif
-                                        </td>
-                                        <td>
                                             @if ($user->role === 'admin')
-                                                <span class="badge bg-info">{{ __('ئەدمین') }}</span>
+                                                <span class="badge bg-info">ئەدمین</span>
                                             @else
                                                 <span class="badge bg-secondary">قوتابی</span>
                                             @endif
                                         </td>
                                         <td>
                                             @if ($user->status)
-                                                <span class="badge bg-success">{{ __('چاڵاک') }}</span>
+                                                <span class="badge bg-success">چاڵاک</span>
                                             @else
-                                                <span class="badge bg-danger">{{ __('ناچاڵاک') }}</span>
+                                                <span class="badge bg-danger">ناچاڵاک</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($user->student)
+                                                <a href="{{ route('admin.student.show', $user->student->id) }}"
+                                                    class="text-decoration-none">
+                                                    <i class="fa fa-eye me-1"></i>
+                                                </a>
+                                            @else
+                                                <span class="text-muted"> نییە</span>
                                             @endif
                                         </td>
                                     </tr>
                                 @endif
                             @endforeach
-                            <tr>
-                                <td colspan="6" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
-                            </tr>
+                            @if (count($users) == 0)
+                                <tr>
+                                    <td colspan="6" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
 

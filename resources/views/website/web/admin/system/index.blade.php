@@ -3,7 +3,7 @@
 @section('content')
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
                 <i class="fa-solid fa-building-columns me-2"></i> سیستەمەکانی خوێندن
             </div>
@@ -19,8 +19,8 @@
     </div>
 
     <div class="table-wrap fade-in">
-        <div class="table-responsive">
-            <table id="datatable" class="table  nowrap" style="width:100%">
+        <div class="table-responsive table-scroll-x">
+            <table  id="simpleTable" class="table table-striped" style="width:100%">
                 <thead>
                     <tr>
                         <th>#</th>

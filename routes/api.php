@@ -13,8 +13,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::name('admin.api.')->group(function () {
-});
+
 Route::get('/provinces/{id}/universities', [DashboardController::class, 'getUniversitiesByProvince'])
     ->name('admin.api.provinces.universities');
 

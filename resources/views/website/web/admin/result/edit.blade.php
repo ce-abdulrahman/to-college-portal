@@ -5,7 +5,7 @@
     <a href="{{ route('admin.departments.index') }}" class="btn btn-outline">
       <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
     </a>
-    <div class="d-none d-lg-block text-center flex-grow-1">
+    <div class=" d-lg-block text-center flex-grow-1">
       <div class="navbar-page-title">نوێکردنەوەی بەش</div>
     </div>
   </div>

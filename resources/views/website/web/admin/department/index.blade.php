@@ -89,11 +89,21 @@
                 </div>
 
                 {{-- Search --}}
-                <div class="col-12 col-md-6 mt-2">
+                <div class="col-12 col-md-3 mt-2">
                     <label class="form-label"><i class="fa-solid fa-magnifying-glass me-1 text-muted"></i> گەڕانی
                         گشتی</label>
                     <input id="filter-search" type="text" class="form-control"
                         placeholder="ناوی بەش/سیستەم/پارێزگا/زانکۆ/کۆلێژ ...">
+                </div>
+
+                <div class="col-12 col-md-3 mt-2">
+                    <label class="form-label">پیشاندانی</label>
+                    <select id="page-length" class="form-select form-select-sm" style="width:auto">
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
                 </div>
 
                 {{-- Reset --}}
@@ -106,22 +116,7 @@
         </div>
     </div>
 
-    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
-        <div class="d-flex align-items-center gap-2">
-            <label class="small text-muted mb-0">پیشاندانی</label>
-            <select id="page-length" class="form-select form-select-sm" style="width:auto">
-                <option value="10" selected>10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-            <label class="small text-muted mb-0">تۆمار لە هەردەم</label>
-        </div>
 
-        <div class="ms-auto" style="min-width:260px">
-            <input id="custom-search" type="search" class="form-control" placeholder="گەڕان... (ناو/سیستەم/پارێزگا/...)">
-        </div>
-    </div>
 
 
     <div class="card glass fade-in">
@@ -129,7 +124,7 @@
             <h4 class="card-title mb-3"><i class="fa-solid fa-table-list me-2"></i> بەشەکان</h4>
 
             <div class="table-wrap">
-                <div class="table-responsive">
+                <div class="table-responsive table-scroll-x">
                     <table id="datatable" class="table align-middle nowrap" style="width:100%">
                         <thead>
                             <tr>
@@ -200,8 +195,8 @@
                                             method="POST" class="d-inline"
                                             onsubmit="return confirm('ئایە دڵنیایت لە سڕینەوەی ئەم بەشە؟');">
                                             @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip"
-                                                data-bs-title="سڕینەوە">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="tooltip" data-bs-title="سڕینەوە">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </form>

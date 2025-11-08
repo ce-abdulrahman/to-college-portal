@@ -34,17 +34,18 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
 
         // users routes will be here
         Route::resource('users', UserProfileController::class)->names('users');
-        Route::get('/users/search-by-code', [UserProfileController::class, 'searchByCode'])->name('users.searchByCode');
+        Route::post('/users/search-by-code', [UserProfileController::class, 'searchByCode'])->name('users.searchByCode');
 
         Route::get('/centers', [CenterController::class, 'index'])->name('centers.index');
+        Route::get('/center/{id}/teachers', [CenterController::class, 'show'])->name('center.show');
+
         Route::get('/teachers', [TeacherController::class, 'index'])->name('teachers.index');
+        Route::get('/teacher/{id}/students', [TeacherController::class, 'show'])->name('teacher.show');
+
+        Route::get('/students', [StudentController::class, 'index'])->name('students.index');
+        Route::get('/students/{id}/department', [StudentController::class, 'show'])->name('student.show');
 
 
-
-        // student routes will be here
-        Route::resource('students', StudentController::class)->names('students');
-
-        // results for all students
         Route::resource('results', ResultController::class)->names('results');
 
     });

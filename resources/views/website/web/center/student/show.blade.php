@@ -10,7 +10,7 @@
                     </h4>
 
                     <div class="table-wrap">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-scroll-x">
                             <table class="table table-bordered align-middle">
                                 <tbody>
                                     <tr>
@@ -86,7 +86,7 @@
                         <i class="fa-solid fa-table-list me-2"></i> بەشە هەڵبژێردراوەکانی قوتابی
                     </h4>
                     <div class="table-wrap">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-scroll-x">
                             <table class="table table-bordered align-middle">
                                 <thead>
                                     <tr>

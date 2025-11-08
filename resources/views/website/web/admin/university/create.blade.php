@@ -6,7 +6,7 @@
       <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
     </a>
 
-    <div class="d-none d-lg-block text-center flex-grow-1">
+    <div class=" d-lg-block text-center flex-grow-1">
       <div class="navbar-page-title" style="font-size: 32px">
         <i class="fa-solid fa-map-pin me-1 text-muted"></i> دروستکردنی زانکۆی نوێ
       </div>
@@ -83,11 +83,11 @@
               </div>
 
               {{-- Point (optional) --}}
-              <div class="col-6 col-md-3">
+              <div class="col-12 col-md-6">
                 <label class="form-label">Latitude</label>
                 <input id="lat" name="lat" type="number" step="any" class="form-control" value="{{ old('lat') }}">
               </div>
-              <div class="col-6 col-md-3">
+              <div class="col-12 col-md-6">
                 <label class="form-label">Longitude</label>
                 <input id="lng" name="lng" type="number" step="any" class="form-control" value="{{ old('lng') }}">
               </div>
@@ -101,7 +101,7 @@
               </div>
 
               {{-- Status --}}
-              <div class="col-md-6">
+              <div class="col-md-12">
                 <label for="status" class="form-label">
                   <i class="fa-solid fa-toggle-on me-1 text-muted"></i> {{ __('دۆخ') }} <span class="text-danger">*</span>
                 </label>

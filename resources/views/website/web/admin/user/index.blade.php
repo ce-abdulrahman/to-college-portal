@@ -4,7 +4,7 @@
     {{-- Actions bar --}}
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
                 <i class="fa-solid fa-users me-2"></i> لیستی بەکارهێنەران
             </div>
@@ -67,14 +67,13 @@
             </h4>
 
             <div class="table-wrap">
-                <div class="table-responsive">
+                <div class="table-responsive table-scroll-x">
                     <table id="datatable" class="table align-middle nowrap" style="width:100%">
                         <thead>
                             <tr>
                                 <th style="width:60px">#</th>
                                 <th>ناو</th>
                                 <th>کۆد</th>
-                                <th>پەیوەندیدانی قوتابی</th>
                                 <th>پیشە</th>
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:160px">کردار</th>
@@ -90,17 +89,7 @@
                                             {{ $user->name }}
                                         </td>
                                         <td>{{ $user->code }}</td>
-                                        <td>
-                                            @if ($user->role === 'student')
-                                                <a href="{{ route('admin.students.show', $user->id) }}"
-                                                    class="text-decoration-none">
-                                                    <i class="fa-solid fa-link me-1"></i>
-                                                    {{ $user->name }}
-                                                </a>
-                                            @else
-                                                <span class="text-muted">هیچ پەیوەندیدانێک نییە</span>
-                                            @endif
-                                        </td>
+
                                         <td>
                                             @if ($user->role === 'admin')
                                                 <span class="badge bg-info">ئەدمین</span>
@@ -119,7 +108,30 @@
                                                 <span class="badge bg-danger">ناچاڵاک</span>
                                             @endif
                                         </td>
+
                                         <td class="actions">
+
+                                            @if ($user->role === 'center')
+                                                <a href="{{ route('admin.center.show', $user->id) }}"
+                                                    class="text-decoration-none" title="{{ $user->role  }} || {{ $user->name }}">
+                                                    <i class="fa fa-eye me-1"></i>
+                                                </a>
+                                            @elseif ($user->role === 'teacher')
+                                                <a href="{{ route('admin.teacher.show', $user->id) }}"
+                                                    class="text-decoration-none" title="{{ $user->role  }} || {{ $user->name }}">
+                                                    <i class="fa fa-eye me-1"></i>
+                                                </a>
+                                            @elseif ($user->role === 'student')
+                                                <a href="{{ route('admin.student.show', $user->id) }}"
+                                                    class="text-decoration-none" title="{{ $user->role  }} || {{ $user->name }}">
+                                                    <i class="fa fa-eye me-1"></i>
+                                                </a>
+                                            @else
+                                                <span class="text-muted">نییە</span>
+                                            @endif
+
+
+
                                             <a href="{{ route('admin.users.edit', $user->id) }}"
                                                 class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
                                                 data-bs-title="دەستکاری">

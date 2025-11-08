@@ -3,23 +3,23 @@
 @section('content')
     {{-- Top Bar --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.students.index') }}" class="btn btn-outline">
+        <a href="{{ route('admin.students.index') }}" class="btn btn-outline-success">
             <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
         </a>
 
-        <div class="d-none d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title fw-bold">زانیاری بەش</div>
+        <div class=" d-lg-block text-center flex-grow-1">
+            <div class="navbar-page-title fw-bold">زانیاری قوتابی</div>
         </div>
 
         <div class="d-flex gap-2">
-            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary" data-bs-toggle="tooltip"
+            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-primary" data-bs-toggle="tooltip"
                 title="دەستکاری">
                 <i class="fa-solid fa-pen-to-square me-1"></i>
             </a>
             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
                 onsubmit="return confirm('دڵنیایت دەتەوێت بسڕیتەوە؟');">
                 @csrf @method('DELETE')
-                <button type="submit" class="btn btn-danger" data-bs-toggle="tooltip" title="سڕینەوە">
+                <button type="submit" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="سڕینەوە">
                     <i class="fa-solid fa-trash-can me-1"></i>
                 </button>
             </form>
@@ -36,12 +36,12 @@
                         <i class="fa-solid fa-circle-info me-2 text-primary"></i> زانیاری تەواوی قوتابی
                     </h4>
 
-                    <div class="table-responsive">
+                    <div class="table-responsive table-scroll-x">
                         <table class="table table-striped table-hover align-middle">
                             <tbody>
                                 <tr>
                                     <th style="width:260px"><i class="fa-solid fa-hashtag me-1 text-muted"></i></th>
-                                    <td>{{ $user->id }}</td>
+                                    <td>1</td>
                                 </tr>
                                 <tr>
                                     <th><i class="fa-solid fa-user me-1 text-muted"></i> ناو</th>
@@ -87,14 +87,7 @@
                         </table>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2 mt-3">
-                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary">
-                            <i class="fa-solid fa-pen-to-square me-1"></i> گۆڕین
-                        </a>
-                        <a href="{{ route('admin.students.index') }}" class="btn btn-outline">
-                            <i class="fa-solid fa-list me-1"></i> لیست
-                        </a>
-                    </div>
+
                 </div>
             </div>
 
@@ -105,7 +98,7 @@
                         <i class="fa-solid fa-building-columns me-2 text-success"></i> بەشە هەڵبژێدراوەکان لە کۆلێژ و پەیمانگا
                     </h4>
 
-                    <div class="table-responsive">
+                    <div class="table-responsive table-scroll-x">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>

@@ -3,11 +3,11 @@
 @section('content')
     {{-- Actions bar --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.universities.index') }}" class="btn btn-outline">
+        <a href="{{ route('admin.universities.index') }}" class="btn btn-outline-success">
             <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
         </a>
 
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title">{{ __('زانیاری زانکۆ') }}</div>
         </div>
 
@@ -35,7 +35,7 @@
                     </h4>
 
                     <div class="table-wrap">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-scroll-x">
                             <table class="table table-bordered align-middle">
                                 <tbody>
                                     <tr>
@@ -120,7 +120,7 @@
 
 
                     <div class="table-wrap">
-                        <div class="table-responsive">
+                        <div class="table-responsive table-scroll-x">
                             <table class="table table-bordered align-middle">
                                 <thead>
                                     <tr>

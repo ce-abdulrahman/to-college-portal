@@ -7,7 +7,7 @@
         </a>
 
         {{-- ناونیشانی پەیج (تەنها لە دسکتۆپ دەربکەوێت) --}}
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title">زیادکردنی بەشی نوێی</div>
         </div>
     </div>

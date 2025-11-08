@@ -2,11 +2,11 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="{{ route('admin.colleges.index') }}" class="btn btn-outline mb-4">
+    <a href="{{ route('admin.colleges.index') }}" class="btn btn-outline-success mb-4">
       <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
     </a>
 
-    <div class="d-none d-lg-block text-center flex-grow-1">
+    <div class=" d-lg-block text-center flex-grow-1">
       <div class="navbar-page-title" style="font-size: 32px">
         <i class="fa-solid fa-building-columns me-1 text-muted"></i> دروستکردنی کۆلێژ یان پەیمانگا
       </div>

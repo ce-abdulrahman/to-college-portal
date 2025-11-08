@@ -5,11 +5,24 @@
     <div class="drawer-header">
         <div class="drawer-logo">
             <div class="logo-icon">
-                <i class="bi bi-calculator"></i>
+                <i class="bi bi-person"></i>
             </div>
             <div class="company-info">
-                <h3 class="company-name">سیستەمی زانکۆلاین</h3>
-                <p class="company-tagline">بەڕێوەبردنی کاروبار</p>
+                <h3 class="company-name">{{ auth()->user()->name }}</h3>
+                <p class="company-tagline">
+                    @if(auth()->user()->role == 'admin')
+                        {{ 'بەرێوبەر' }}
+                    @endif
+                    @if (auth()->user()->role == 'center')
+                        {{ 'سەنتەر' }}
+                    @endif
+                    @if (auth()->user()->role == 'teacher')
+                    {{ 'مامۆستا' }}
+                    @endif
+                    @if (auth()->user()->role == 'student')
+                        {{ 'قوتابی' }}
+                    @endif
+                </p>
             </div>
         </div>
     </div>
@@ -57,12 +70,6 @@
                     <span>بەشەکانی</span>
                 </a>
 
-                <a href="{{ route('admin.students.index') }}"
-                    class="drawer-nav-item back-btn {{ navActive('admin.students.index') }}">
-                    <i class="fa-regular fa-id-card"></i>
-                    <span>قوتابیان</span>
-                </a>
-
                 <a href="{{ route('admin.centers.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.centers.index') }}">
                     <i class="fa-regular fa-id-card"></i>
@@ -73,6 +80,12 @@
                     class="drawer-nav-item back-btn {{ navActive('admin.teachers.index') }}">
                     <i class="fa-regular fa-id-card"></i>
                     <span>مامۆستایەکان</span>
+                </a>
+
+                <a href="{{ route('admin.students.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.students.index') }}">
+                    <i class="fa-regular fa-id-card"></i>
+                    <span>قوتابیان</span>
                 </a>
 
                 <a href="{{ route('admin.results.index') }}"
@@ -202,7 +215,7 @@
         if (window.history.length > 1) {
             window.history.back();
         } else {
-            window.location.href = 'admin/dashboard'; // Redirect to a default page if no history
+            window.location.href = '/dashboard'; // Redirect to a default page if no history
         }
     }
 </script>

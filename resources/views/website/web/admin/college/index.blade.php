@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="d-none d-lg-block text-center flex-grow-1">
+        <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
                 <i class="fa-solid fa-building-columns me-2"></i> تەواوی کۆلێژ یان پەیمانگا
             </div>
@@ -49,6 +49,26 @@
                     </select>
                 </div>
 
+                <div class="col-12 col-md-6">
+                    <div class="ms-auto" style="min-width:260px">
+                    <label class="form-label">گەڕان</label>
+                        <input id="custom-search" type="search" class="form-control"
+                            placeholder="(کۆلێژ/زانکۆ/پارێزگا)">
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                    <label class="form-label">پیشاندانی</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <select id="page-length" class="form-select form-select-sm" style="width:auto">
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
+                </div>
+
                 {{-- Reset --}}
                 <div class="col-12 col-md-3">
                     <button id="filter-reset" type="button" class="btn btn-outline w-100">
@@ -60,22 +80,7 @@
     </div>
 
     {{-- External search & page length --}}
-    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
-        <div class="d-flex align-items-center gap-2">
-            <label class="small text-muted mb-0">پیشاندانی</label>
-            <select id="page-length" class="form-select form-select-sm" style="width:auto">
-                <option value="10" selected>10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-            <label class="small text-muted mb-0">تۆمار لە هەردەم</label>
-        </div>
 
-        <div class="ms-auto" style="min-width:260px">
-            <input id="custom-search" type="search" class="form-control" placeholder="گەڕان... (کۆلێژ/زانکۆ/پارێزگا)">
-        </div>
-    </div>
 
     {{-- Table --}}
     <div class="card glass fade-in">
@@ -83,7 +88,7 @@
             <h4 class="card-title mb-3"><i class="fa-solid fa-table-list me-2"></i> کۆلێژەکان</h4>
 
             <div class="table-wrap">
-                <div class="table-responsive">
+                <div class="table-responsive table-scroll-x">
                     <table id="datatable" class="table align-middle nowrap" style="width:100%">
                         <thead>
                             <tr>
@@ -92,7 +97,7 @@
                                 <th>پارێزگا</th>
                                 <th>زانکۆ</th>
                                 <th>کۆلێژ</th>
-                                <th>کۆلێژ (ئینگلیزی)</th>
+                                {{--  <th>کۆلێژ (ئینگلیزی)</th>  --}}
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:160px" data-orderable="false">کردار</th>
                             </tr>
@@ -114,10 +119,10 @@
                                     <td class="fw-semibold">
                                         <i class="fa-solid fa-building-columns me-1 text-muted"></i> {{ $college->name }}
                                     </td>
-                                    <td class="fw-semibold">
+                                    {{--  <td class="fw-semibold">
                                         <i class="fa-solid fa-building-columns me-1 text-muted"></i>
                                         {{ $college->name_en }}
-                                    </td>
+                                    </td>  --}}
 
                                     <td>
                                         @if ($college->status)
