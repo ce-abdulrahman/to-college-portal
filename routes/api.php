@@ -14,6 +14,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+// بۆ داشبۆردی بەکارم هێناوە.
 Route::get('/provinces/{id}/universities', [DashboardController::class, 'getUniversitiesByProvince'])
     ->name('admin.api.provinces.universities');
 
@@ -26,6 +27,10 @@ Route::get('/colleges/{id}/departments', [DashboardController::class, 'getDepart
 // GeoJSON of all provinces
 Route::get('/provinces/geojson', [DashboardController::class, 'getProvincesGeoJSON'])
     ->name('admin.api.provinces.geojson');
+
+
+
+
 
 // Auth (token issuance for Flutter/mobile)
 //Route::post('/auth/login', [AuthController::class, 'login']); // دەگرێت token

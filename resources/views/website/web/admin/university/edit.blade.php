@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'universities')
+@section('view_name', 'edit')
+
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('admin.universities.index') }}" class="btn btn-outline-success">
@@ -69,9 +72,8 @@
                                 <textarea name="geojson" rows="6" class="form-control">{{ is_array($university->geojson) ? json_encode($university->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $university->geojson }}</textarea>
                             </div>
 
-                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-                            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                            <div id="map" style="height:420px;border-radius:12px" class="mt-3"></div>
+
+                             <div id="map" style="height:420px;border-radius:12px" class="m-3"></div>
 
 
                             <div class="row g-3">
@@ -122,8 +124,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-  <script src="{{ asset('assets/admin/js/pages/universities/edit.js') }}"></script>
-@endpush
-

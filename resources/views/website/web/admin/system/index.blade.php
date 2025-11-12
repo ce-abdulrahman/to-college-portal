@@ -20,7 +20,7 @@
 
     <div class="table-wrap fade-in">
         <div class="table-responsive table-scroll-x">
-            <table  id="simpleTable" class="table table-striped" style="width:100%">
+            <table  id="" class="table table-striped" style="width:100%">
                 <thead>
                     <tr>
                         <th>#</th>

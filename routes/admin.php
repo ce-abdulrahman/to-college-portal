@@ -29,6 +29,7 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
 
         Route::resource('departments', DepartmentController::class);
         // API‌های داخلی داشبۆرد (Cascading selects)
+        // create and edit get data for select options
         Route::get('/api/universities', [DepartmentController::class, 'getUniversities'])->name('api.universities');
         Route::get('/api/colleges', [DepartmentController::class, 'getColleges'])->name('api.colleges');
 

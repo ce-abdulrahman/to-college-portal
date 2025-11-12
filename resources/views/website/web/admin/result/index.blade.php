@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'result')
+@section('view_name', 'index')
+
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class=" d-lg-block text-center flex-grow-1">
@@ -161,17 +164,4 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            TableKit.initDataTable({
-                table: '#datatable',
-                externalSearch: '#custom-search', // ئەگەر هەیە
-                pageLengthSel: '#page-length', // ئەگەر هەیە
-                infoBox: '#dt-info', // ئەگەر هەیە
-                pagerBox: '#dt-pager' // ئەگەر هەیە
-            });
-        });
-    </script>
-@endpush
+ 

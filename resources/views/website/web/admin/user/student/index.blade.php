@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'students')
+@section('view_name', 'index')
+
 @section('content')
     {{-- Actions bar --}}
     <div class="d-flex justify-content-between align-items-center mb-3">

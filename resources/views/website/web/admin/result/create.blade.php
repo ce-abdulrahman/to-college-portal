@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'result')
+@section('view_name', 'create')
+
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('admin.departments.index') }}" class="btn btn-outline">
@@ -208,74 +211,3 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    <script>
-        // Helper: enable/disable with spinner
-        function showSpinner(elId, show = true) {
-            const el = document.getElementById(elId);
-            if (!el) return;
-            el.classList.toggle('d-none', !show);
-        }
-
-        function setDisabled(selectId, disabled = true) {
-            const el = document.getElementById(selectId);
-            if (!el) return;
-            el.disabled = disabled;
-        }
-
-        // Province -> Universities
-        document.getElementById('province_id').addEventListener('change', function() {
-            const provinceId = this.value;
-            showSpinner('spinner-province', true);
-            setDisabled('university_id', true);
-            setDisabled('college_id', true);
-
-            fetch(`/admin/api/universities?province_id=${provinceId}`)
-                .then(r => r.json())
-                .then(data => {
-                    const uni = document.getElementById('university_id');
-                    uni.innerHTML = '<option value="" disabled selected>هەڵبژاردنی زانکۆ</option>';
-                    data.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u.id;
-                        opt.textContent = u.name;
-                        uni.appendChild(opt);
-                    });
-                    setDisabled('university_id', false);
-                    // clear colleges
-                    const col = document.getElementById('college_id');
-                    col.innerHTML = '<option value="" disabled selected>هەڵبژاردنی کۆلێژ</option>';
-                })
-                .catch(() => {
-                    alert('هەڵەیەک ڕوویدا لە هێنانی زانیاری زانکۆکان.');
-                })
-                .finally(() => showSpinner('spinner-province', false));
-        });
-
-        // University -> Colleges
-        document.getElementById('university_id').addEventListener('change', function() {
-            const universityId = this.value;
-            showSpinner('spinner-university', true);
-            setDisabled('college_id', true);
-
-            fetch(`/admin/api/colleges?university_id=${universityId}`)
-                .then(r => r.json())
-                .then(data => {
-                    const col = document.getElementById('college_id');
-                    col.innerHTML = '<option value="" disabled selected>هەڵبژاردنی کۆلێژ</option>';
-                    data.forEach(c => {
-                        const opt = document.createElement('option');
-                        opt.value = c.id;
-                        opt.textContent = c.name;
-                        col.appendChild(opt);
-                    });
-                    setDisabled('college_id', false);
-                })
-                .catch(() => {
-                    alert('هەڵەیەک ڕوویدا لە هێنانی زانیاری کۆلێژەکان.');
-                })
-                .finally(() => showSpinner('spinner-university', false));
-        });
-    </script>
-@endpush

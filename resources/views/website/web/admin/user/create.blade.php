@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'users')
+@section('view_name', 'create')
+
 @section('content')
     <a href="{{ route('admin.users.index') }}" class="btn btn-outline mb-4">
         <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە

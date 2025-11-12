@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'province')
+@section('view_name', 'create')
+
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('admin.provinces.index') }}" class="btn btn-outline-success">
@@ -63,9 +66,8 @@
                                         accept=".geojson,.json,.txt">
                                 </div>
 
-                                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-                                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                                <div id="map" style="height:420px;border-radius:12px" class="mt-3"></div>
+                                <div id="map" style="height:420px;width:100%;border-radius:12px"></div>
+
 
                                 <div class="col-12 col-md-6">
                                     <label class="form-label">وێنە</label>
@@ -95,9 +97,3 @@
         </div>
     @endif
 @endsection
-{{-- Preview Map --}}
-
-@push('scripts')
-  <script src="{{ asset('assets/admin/js/pages/provinces/create.js') }}"></script>   {{-- یان edit/show --}}
-@endpush
-

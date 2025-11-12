@@ -1,6 +1,10 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'colleges')
+@section('view_name', 'index')
+
 @section('content')
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class=" d-lg-block text-center flex-grow-1">
             <div class="navbar-page-title" style="font-size: 32px">
@@ -83,89 +87,91 @@
 
 
     {{-- Table --}}
-    <div class="card glass fade-in">
-        <div class="card-body">
-            <h4 class="card-title mb-3"><i class="fa-solid fa-table-list me-2"></i> کۆلێژەکان</h4>
 
-            <div class="table-wrap">
-                <div class="table-responsive table-scroll-x">
-                    <table id="datatable" class="table align-middle nowrap" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th style="width:60px">#</th>
-                                <th>وێنە</th>
-                                <th>پارێزگا</th>
-                                <th>زانکۆ</th>
-                                <th>کۆلێژ</th>
-                                {{--  <th>کۆلێژ (ئینگلیزی)</th>  --}}
-                                <th style="width:120px">دۆخ</th>
-                                <th style="width:160px" data-orderable="false">کردار</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($colleges as $index => $college)
-                                <tr data-province-id="{{ $college->university->province_id }}"
-                                    data-university-id="{{ $college->university_id }}"
-                                    data-status="{{ (int) $college->status }}">
-                                    <td>{{ $index + 1 }}</td>
-                                    <td class="fw-semibold">
-                                        <img src="{{ $college->image }}" alt="{{ e($college->name) }}"
-                                            style="height:40px;max-width:100%;border-radius:6px;object-fit:cover">
-                                    </td>
+        <div class="card glass fade-in">
+            <div class="card-body">
+                <h4 class="card-title mb-3"><i class="fa-solid fa-table-list me-2"></i> کۆلێژەکان</h4>
 
-                                    <td>{{ $college->university->province->name ?? '—' }}</td>
-                                    <td>{{ $college->university->name ?? '—' }}</td>
-
-                                    <td class="fw-semibold">
-                                        <i class="fa-solid fa-building-columns me-1 text-muted"></i> {{ $college->name }}
-                                    </td>
-                                    {{--  <td class="fw-semibold">
-                                        <i class="fa-solid fa-building-columns me-1 text-muted"></i>
-                                        {{ $college->name_en }}
-                                    </td>  --}}
-
-                                    <td>
-                                        @if ($college->status)
-                                            <span class="badge bg-success">چاڵاک</span>
-                                        @else
-                                            <span class="badge bg-danger">ناچاڵاک</span>
-                                        @endif
-                                    </td>
-
-                                    <td class="actions">
-                                        <a href="{{ route('admin.colleges.show', $college->id) }}"
-                                            class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip"
-                                            data-bs-title="پیشاندان">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('admin.colleges.edit', $college->id) }}"
-                                            class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
-                                            data-bs-title="دەستکاری">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </a>
-                                        <form action="{{ route('admin.colleges.destroy', $college->id) }}" method="POST"
-                                            class="d-inline" onsubmit="return confirm('دڵنیایت؟');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                data-bs-toggle="tooltip" data-bs-title="سڕینەوە">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
+                <div class="table-wrap">
+                    <div class="table-responsive table-scroll-x">
+                        <table id="collegesTable" class="table align-middle nowrap" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px">#</th>
+                                    <th>وێنە</th>
+                                    <th>پارێزگا</th>
+                                    <th>زانکۆ</th>
+                                    <th>کۆلێژ</th>
+                                    {{--  <th>کۆلێژ (ئینگلیزی)</th>  --}}
+                                    <th style="width:120px">دۆخ</th>
+                                    <th style="width:160px" data-orderable="false">کردار</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach ($colleges as $index => $college)
+                                    <tr data-province-id="{{ $college->university->province_id }}"
+                                        data-university-id="{{ $college->university_id }}"
+                                        data-status="{{ (int) $college->status }}">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td class="fw-semibold">
+                                            <img src="{{ $college->image }}" alt="{{ e($college->name) }}"
+                                                style="height:40px;max-width:100%;border-radius:6px;object-fit:cover">
+                                        </td>
 
-                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2">
-                        <div id="dt-info" class="small text-muted"></div>
-                        <div id="dt-pager"></div>
+                                        <td>{{ $college->university->province->name ?? '—' }}</td>
+                                        <td>{{ $college->university->name ?? '—' }}</td>
+
+                                        <td class="fw-semibold">
+                                            <i class="fa-solid fa-building-columns me-1 text-muted"></i> {{ $college->name }}
+                                        </td>
+                                        {{--  <td class="fw-semibold">
+                                            <i class="fa-solid fa-building-columns me-1 text-muted"></i>
+                                            {{ $college->name_en }}
+                                        </td>  --}}
+
+                                        <td>
+                                            @if ($college->status)
+                                                <span class="badge bg-success">چاڵاک</span>
+                                            @else
+                                                <span class="badge bg-danger">ناچاڵاک</span>
+                                            @endif
+                                        </td>
+
+                                        <td class="actions">
+                                            <a href="{{ route('admin.colleges.show', $college->id) }}"
+                                                class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip"
+                                                data-bs-title="پیشاندان">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('admin.colleges.edit', $college->id) }}"
+                                                class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"
+                                                data-bs-title="دەستکاری">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </a>
+                                            <form action="{{ route('admin.colleges.destroy', $college->id) }}" method="POST"
+                                                class="d-inline" onsubmit="return confirm('دڵنیایت؟');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    data-bs-toggle="tooltip" data-bs-title="سڕینەوە">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mt-2">
+                            <div id="dt-info" class="small text-muted"></div>
+                            <div id="dt-pager"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
+            </div>
         </div>
-    </div>
+
 @endsection
 
 @push('scripts')
@@ -173,5 +179,4 @@
     <script>
         window.UNI_API = "{{ route('admin.api.universities') }}";
     </script>
-    <script src="{{ asset('assets/admin/js/pages/colleges/index.js') }}" defer></script>
 @endpush

@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'departments')
+@section('view_name', 'create')
+
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('admin.departments.index') }}" class="btn btn-outline-success mb-4">
@@ -182,20 +185,8 @@
     </div>
 @endsection
 
-@push('head-scripts')
-    {{-- Leaflet CSS (ئەگەر لە layout بارنەکردووە) --}}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    {{-- Summernote CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css" rel="stylesheet">
-@endpush
 
 @push('scripts')
-    {{-- jQuery (پێشو Summernote) --}}
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" defer></script>
-    {{-- Leaflet JS (ئەگەر لە layout بارنەکردووە) --}}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-    {{-- Summernote JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js" defer></script>
 
     {{-- API base urls (hardcode مەکەین) --}}
     <script>
@@ -203,6 +194,4 @@
         window.API_COLLS = "{{ route('admin.api.colleges') }}";     // ?university_id=ID
     </script>
 
-    {{-- پەیجی JS ـی تایبەتی --}}
-    <script src="{{ asset('assets/admin/js/pages/departments/create.js') }}" defer></script>
 @endpush

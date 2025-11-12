@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'result')
+@section('view_name', 'edit')
+
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <a href="{{ route('admin.departments.index') }}" class="btn btn-outline">
@@ -172,64 +175,3 @@
     </div>
   </div>
 @endsection
-
-@push('scripts')
-<script>
-  // Helpers
-  const showSpinner = (id, on=true) => {
-    const el = document.getElementById(id);
-    if(el) el.classList.toggle('d-none', !on);
-  };
-  const enable = (id, on=true) => {
-    const el = document.getElementById(id);
-    if(el) el.disabled = !on;
-  };
-
-  // Province -> Universities (refresh on change)
-  document.getElementById('province_id').addEventListener('change', function(){
-    const provinceId = this.value;
-    showSpinner('spinner-province', true);
-    enable('university_id', false); enable('college_id', false);
-
-    fetch(`/admin/api/universities?province_id=${provinceId}`)
-      .then(r => r.json())
-      .then(data => {
-        const uni = document.getElementById('university_id');
-        uni.innerHTML = '<option value="" disabled selected>هەڵبژاردنی زانکۆ</option>';
-        data.forEach(u => {
-          const opt = document.createElement('option');
-          opt.value = u.id; opt.textContent = u.name;
-          uni.appendChild(opt);
-        });
-        enable('university_id', true);
-
-        const col = document.getElementById('college_id');
-        col.innerHTML = '<option value="" disabled selected>هەڵبژاردنی کۆلێژ</option>';
-      })
-      .catch(() => alert('هەڵەیەک لە هێنانی زانکۆکان ڕوویدا.'))
-      .finally(() => showSpinner('spinner-province', false));
-  });
-
-  // University -> Colleges (refresh on change)
-  document.getElementById('university_id').addEventListener('change', function(){
-    const universityId = this.value;
-    showSpinner('spinner-university', true);
-    enable('college_id', false);
-
-    fetch(`/admin/api/colleges?university_id=${universityId}`)
-      .then(r => r.json())
-      .then(data => {
-        const col = document.getElementById('college_id');
-        col.innerHTML = '<option value="" disabled selected>هەڵبژاردنی کۆلێژ</option>';
-        data.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id; opt.textContent = c.name;
-          col.appendChild(opt);
-        });
-        enable('college_id', true);
-      })
-      .catch(() => alert('هەڵەیەک لە هێنانی کۆلێژەکان ڕوویدا.'))
-      .finally(() => showSpinner('spinner-university', false));
-  });
-</script>
-@endpush

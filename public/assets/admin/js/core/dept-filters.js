@@ -1,4 +1,4 @@
-// Dependent selects + multi-filter for Departments page
+// assets/admin/js/core/dept-filters.js
 window.DeptFilters = (function () {
   function q(id){ return document.getElementById(id); }
   function selectedText(el){ return (el && el.value) ? el.options[el.selectedIndex].text : ''; }
@@ -13,6 +13,11 @@ window.DeptFilters = (function () {
     });
   }
 
+  function applyAndFilters(dt, nameColIndex, parts) {
+    const searchTerm = parts.join(' ');
+    dt.search(searchTerm).draw();
+  }
+
   function init(dt, opts = {}) {
     const NAME_COL_INDEX = opts.nameColIndex ?? 1;
 
@@ -23,7 +28,6 @@ window.DeptFilters = (function () {
     const inputFilter   = q('filter-search');
     const btnReset      = q('filter-reset');
 
-    // Province -> Universities
     selProvince && selProvince.addEventListener('change', () => {
       const pid = selProvince.value;
       fillSelect(selUniversity, [], 'هەموو زانکۆكان'); enable(selUniversity, false);
@@ -39,7 +43,6 @@ window.DeptFilters = (function () {
       applyFilters();
     });
 
-    // University -> Colleges
     selUniversity && selUniversity.addEventListener('change', () => {
       const uid = selUniversity.value;
       fillSelect(selCollege, [], 'هەموو کۆلێژەکان'); enable(selCollege, false);
@@ -60,7 +63,7 @@ window.DeptFilters = (function () {
       if (selProvince && selProvince.value) parts.push(selectedText(selProvince));
       if (selUniversity && selUniversity.value) parts.push(selectedText(selUniversity));
       if (selCollege && selCollege.value) parts.push(selectedText(selCollege));
-      TableKit.applyAndFilters(dt, NAME_COL_INDEX, parts);
+      applyAndFilters(dt, NAME_COL_INDEX, parts);
     }
 
     [selSystem, selProvince, selUniversity, selCollege].forEach(el=>{

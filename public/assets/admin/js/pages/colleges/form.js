@@ -1,45 +1,51 @@
-// public/assets/admin/js/pages/colleges/form.js
-(() => {
-  "use strict";
+// shared: create + edit
+(function (w, $) {
+  if (!w || !w.jQuery) return;
+  if (document.body.dataset.collegesForm === "1") return;
+  document.body.dataset.collegesForm = "1";
 
-  document.addEventListener("DOMContentLoaded", () => {
-    // Bootstrap client-side validation
-    document.querySelectorAll('.needs-validation').forEach(form => {
-      form.addEventListener('submit', e => {
-        if (!form.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
-        form.classList.add('was-validated');
+  const ns = ".collegesForm";
+  $(document).off(ns);
+
+  // CSRF (Laravel)
+  function csrf() {
+    const m = document.querySelector('meta[name="csrf-token"]');
+    return m ? m.getAttribute("content") : "";
+  }
+
+  w.collegesForm = {
+    serialize() {
+      const data = {};
+      $("#collegeForm").serializeArray().forEach(f => (data[f.name] = f.value));
+      return data;
+    },
+    validate() {
+      const name = $.trim($("[name='name']").val());
+      if (!name) { alert("Name is required"); return false; }
+      return true;
+    },
+    async submit(url, method = "POST") {
+      if (!this.validate()) return;
+      const body = this.serialize();
+      if (method !== "GET" && !body._token) body._token = csrf();
+
+      const res = await fetch(url, {
+        method,
+        headers: { "X-Requested-With": "XMLHttpRequest", "Content-Type": "application/json" },
+        body: JSON.stringify(body)
       });
-    });
-
-    const prov = document.getElementById('province_id');       // اختیاری
-    const uni  = document.getElementById('university_id');     // پێویست
-
-    if (!uni) return;
-
-    const enable = (el,on=true)=> el.disabled = !on;
-    const fill = (el, items, ph) => {
-      el.innerHTML = `<option value="">${ph}</option>`;
-      items.forEach(it => {
-        const o = document.createElement('option');
-        o.value = it.id;
-        o.textContent = it.name;
-        el.appendChild(o);
-      });
-    };
-
-    // ئەگەر province هەبوو، وەبەستە بکە بە university
-    if (prov) {
-      if (!uni.value) enable(uni, false);
-      prov.addEventListener('change', () => {
-        const pid = prov.value;
-        fill(uni, [], 'هەموو زانکۆكان'); enable(uni, false);
-        if (!pid) return;
-        fetch(`/admin/api/universities?province_id=${encodeURIComponent(pid)}`)
-          .then(r => r.json())
-          .then(list => { fill(uni, list, 'هەموو زانکۆكان'); enable(uni, true); });
-      });
+      if (!res.ok) { alert("Save failed"); return; }
+      const json = await res.json().catch(() => ({}));
+      $(document).trigger("colleges:saved", [json]);
     }
+  };
+
+  $(document).on("submit" + ns, "#collegeForm", function (e) {
+    e.preventDefault();
+    const $f = $(this);
+    let action = $f.attr("action") || "/sadm/colleges";
+    const method = ($f.find('input[name="_method"]').val() || "POST").toUpperCase();
+    w.collegesForm.submit(action, method);
   });
-})();
 
-
+})(window, jQuery);

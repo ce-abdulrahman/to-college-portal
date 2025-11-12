@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'colleges')
+@section('view_name', 'edit')
+
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <a href="{{ route('admin.colleges.index') }}" class="btn btn-outline-success mb-4">
@@ -12,6 +15,8 @@
       </div>
     </div>
   </div>
+
+  <div data-page="colleges" data-view="edit">
 
   <div class="row">
     <div class="col-12 col-xl-8 mx-auto">
@@ -32,7 +37,7 @@
             </div>
           @endif
 
-          <form action="{{ route('admin.colleges.update', $college->id) }}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+          <form id="collegeForm" data-id="{{ $college->id }}" action="{{ route('admin.colleges.update', $college->id) }}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
             @csrf @method('PUT')
 
             {{-- University --}}
@@ -109,8 +114,7 @@
       </div>
     </div>
   </div>
+  </div>
 @endsection
 
-@push('scripts')
-  <script src="{{ asset('assets/admin/js/pages/colleges/edit.js') }}"></script>
-@endpush
+

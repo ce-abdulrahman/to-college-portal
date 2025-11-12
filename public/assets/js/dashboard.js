@@ -1,11 +1,8 @@
-/* ============================
- * Dashboard Map V2 - Full Version (with Satellite/Dark/Terrain)
- * Compatible with Laravel Backend
- * ============================ */
-
+// assets/js/dashboard.js
 (function () {
   const pageAttr = document.body?.dataset?.page;
-  const mapEl = document.getElementById('dashboard-map') || document.getElementById('map');
+  const mapEl = document.getElementById('dashboard-map');
+
   if (pageAttr !== 'sadm.dshbd' && !mapEl) return;
 
   class DashboardMapV2 {
@@ -32,17 +29,15 @@
       this.init();
     }
 
-    /* ---------------- Map & Layers ---------------- */
     init() {
       this.initMap();
       this.initLayers();
-      this.initLayerControl();   // ⬅️ base/overlay controls
+      this.initLayerControl();
       this.initControls();
       this.loadProvinces();
-
       this.setupEventListeners();
       this.startGPSMonitoring();
-      window.mapV2 = this;       // expose for onclick-less usage
+      window.mapV2 = this;
     }
 
     initMap() {
@@ -52,7 +47,6 @@
         markerZoomAnimation: true
       }).setView(this.config.initialView.center, this.config.initialView.zoom);
 
-      // --- Base Layers ---
       this.baseLayers = {
         "🗺️ Street (OSM)": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
@@ -76,14 +70,11 @@
         ),
       };
 
-      // Default base
       this.baseLayers["🗺️ Street (OSM)"].addTo(this.map);
-
       L.control.zoom({ position: 'topright' }).addTo(this.map);
     }
 
     initLayers() {
-      // Overlay groups
       this.layers = {
         provinces: L.featureGroup().addTo(this.map),
         universities: L.featureGroup().addTo(this.map),
@@ -95,7 +86,6 @@
     }
 
     initLayerControl() {
-      // Show overlays in the control
       const overlays = {
         "🗺️ پارێزگا": this.layers.provinces,
         "🎓 زانکۆ": this.layers.universities,
@@ -109,7 +99,6 @@
     }
 
     initControls() {
-      // 3D mini control
       const Control3D = L.Control.extend({
         onAdd: () => {
           const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
@@ -128,24 +117,18 @@
     }
 
     setupEventListeners() {
-    // ئاگادارییەکانت بۆ ئێرە بهێنە ئەگەر پێویست بوو
-    // بۆ نموونە:
-    this.map.on('baselayerchange', (e) => console.log('base ->', e.name));
-    this.map.on('overlayadd', (e) => console.log('overlay +', e.name));
-    this.map.on('overlayremove', (e) => console.log('overlay -', e.name));
-  }
+      this.map.on('baselayerchange', (e) => console.log('base ->', e.name));
+      this.map.on('overlayadd', (e) => console.log('overlay +', e.name));
+      this.map.on('overlayremove', (e) => console.log('overlay -', e.name));
+    }
 
-  /* ✅ NEW: پاککردنەوەی "بارکردن"ی لیست */
-  hideListLoading() {
-    const list = $('#institutionsList');
-    if (!list.length) return;
-    // ئەگەر "loading placeholder" داناوە، بیسڕەوە؛
-    // ئەگەر پێشتر loadUniversities/Colleges/Departments ناوەرۆک نوێی داناوە، هیچ ناکەین.
-    const hasSpinner = list.find('.spinner-border').length > 0 || /بارکردن/.test(list.text());
-    if (hasSpinner) list.empty();
-  }
+    hideListLoading() {
+      const list = $('#institutionsList');
+      if (!list.length) return;
+      const hasSpinner = list.find('.spinner-border').length > 0 || /بارکردن/.test(list.text());
+      if (hasSpinner) list.empty();
+    }
 
-    /* ---------------- Provinces (GeoJSON) ---------------- */
     async loadProvinces() {
       try {
         this.showLoading('بارکردنی پارێزگاکان...');
@@ -183,7 +166,6 @@
           layer.on('mouseout', () => { if (!layer._selected) layer.setStyle(this.getProvinceStyle(false, false)); });
 
           layer.on('click', async () => {
-            // select one
             this.layers.provinces.eachLayer(l => { l.setStyle(this.getProvinceStyle(false, false)); l._selected = false; });
             layer.setStyle(this.getProvinceStyle(false, true));
             layer._selected = true;
@@ -217,7 +199,6 @@
       };
     }
 
-    /* ---------------- Universities ---------------- */
     async loadUniversities(provinceId) {
       try {
         this.showListLoading();
@@ -296,13 +277,11 @@
       this.layers.universities.clearLayers();
       let any = false;
       unis.forEach(u => {
-        // geojson point fallback handled in addItemToLayer
         any = this.addItemToLayer(u, 'uni', this.layers.universities) || any;
       });
       if (any) this.map.fitBounds(this.layers.universities.getBounds().pad(0.1));
     }
 
-    /* ---------------- Colleges ---------------- */
     async loadColleges(universityId) {
       try {
         this.showListLoading();
@@ -387,7 +366,6 @@
       if (any) this.map.fitBounds(this.layers.colleges.getBounds().pad(0.1));
     }
 
-    /* ---------------- Departments ---------------- */
     async loadDepartments(collegeId) {
       try {
         this.showListLoading();
@@ -468,7 +446,6 @@
       }
     }
 
-    /* ---------------- Helpers ---------------- */
     addItemToLayer(item, type, layer) {
       const colorMap = {
         uni: { color: '#2563eb', fillColor: '#3b82f6' },
@@ -477,7 +454,6 @@
       };
       const style = (colorMap[type] || { color: '#6b7280', fillColor: '#9ca3af' });
 
-      // GeoJSON geometry
       if (item.geojson) {
         let gj = item.geojson;
         if (typeof gj === 'string') { try { gj = JSON.parse(gj); } catch { gj = null; } }
@@ -498,7 +474,6 @@
         }
       }
 
-      // Fallback marker
       if (item.lat && item.lng) {
         const marker = this.createMarker(item, type).addTo(layer);
         this.markers[`${type}_${item.id}`] = marker;
@@ -627,7 +602,6 @@
       }
     }
 
-    /* ---------------- Routing (button) ---------------- */
     showRouteTo(lat, lng) {
       const ok = Number.isFinite(lat) && Number.isFinite(lng);
       if (!ok) return this.showNotification('lat/lng دروست نیە', 'error');
@@ -638,7 +612,6 @@
       window.open(url, '_blank');
     }
 
-    /* ---------------- UI utils ---------------- */
     updateBreadcrumb(items) {
       const breadcrumb = $('#breadcrumb');
       if (!breadcrumb.length) return;
@@ -729,7 +702,6 @@
       else { $('body').removeClass('perspective-3d'); $('#map').removeClass('map-3d'); this.showNotification('3D ناچالاک کرا', 'info'); }
     }
 
-    /* ---------------- Geolocation ---------------- */
     startGPSMonitoring() {
       if (!('geolocation' in navigator)) return;
       const indicator = $('#gpsIndicator');
@@ -760,7 +732,6 @@
         .bindPopup('<strong>📍 شوێنی ئێستا</strong><br>ئەرەیە!');
     }
 
-    /* ---------------- UX helpers ---------------- */
     showLoading(msg = 'بارکردن...') {
       const el = $('#loadingOverlay'); if (el.length) { el.find('.loading-text').text(msg); el.fadeIn(200); }
     }
@@ -791,42 +762,36 @@
     }
   }
 
-  /* ---------------- Document Events (no inline onclick) ---------------- */
   $(document).ready(function () {
     if (typeof L === 'undefined') { console.error('Leaflet library is not loaded!'); return; }
     if (typeof $ === 'undefined') { console.error('jQuery library is not loaded!'); return; }
 
     const app = new DashboardMapV2();
 
-    // Breadcrumb navigation
     $(document).on('click', '[data-nav]', function (e) {
       e.preventDefault();
       app.navigateToLevel(this.dataset.nav);
     });
 
-    // Open colleges from list/popup
     $(document).on('click', '[data-open-colleges]', function () {
       const id = parseInt(this.dataset.openColleges);
       app.loadColleges(id);
     });
 
-    // Open departments
     $(document).on('click', '[data-open-departments]', function () {
       const id = parseInt(this.dataset.openDepartments);
       app.loadDepartments(id);
     });
 
-    // Focus item (from list/popup buttons)
     $(document).on('click', '.btn-focus', function () {
       const { type, id, lat, lng } = this.dataset;
       app.focusOnItem(type, Number(id), parseFloat(lat), parseFloat(lng));
     });
 
-    // Open external route (Google/Apple/Geo:)
     $(document).on('click', '.btn-route', function () {
       const lat = parseFloat(this.dataset.lat), lng = parseFloat(this.dataset.lng);
       app.showRouteTo(lat, lng);
     });
   });
 
-})(); // End
+})();

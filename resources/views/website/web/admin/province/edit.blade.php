@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'universities')
+@section('view_name', 'edit')
+
 @section('content')
   {{-- ... سەردێر و فرۆم و فیلمەکان ... --}}
 
@@ -43,9 +46,7 @@
               </div>
 
               {{-- Map (تەنها container) --}}
-              <div class="col-12">
-                <div id="map-edit" style="height:420px;border-radius:12px"></div>
-              </div>
+            <div id="map" style="height:420px;border-radius:12px"></div>
 
               <div class="col-12 col-md-4 mb-3">
                 <label class="form-label">Upload GeoJSON (Optional)</label>

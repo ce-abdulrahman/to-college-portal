@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'users')
+@section('view_name', 'index')
+
 @section('content')
     {{-- Actions bar --}}
 

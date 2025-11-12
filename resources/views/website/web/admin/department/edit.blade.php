@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'departments')
+@section('view_name', 'edit')
+
 @section('content')
 
 
@@ -29,8 +32,8 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.departments.update', $department->id) }}" method="POST" enctype="multipart/form-data"
-                        class="needs-validation" novalidate>
+                    <form action="{{ route('admin.departments.update', $department->id) }}" method="POST"
+                        enctype="multipart/form-data" class="needs-validation" novalidate>
                         @csrf @method('PUT')
 
                         <div class="row g-3">
@@ -83,8 +86,8 @@
                             <div class="col-12 col-md-6">
                                 <label for="name_en" class="form-label">ناوی بەش (ئینگلیزی)</label>
                                 <input id="name_en" name="name_en" type="text"
-                                    class="form-control @error('name_en') is-invalid @enderror" value="{{ old('name_en', $department->name_en) }}"
-                                    required>
+                                    class="form-control @error('name_en') is-invalid @enderror"
+                                    value="{{ old('name_en', $department->name_en) }}" required>
                                 @error('name_en')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
@@ -120,27 +123,25 @@
                                 </select>
                             </div>
 
-                            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-                            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                             <div id="map" style="height:420px;border-radius:12px" class="m-3"></div>
 
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Latitude</label>
-                                    <input id="lat" name="lat" value="{{ old('lat', $department->lat ?? null) }}"
-                                        class="form-control">
+                                    <input id="lat" name="lat"
+                                        value="{{ old('lat', $department->lat ?? null) }}" class="form-control">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Longitude</label>
-                                    <input id="lng" name="lng" value="{{ old('lng', $department->lng ?? null) }}"
-                                        class="form-control">
+                                    <input id="lng" name="lng"
+                                        value="{{ old('lng', $department->lng ?? null) }}" class="form-control">
                                 </div>
                                 <div class="form-text">لەسەر نەخشە کلیک بکە بۆ دابنانی شوێن.</div>
                             </div>
 
                             <div class="col-12">
                                 <label for="description" class="form-label">وەسف</label>
-                                <textarea id="description" name="description" class="form-control summernote" rows="4">{{ old('description',  $department->description ) }}</textarea>
+                                <textarea id="description" name="description" class="form-control summernote" rows="4">{{ old('description', $department->description) }}</textarea>
                             </div>
 
                             <div class="col-12 col-md-6">
@@ -169,27 +170,11 @@
     </div>
 @endsection
 
-@push('head-scripts')
-    {{-- Leaflet CSS (ئەگەر لە layout بارنەکردووە) --}}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    {{-- Summernote CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css" rel="stylesheet">
-@endpush
 
 @push('scripts')
-    {{-- jQuery (پێشو Summernote) --}}
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" defer></script>
-    {{-- Leaflet JS (ئەگەر لە layout بارنەکردووە) --}}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-    {{-- Summernote JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js" defer></script>
-
     {{-- API base urls (hardcode مەکەین) --}}
     <script>
-        window.API_UNI   = "{{ route('admin.api.universities') }}"; // ?province_id=ID
-        window.API_COLLS = "{{ route('admin.api.colleges') }}";     // ?university_id=ID
+        window.API_UNI = "{{ route('admin.api.universities') }}"; // ?province_id=ID
+        window.API_COLLS = "{{ route('admin.api.colleges') }}"; // ?university_id=ID
     </script>
-
-    {{-- پەیجی JS ـی تایبەتی --}}
-    <script src="{{ asset('assets/admin/js/pages/departments/create.js') }}" defer></script>
 @endpush

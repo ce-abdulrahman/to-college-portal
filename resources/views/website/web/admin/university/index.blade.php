@@ -1,5 +1,8 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'universities')
+@section('view_name', 'index')
+
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-none d-lg-block text-center flex-grow-1">
@@ -46,7 +49,7 @@
     <div class="card glass fade-in">
         <div class="card-body">
             <h4 class="card-title mb-3">
-                <i class="fa-solid fa-building-columns me-2"></i> {{ __('زانکۆکان') }}
+                <i class="fa-solid fa-building-columns me-2"></i> زانکۆکان
             </h4>
 
             <div class="table-wrap">
@@ -121,8 +124,4 @@
         </div>
     </div>
 @endsection
-
-@push('scripts')
-    {{-- پەیوەستکردنی اسکریپتەکەت، نەک TableKit.initDataTable --}}
-    <script src="{{ asset('assets/admin/js/pages/universities/index.js') }}"></script>
-@endpush
+ 
