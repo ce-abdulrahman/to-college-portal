@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\UserProfileController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\ResultController;
+use App\Http\Controllers\Admin\MbtiAdminController;
 
 Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
     ->prefix('sadm')
@@ -48,6 +49,20 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
 
 
         Route::resource('results', ResultController::class)->names('results');
+
+        Route::prefix('mbti')->name('mbti.')->group(function () {
+            // پرسیارەکان
+            Route::resource('questions', MbtiAdminController::class);
+
+            // ئەنجامەکان
+            Route::get('results', [MbtiAdminController::class, 'results'])->name('results.index');
+            Route::get('/data', [MbtiAdminController::class, 'getResultsData'])->name('results.data');
+            Route::get('results/filter', [MbtiAdminController::class, 'filterResults'])->name('results.filter');
+            Route::get('results/user/{user}', [MbtiAdminController::class, 'showUserResult'])->name('results.show'); 
+            Route::delete('results/user/{user}', [MbtiAdminController::class, 'deleteUserResult'])->name('results.delete');
+            Route::get('statistics', [MbtiAdminController::class, 'statistics'])->name('statistics');
+            Route::get('export', [MbtiAdminController::class, 'exportResults'])->name('export');
+        });
 
     });
 

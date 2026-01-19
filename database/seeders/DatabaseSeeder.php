@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             ProvinceSeeder::class,
             UniversitySeeder::class,
             CollegeSeeder::class,
+            MbtiQuestionsSeeder::class,
         ]);
 
 
@@ -39,13 +40,6 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
             'rand_code' => Random::generate(6),
         ]);
-
-        User::create([
-            'name' => 'Student User',
-            'code' => '1002',
-            'password' => Hash::make('password'),
-            'role' => 'student',
-            'rand_code' => Random::generate(6),
-        ]);
+        
     }
 }

@@ -2,27 +2,21 @@
 
 @section('content')
     {{-- Top Bar --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.students.index') }}" class="btn btn-outline-success">
-            <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
-        </a>
-
-        <div class=" d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title fw-bold">زانیاری قوتابی</div>
-        </div>
-
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-primary" data-bs-toggle="tooltip"
-                title="دەستکاری">
-                <i class="fa-solid fa-pen-to-square me-1"></i>
-            </a>
-            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
-                onsubmit="return confirm('دڵنیایت دەتەوێت بسڕیتەوە؟');">
-                @csrf @method('DELETE')
-                <button type="submit" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="سڕینەوە">
-                    <i class="fa-solid fa-trash-can me-1"></i>
-                </button>
-            </form>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">لیستی بەکارهێنەران</a></li>
+                        <li class="breadcrumb-item active">زانیاری قوتابی</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    زانیاری قوتابی
+                </h4>
+            </div>
         </div>
     </div>
 

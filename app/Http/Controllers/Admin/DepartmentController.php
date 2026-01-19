@@ -28,8 +28,9 @@ class DepartmentController extends Controller
         $systems = System::all();
         $provinces = Province::all();
         $universities = University::all();
+        $colleges = College::all();
         $departments = Department::all();
-        return view('website.web.admin.department.index', compact('departments', 'systems', 'universities', 'provinces'));
+        return view('website.web.admin.department.index', compact('departments', 'systems', 'universities', 'provinces', 'colleges'));
     }
 
     /**

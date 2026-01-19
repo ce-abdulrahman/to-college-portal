@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\System;
+use App\Models\Department;
 
 class SystemController extends Controller
 {
@@ -45,7 +46,9 @@ class SystemController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $system = System::findOrFail($id);
+        $departments = Department::where(['status' => 1, 'system_id' => $system->id])->get();
+        return view('website.web.admin.system.show', compact('system', 'departments'));
     }
 
     /**

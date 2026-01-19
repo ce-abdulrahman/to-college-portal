@@ -1,28 +1,39 @@
+// edit.js
 (function (w, $) {
-  if (!w || !w.jQuery) return;
-  if (document.body.dataset.collegesEdit === "1") return;
-  document.body.dataset.collegesEdit = "1";
+    if (!w || !w.jQuery) return;
+    if (document.body.dataset.collegesEdit === '1') return;
+    document.body.dataset.collegesEdit = '1';
 
-  const ns = ".collegesEdit";
-  $(document).off(ns);
+    const ns = '.collegesEdit';
+    $(document).off(ns);
 
-  const $form = $("#collegeForm");
-  const id = $form.data("id");
+    const $form = $('#collegeForm');
+    const id = $form.data('id');
 
-  (async function preload() {
-    if (!id) return;
-    const res = await fetch("/sadm/colleges/" + id, { headers: { "X-Requested-With": "XMLHttpRequest" } });
-    if (!res.ok) return;
-    const data = await res.json().catch(() => ({}));
-    Object.entries(data || {}).forEach(([k, v]) => {
-      const $el = $form.find("[name='" + k + "']");
-      if ($el.is(":checkbox")) $el.prop("checked", !!v);
-      else $el.val(v);
+    (async function preload() {
+        if (!id) return;
+
+        try {
+            const res = await fetch('/sadm/colleges/' + id, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!res.ok) return;
+
+            const data = await res.json().catch(() => ({}));
+            Object.entries(data || {}).forEach(([k, v]) => {
+                const $el = $form.find("[name='" + k + "']");
+                if ($el.is(':checkbox')) {
+                    $el.prop('checked', !!v);
+                } else {
+                    $el.val(v);
+                }
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    })();
+
+    $(document).on('colleges:saved' + ns, function () {
+        w.location.href = '/sadm/colleges';
     });
-  })();
-
-  $(document).on("colleges:saved" + ns, function (e, json) {
-    w.location.href = "/sadm/colleges";
-  });
-
 })(window, jQuery);

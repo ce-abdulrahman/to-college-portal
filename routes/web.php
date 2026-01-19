@@ -10,6 +10,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Teacher\TeacherProfileController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Student\DashboardStudentController;
+use App\Http\Controllers\Student\MbtiController;
+
 
 
 Route::get('/', function () {
@@ -27,7 +30,24 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
+
 require __DIR__.'/auth.php';
+
+Route::prefix('student')->name('student.')
+    ->middleware(['auth','student'])
+    ->group(function () {
+        Route::get('/dashboard', [DashboardStudentController::class, 'index'])->name('dashboard');
+
+        Route::prefix('mbti')
+        ->name('mbti.')
+        ->group(function () {
+            Route::get('/test', [MbtiController::class, 'index'])->name('index');
+            Route::post('/test', [MbtiController::class, 'store'])->name('store');
+            Route::get('/result', [MbtiController::class, 'result'])->name('result');
+            Route::post('/retake', [MbtiController::class, 'retake'])->name('retake');
+        });
+    });
 
 Route::prefix('center')->name('center.')->middleware(['auth','center'])
     ->group(function () {

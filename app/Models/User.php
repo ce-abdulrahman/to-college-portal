@@ -21,18 +21,14 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        // Remove email_verified_at if you don't use emails
-        'code' => 'integer',          // ✅ make code an integer
-        'rand_code' => 'integer',     // ✅ make rand_code an integer
+        'code' => 'integer',
+        'rand_code' => 'integer',
         'password' => 'hashed',
     ];
 
-    /**
-     * Tell Laravel which column is the auth identifier (instead of 'email')
-     */
     public function getAuthIdentifierName(): string
     {
-        return 'code';                // ✅ use 'code' for auth
+        return 'code';
     }
 
     public function teacher()
@@ -43,5 +39,21 @@ class User extends Authenticatable
     public function student()
     {
         return $this->hasOne(Student::class);
+    }
+    
+    public function isStudent()
+    {
+        return $this->role === 'student';
+    }
+    
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+    
+    // پەیوەندی بە وەڵامەکانی MBTIەوە
+    public function mbtiAnswers()
+    {
+        return $this->hasMany(MbtiAnswer::class);
     }
 }

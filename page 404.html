@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پەڕەی 404 و 403 - دیزاینی مۆدێرن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --primary-light: #A78BFA;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --success: #10B981;
+            --dark: #0F172A;
+            --darker: #020617;
+            --light: #F8FAFC;
+            --gray: #64748B;
+            --gray-light: #CBD5E1;
+            --gradient: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #F59E0B 100%);
+            --gradient-dark: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 35px 60px -12px rgba(0, 0, 0, 0.6);
+            --radius: 28px;
+            --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--gradient-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .neon-container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 25px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+        
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 5px;
+            background: var(--gradient);
+            border-radius: 3px;
+            filter: blur(2px);
+        }
+        
+        .header p {
+            font-size: 1.4rem;
+            opacity: 0.8;
+            max-width: 700px;
+            margin: 0 auto;
+            font-weight: 300;
+            line-height: 1.8;
+        }
+        
+        .error-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 50px;
+            margin-bottom: 80px;
+        }
+        
+        .neon-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(25px);
+            border-radius: var(--radius);
+            padding: 60px 50px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        
+        .neon-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: var(--gradient);
+            filter: blur(5px);
+        }
+        
+        .neon-card:hover {
+            transform: translateY(-20px) scale(1.03);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+        
+        .error-code {
+            font-size: 10rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            text-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+            position: relative;
+        }
+        
+        .error-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--light);
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .error-title::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+            filter: blur(1px);
+        }
+        
+        .error-message {
+            font-size: 1.3rem;
+            color: var(--gray-light);
+            margin-bottom: 50px;
+            line-height: 1.8;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.9;
+        }
+        
+        .hologram-container {
+            margin: 50px 0;
+            position: relative;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+        }
+        
+        /* هۆلۆگرامی 404 */
+        .hologram-404 {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            transform-style: preserve-3d;
+            animation: hologram-float 10s ease-in-out infinite;
+        }
+        
+        .hologram-cube {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: linear-gradient(45deg, transparent, var(--primary), transparent);
+            border-radius: 25px;
+            transform: rotateX(60deg) rotateY(45deg);
+            animation: hologram-rotate 20s infinite linear;
+            box-shadow: 
+                0 0 30px var(--primary),
+                0 0 60px var(--primary),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .hologram-cube::before {
+            content: '404';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .search-grid {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50%;
+            top: 10px;
+            left: 10px;
+            animation: grid-rotate 15s infinite linear reverse;
+        }
+        
+        .search-grid::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgba(236, 72, 153, 0.3);
+            border-radius: 50%;
+            transform: rotate(60deg);
+        }
+        
+        .search-grid::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgba(245, 158, 11, 0.3);
+            border-radius: 50%;
+            transform: rotate(120deg);
+        }
+        
+        /* هۆلۆگرامی 403 */
+        .hologram-403 {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            transform-style: preserve-3d;
+            animation: hologram-float 10s ease-in-out infinite 1s;
+        }
+        
+        .hologram-shield {
+            position: absolute;
+            width: 170px;
+            height: 200px;
+            background: linear-gradient(135deg, transparent, var(--warning), transparent);
+            border-radius: 85px 85px 25px 25px;
+            top: 25px;
+            left: 25px;
+            transform: rotateX(40deg);
+            box-shadow: 
+                0 0 30px var(--warning),
+                0 0 60px var(--warning),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            animation: shield-hologram 8s infinite ease-in-out;
+        }
+        
+        .hologram-shield::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 15px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            top: 30px;
+            left: 15px;
+            filter: blur(2px);
+        }
+        
+        .hologram-shield::after {
+            content: '!';
+            position: absolute;
+            font-size: 4rem;
+            font-weight: 900;
+            color: white;
+            top: 60px;
+            left: 55px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .hologram-lock {
+            position: absolute;
+            width: 70px;
+            height: 60px;
+            background: linear-gradient(135deg, transparent, #475569, transparent);
+            bottom: 45px;
+            left: 50px;
+            border-radius: 15px;
+            transform: rotateX(40deg);
+            box-shadow: 
+                0 0 20px #475569,
+                inset 0 0 10px rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            animation: lock-hologram 5s infinite ease-in-out;
+        }
+        
+        .hologram-lock::before {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 40px;
+            border: 10px solid #1E293B;
+            border-radius: 30px 30px 0 0;
+            top: -30px;
+            left: -5px;
+            filter: blur(1px);
+        }
+        
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            padding: 18px 36px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            transition: var(--transition);
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.6);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-8px) scale(1.08);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.8);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(15px);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-8px) scale(1.08);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .floating-orbs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .orb {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: var(--gradient);
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: orb-float 25s infinite linear;
+            filter: blur(20px);
+        }
+        
+        .orb:nth-child(1) {
+            top: 15%;
+            left: 15%;
+            animation-delay: 0s;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .orb:nth-child(2) {
+            top: 75%;
+            left: 85%;
+            animation-delay: 8s;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .orb:nth-child(3) {
+            top: 45%;
+            left: 90%;
+            animation-delay: 16s;
+            width: 60px;
+            height: 60px;
+        }
+        
+        .stats-futuristic {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-top: 80px;
+        }
+        
+        .stat-futuristic {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 35px 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-futuristic:hover {
+            transform: translateY(-15px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-futuristic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+        }
+        
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+        
+        /* ئەنیمەیشنەکان */
+        @keyframes hologram-float {
+            0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
+            25% { transform: translateY(-25px) rotateX(8deg) rotateY(8deg); }
+            50% { transform: translateY(-15px) rotateX(0) rotateY(15deg); }
+            75% { transform: translateY(-20px) rotateX(-8deg) rotateY(8deg); }
+        }
+        
+        @keyframes hologram-rotate {
+            0% { transform: rotateX(60deg) rotateY(45deg); }
+            100% { transform: rotateX(420deg) rotateY(405deg); }
+        }
+        
+        @keyframes grid-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes shield-hologram {
+            0%, 100% { transform: rotateX(40deg) rotateY(0); box-shadow: 0 0 30px var(--warning), 0 0 60px var(--warning); }
+            25% { transform: rotateX(45deg) rotateY(8deg); box-shadow: 0 0 40px var(--warning), 0 0 80px var(--warning); }
+            50% { transform: rotateX(40deg) rotateY(0); box-shadow: 0 0 30px var(--warning), 0 0 60px var(--warning); }
+            75% { transform: rotateX(35deg) rotateY(-8deg); box-shadow: 0 0 40px var(--warning), 0 0 80px var(--warning); }
+        }
+        
+        @keyframes lock-hologram {
+            0%, 100% { transform: rotateX(40deg) translateY(0); }
+            50% { transform: rotateX(40deg) translateY(-20px); }
+        }
+        
+        @keyframes orb-float {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0.1; }
+            50% { transform: translateY(-40px) rotate(180deg) scale(1.2); opacity: 0.05; }
+            100% { transform: translateY(0) rotate(360deg) scale(1); opacity: 0.1; }
+        }
+        
+        /* وەڵامدانی مۆبایل */
+        @media (max-width: 768px) {
+            .error-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .neon-card {
+                padding: 50px 30px;
+            }
+            
+            .error-code {
+                font-size: 8rem;
+            }
+            
+            .error-title {
+                font-size: 2.2rem;
+            }
+            
+            .header h1 {
+                font-size: 3rem;
+            }
+            
+            .stats-futuristic {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+        
+        /* تەنۆلکە بۆ پاشەڕۆ */
+        .quantum-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+        
+        .quantum-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            animation: quantum-float 25s infinite linear;
+            opacity: 0.4;
+        }
+        
+        @keyframes quantum-float {
+            0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-100px) translateX(100px) rotate(360deg); opacity: 0; }
+        }
+        
+        /* کاریگەری نیۆن */
+        .neon-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            opacity: 0.1;
+            filter: blur(100px);
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            animation: neon-pulse 8s infinite ease-in-out;
+        }
+        
+        @keyframes neon-pulse {
+            0%, 100% { opacity: 0.1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.15; transform: translate(-50%, -50%) scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+    <div class="neon-glow"></div>
+    <div class="quantum-particles" id="quantumParticles"></div>
+    
+    <div class="neon-container">
+        <div class="header">
+            <h1>پەڕەی هەڵە</h1>
+            <p>دیزاینێکی فوتوریستی و هۆلۆگرامی بۆ پەڕەکانی ٤٠٣ و ٤٠٤</p>
+        </div>
+        
+        <div class="error-grid">
+            <!-- پەڕەی 404 -->
+            <div class="neon-card">
+                <div class="floating-orbs">
+                    <div class="orb"></div>
+                    <div class="orb"></div>
+                    <div class="orb"></div>
+                </div>
+                
+                <h1 class="error-code">404</h1>
+                <h2 class="error-title">پەڕە نەدۆزرایەوە</h2>
+                
+                <div class="hologram-container">
+                    <div class="hologram-404">
+                        <div class="hologram-cube"></div>
+                        <div class="search-grid"></div>
+                    </div>
+                </div>
+                
+                <p class="error-message">ببورە، پەڕەیەک کە دەتەوێت بینیت بوونی نییە یان گواستراوەتەوە. تکایە پشکنینی ناونیشانەکە بکە یان دوگمەی خوارەوە بکەرەوە.</p>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="goHome()">
+                        <i class="fas fa-home"></i> بگەڕێوە بۆ ماڵەوە
+                    </button>
+                    <button class="btn btn-secondary" onclick="goBack()">
+                        <i class="fas fa-arrow-right"></i> بگەڕێوە دواوە
+                    </button>
+                </div>
+            </div>
+            
+            <!-- پەڕەی 403 -->
+            <div class="neon-card">
+                <div class="floating-orbs">
+                    <div class="orb"></div>
+                    <div class="orb"></div>
+                    <div class="orb"></div>
+                </div>
+                
+                <h1 class="error-code">403</h1>
+                <h2 class="error-title">ڕێگەپێنەدراو</h2>
+                
+                <div class="hologram-container">
+                    <div class="hologram-403">
+                        <div class="hologram-shield"></div>
+                        <div class="hologram-lock"></div>
+                    </div>
+                </div>
+                
+                <p class="error-message">تۆ مۆڵەتی چوونە ناوەوە بۆم پەڕەکەت نییە. ئەگەر پێت وایە ئەمە هەڵەیە، تکایە پەیوەندی بە بەڕێوەبەرەوە بکە.</p>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="goHome()">
+                        <i class="fas fa-home"></i> بگەڕێوە بۆ ماڵەوە
+                    </button>
+                    <button class="btn btn-secondary" onclick="contactAdmin()">
+                        <i class="fas fa-headset"></i> پەیوەندی بە بەڕێوەبەرەوە
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-futuristic">
+            <div class="stat-futuristic">
+                <div class="stat-number">99.9%</div>
+                <div class="stat-label">دەستکەوتنی سیستەم</div>
+            </div>
+            <div class="stat-futuristic">
+                <div class="stat-number">&lt;150ms</div>
+                <div class="stat-label">کاتی وەڵامدان</div>
+            </div>
+            <div class="stat-futuristic">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">پشتگیری</div>
+            </div>
+            <div class="stat-futuristic">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">ئاسایش</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // گەڕانەوە بۆ پەڕەی سەرەکی
+        function goHome() {
+            alert('بگەڕێینەوە بۆ پەڕەی سەرەکی...');
+            // لە کۆدی ڕاستەقینەدا: window.location.href = '/';
+        }
+        
+        // گەڕانەوە بۆ پەڕەی پێشوو
+        function goBack() {
+            window.history.back();
+        }
+        
+        // پەیوەندی بە بەڕێوەبەرەوە
+        function contactAdmin() {
+            alert('پەیوەندی بە بەڕێوەبەرەوە دەکرێت...');
+            // لە کۆدی ڕاستەقینەدا: window.location.href = 'mailto:admin@example.com';
+        }
+        
+        // دروستکردنی تەنۆلکە بۆ پاشەڕۆ
+        function createQuantumParticles() {
+            const container = document.getElementById('quantumParticles');
+            
+            for (let i = 0; i < 80; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'quantum-particle';
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 25}s`;
+                particle.style.animationDuration = `${20 + Math.random() * 20}s`;
+                particle.style.width = `${3 + Math.random() * 5}px`;
+                particle.style.height = particle.style.width;
+                particle.style.background = `hsl(${Math.random() * 360}, 70%, 65%)`;
+                container.appendChild(particle);
+            }
+        }
+        
+        // زیادکردنی کاریگەری کلیک بۆ ئایکۆنەکان
+        document.addEventListener('DOMContentLoaded', function() {
+            createQuantumParticles();
+            
+            const hologramCube = document.querySelector('.hologram-cube');
+            const hologramShield = document.querySelector('.hologram-shield');
+            const hologramLock = document.querySelector('.hologram-lock');
+            
+            hologramCube.addEventListener('click', function() {
+                this.style.animation = 'none';
+                setTimeout(() => {
+                    this.style.animation = 'hologram-rotate 20s infinite linear';
+                }, 10);
+            });
+            
+            hologramShield.addEventListener('click', function() {
+                this.style.transform = 'rotateX(40deg) rotateY(20deg) scale(1.1)';
+                this.style.boxShadow = '0 0 50px var(--warning), 0 0 100px var(--warning)';
+                setTimeout(() => {
+                    this.style.transform = 'rotateX(40deg) rotateY(0) scale(1)';
+                    this.style.boxShadow = '0 0 30px var(--warning), 0 0 60px var(--warning)';
+                }, 500);
+            });
+            
+            hologramLock.addEventListener('click', function() {
+                this.style.animation = 'none';
+                setTimeout(() => {
+                    this.style.animation = 'lock-hologram 5s infinite ease-in-out';
+                }, 10);
+            });
+        });
+        
+        // زیادکردنی کاریگەری تەنۆلکە بە هاوکاری ماوس
+        document.addEventListener('mousemove', function(e) {
+            const particles = document.querySelectorAll('.quantum-particle');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            particles.forEach(particle => {
+                const speed = parseFloat(particle.style.animationDuration) || 25;
+                const newDuration = Math.max(15, speed - (mouseX * 15));
+                particle.style.animationDuration = `${newDuration}s`;
+            });
+            
+            // کاریگەری نیۆن بە هاوکاری ماوس
+            const glow = document.querySelector('.neon-glow');
+            glow.style.left = `${e.clientX}px`;
+            glow.style.top = `${e.clientY}px`;
+        });
+    </script>
+</body>
+</html>

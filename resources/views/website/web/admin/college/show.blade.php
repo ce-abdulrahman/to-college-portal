@@ -1,30 +1,26 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.colleges.index') }}" class="btn btn-outline-success">
-            <i class="fa-solid fa-arrow-left me-1"></i>گەڕانەوە
-        </a>
-
-        <div class=" d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title" style="font-size: 32px">
-                <i class="fa-solid fa-building-columns me-1 text-muted"></i> زانیاری کۆلێژ
+    
+    {{-- Actions bar --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.colleges.index') }}">کۆلێژکان</a></li>
+                        <li class="breadcrumb-item active">زانیاری کۆلێژ</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-building-columns me-1"></i>
+                    زانیاری کۆلێژ
+                </h4>
             </div>
         </div>
-
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.colleges.edit', $college->id) }}" class="btn btn-outline-primary">
-                <i class="fa-solid fa-pen-to-square me-1"></i>
-            </a>
-            <form action="{{ route('admin.colleges.destroy', $college->id) }}" method="POST"
-                onsubmit="return confirm('دڵنیایت؟');">
-                @csrf @method('DELETE')
-                <button type="submit" class="btn btn-outline-danger">
-                    <i class="fa-solid fa-trash-can me-1"></i>
-                </button>
-            </form>
-        </div>
     </div>
+    
 
     <div class="row">
         <div class="col-12 col-xl-10 mx-auto">
@@ -157,7 +153,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="3" class="text-center text-muted">
+                                            <td colspan="5" class="text-center text-muted">
                                                 <i class="fa-solid fa-circle-info me-1"></i>
                                                 هیچ کۆلێژ/پەیمانگایەک بۆ ئەم زانکۆیە نەدۆزرایەوە
                                             </td>
@@ -174,7 +170,13 @@
                 {{-- Map --}}
                 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
                 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                <div id="map-college" style="height: 460px; border-radius: 14px;"></div>
+                <div id="map" style="height: 460px; border-radius: 14px;"
+                data-geojson="{{ json_encode($college->geojson) }}"
+                data-lat="{{ $college->lat }}"
+                data-lng="{{ $college->lng }}"
+                data-name="{{ $college->name }}"
+                data-departments="{{ json_encode($departments) }}"
+                ></div>
 
             </div>
 
@@ -183,126 +185,67 @@
 @endsection
 
 @push('scripts')
-    <script>
-        (function() {
-            const MAP_ID = 'map-college';
-
-            // اگر پەیجەکە دووبارە render بوو
-            function resetLeafletContainer(id) {
-                const n = L.DomUtil.get(id);
-                if (n && n._leaflet_id) n._leaflet_id = null;
-            }
-
-            function normalizeGeoJSON(input) {
-                try {
-                    if (typeof input === 'string') input = JSON.parse(input);
-                } catch (_) {
-                    return null;
-                }
-                if (!input) return null;
-                if (Array.isArray(input)) return {
-                    type: 'FeatureCollection',
-                    features: input
-                };
-                if (input.type === 'Feature' || input.type === 'FeatureCollection') return input;
-                if (input.type && input.coordinates) return {
-                    type: 'Feature',
-                    geometry: input,
-                    properties: {}
-                };
-                return null;
-            }
-
-            const el = document.getElementById(MAP_ID);
-            if (!el) return;
-
-            resetLeafletContainer(MAP_ID);
-
-            const map = L.map(MAP_ID).setView([36.2, 44.0], 7);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(map);
-
-            const area = L.geoJSON(null, {
-                style: {
-                    color: '#2563eb',
-                    weight: 2,
-                    fillColor: '#3b82f6',
-                    fillOpacity: 0.15
-                }
-            }).addTo(map);
-            const markers = L.layerGroup().addTo(map);
-
-            // 1) لایەرەکان پڕ بکە
-            let anything = false;
-
-            // College GeoJSON
-            @if ($college->geojson)
-                try {
-                    const gj = normalizeGeoJSON(@json($college->geojson));
-                    if (gj) {
-                        area.addData(gj);
-                        anything = true;
+<script>
+(function() {
+    'use strict';
+    
+    // Only run on college show page
+    if (!document.getElementById('map')) return;
+    
+    // Initialize map for show page
+    const initCollegeShowMap = () => {
+        const mapEl = document.getElementById('map');
+        if (!mapEl) return;
+        
+        const lat = parseFloat(mapEl.dataset.lat) || 33.2232;
+        const lng = parseFloat(mapEl.dataset.lng) || 43.6793;
+        const name = mapEl.dataset.name || 'کۆلێژ';
+        
+        // Initialize map
+        const map = L.map('map').setView([lat, lng], 15);
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Add main college marker
+        const mainMarker = L.marker([lat, lng]).addTo(map)
+            .bindPopup(`<b>${name}</b><br>کۆلێژی سەرەکی`);
+        
+        // Add departments if available
+        try {
+            const departments = JSON.parse(mapEl.dataset.departments);
+            if (departments && departments.length > 0) {
+                departments.forEach(dept => {
+                    if (dept.lat && dept.lng) {
+                        L.marker([dept.lat, dept.lng])
+                            .addTo(map)
+                            .bindPopup(`<b>${dept.name}</b><br>کۆلێژ/پەیمانگا`);
                     }
-                } catch (e) {
-                    console.error(e);
-                }
-            @endif
-
-            // College point
-            @if ($college->lat && $college->lng)
-                L.marker([{{ $college->lat }}, {{ $college->lng }}]).addTo(markers)
-                    .bindPopup(`<strong>{{ addslashes($college->name) }}</strong>`);
-                anything = true;
-            @endif
-
-            // Departments
-            @isset($departments)
-                @foreach ($departments as $department)
-                    @if ($department->lat && $department->lng)
-                        L.marker([{{ $department->lat }}, {{ $department->lng }}]).addTo(markers)
-                            .bindPopup(`<strong>{{ addslashes($department->name) }}</strong>`);
-                        anything = true;
-                    @endif
-                    @if ($department->geojson)
-                        try {
-                            const dgj = normalizeGeoJSON(@json($department->geojson));
-                            if (dgj) {
-                                L.geoJSON(dgj, {
-                                    style: {
-                                        color: '#16a34a',
-                                        weight: 2,
-                                        fillColor: '#22c55e',
-                                        fillOpacity: 0.12
-                                    }
-                                }).addTo(map);
-                                anything = true;
-                            }
-                        } catch (e) {
-                            console.error(e);
-                        }
-                    @endif
-                @endforeach
-            @endisset
-
-            // 2) Bounds: تەنها لەیره‌کان بخە ناو گرووپ، نەخێر LayerGroup ـەکە خۆی
-            if (anything) {
-                const layersForBounds = [];
-                // هەموو لەیره‌کانی area
-                area.eachLayer(l => layersForBounds.push(l));
-                // هەموو markers ـەکانی tak
-                markers.eachLayer(m => layersForBounds.push(m));
-                const boundsGroup = L.featureGroup(layersForBounds);
-                const b = boundsGroup.getBounds();
-                if (b.isValid()) map.fitBounds(b, {
-                    padding: [20, 20]
                 });
-            } else {
-                map.setView([36.2, 44.0], 8);
             }
-
-            setTimeout(() => map.invalidateSize(), 300);
-        })();
-    </script>
+        } catch (e) {
+            console.error('Error parsing departments data:', e);
+        }
+        
+        // Add GeoJSON if available
+        try {
+            const geojsonData = JSON.parse(mapEl.dataset.geojson);
+            if (geojsonData) {
+                L.geoJSON(geojsonData).addTo(map);
+            }
+        } catch (e) {
+            console.error('Error parsing GeoJSON data:', e);
+        }
+    };
+    
+    // Initialize when DOM is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCollegeShowMap);
+    } else {
+        initCollegeShowMap();
+    }
+})();
+</script>
 @endpush

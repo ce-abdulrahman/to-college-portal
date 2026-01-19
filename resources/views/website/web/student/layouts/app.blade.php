@@ -19,19 +19,15 @@
     <div class="container">
         @yield('content')
     </div>
+    <!-- jQuery (must be loaded before DataTables v1 style plugins) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    @stack('scripts')
 </body>
 
-<!-- jQuery (must be loaded before DataTables v1 style plugins) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Bootstrap Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-{{--  Toasts inport in file admin  --}}
-<script src="{{ assets('assets/admin/js/app-core.js') }}"></script>
-<script src="{{ assets('assets/admin/js/forms-validate.js') }}"></script>
-
-@stack('scripts')
 
 
 </html>

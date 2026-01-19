@@ -1,0 +1,379 @@
+@extends('website.web.admin.layouts.app')
+
+@section('title', 'ئەنجامەکانی MBTI')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item active">ئەنجامەکانی MBTI</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-chart-bar me-1"></i>ئەنجامەکانی تاقیکردنەوەی MBTI
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="text-muted">کۆی قوتابیەکان</h5>
+                            <h3 class="mt-2">{{ $statistics['total_students'] }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="text-muted">تاقیکردنەوەیان کردووە</h5>
+                            <h3 class="mt-2">{{ $statistics['tested_students'] }}</h3>
+                            <p class="mb-0">
+                                <span class="text-success">{{ $statistics['total_students'] > 0 ? round(($statistics['tested_students']/$statistics['total_students'])*100, 1) : 0 }}%</span>
+                            </p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="text-muted">تاقیکردنەوەیان نەکردووە</h5>
+                            <h3 class="mt-2">{{ $statistics['untested_students'] }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-clock fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="text-muted">جۆرە جیاوازەکان</h5>
+                            <h3 class="mt-2">{{ $students->groupBy('mbti_type')->count() }}</h3>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-chart-pie fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex align-items-center">
+                            <h5 class="card-title mb-0 me-3">لیستی قوتابیەکان</h5>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="refreshTable">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="javascript:void(0)" class="btn btn-primary" onclick="exportToExcel()">
+                                <i class="fas fa-file-excel me-1"></i>Excel
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <select id="filterType" class="form-select">
+                                    <option value="">هەموو جۆرەکان</option>
+                                    @foreach(['ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP', 'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'] as $type)
+                                    <option value="{{ $type }}" {{ request('type') == $type ? 'selected' : '' }}>
+                                        {{ $type }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" id="applyFilter">
+                                    <i class="fas fa-filter me-1"></i>فیلتەر
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchInput" placeholder="گەڕان بە ناو یان کۆد...">
+                                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="resultsTable" class="table table-hover table-centered w-100">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="200">قوتابی</th>
+                                    <th width="100">کۆد</th>
+                                    <th width="100">جۆری MBTI</th>
+                                    <th width="80">ساڵ</th>
+                                    <th width="100">ژمارەی وەڵام</th>
+                                    <th width="150">کاتی تاقیکردنەوە</th>
+                                    <th width="120">کردارەکان</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">سڕینەوەی ئەنجام</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>دڵنیایت لە سڕینەوەی ئەنجامەکانی ئەم قوتابیە؟</p>
+                <p class="text-danger"><small>ئەم کردارە گەڕانەوەی نییە!</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">پاشگەزبوونەوە</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">سڕینەوە</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('styles')
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+<style>
+.dataTables_wrapper .dataTables_filter {
+    text-align: left !important;
+}
+.dataTables_wrapper .dataTables_length {
+    text-align: right !important;
+}
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<script>
+$(document).ready(function() {
+    const kurdishLanguage = {
+        "processing": "چالاکیەکە لە جێبەجێکردن دایە...",
+        "lengthMenu": "پیشاندانی _MENU_ تۆمار",
+        "zeroRecords": "هیچ تۆمارێک نەدۆزرایەوە",
+        "info": "پیشاندانی _START_ بۆ _END_ لە _TOTAL_ تۆمار",
+        "infoEmpty": "پیشاندانی 0 بۆ 0 لە 0 تۆمار",
+        "infoFiltered": "(پاڵاوتە بۆ _MAX_ کۆی تۆمار)",
+        "search": "گەڕان:",
+        "paginate": {
+            "first": "یەکەم",
+            "previous": "پێشوو",
+            "next": "داهاتوو",
+            "last": "کۆتایی"
+        }
+    };
+
+    const table = $('#resultsTable').DataTable({
+        language: kurdishLanguage,
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('admin.mbti.results.filter') }}",
+            data: function(d) {
+                d.type = $('#filterType').val();
+            }
+        },
+        columns: [
+            { 
+                data: 'user.name',
+                name: 'user.name',
+                render: function(data, type, row) {
+                    const hasProvince = row.province ? `<small class="text-muted">${row.province}</small>` : '';
+                    return `
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm me-2">
+                                <span class="avatar-title bg-primary rounded-circle">
+                                    ${row.user.name.charAt(0).toUpperCase()}
+                                </span>
+                            </div>
+                            <div>
+                                <div class="fw-bold">${row.user.name}</div>
+                                ${hasProvince}
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            { data: 'user.code', name: 'user.code' },
+            { 
+                data: 'mbti_type',
+                name: 'mbti_type',
+                render: function(data) {
+                    if (data) {
+                        return `<span class="badge bg-primary">${data}</span>`;
+                    }
+                    return `<span class="badge bg-secondary">نەکراوە</span>`;
+                }
+            },
+            { data: 'year', name: 'year', defaultContent: '-' },
+            { 
+                data: 'mbti_answers_count',
+                name: 'mbti_answers_count',
+                render: function(data) {
+                    return `<span class="badge bg-info">${data}</span>`;
+                }
+            },
+            { 
+                data: 'last_test_date',
+                name: 'last_test_date',
+                render: function(data) {
+                    if (data) {
+                        return `<small>${data}</small>`;
+                    }
+                    return `<small class="text-muted">-</small>`;
+                }
+            },
+            {
+                data: 'id',
+                name: 'action',
+                orderable: false,
+                searchable: false,
+                render: function(data, type, row) {
+                    const showUrl = "{{ route('admin.mbti.results.show', ':id') }}".replace(':id', row.id);
+                    const deleteUrl = "{{ route('admin.mbti.results.delete', ':id') }}".replace(':id', row.id);
+                    
+                    return `
+                        <div class="btn-group btn-group-sm">
+                            <a href="${showUrl}" class="btn btn-info" title="بینین">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button type="button" class="btn btn-danger delete-result" 
+                                    data-id="${row.id}" data-url="${deleteUrl}" title="سڕینەوە">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        ],
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "هەموو"]],
+        order: [[0, 'desc']],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>><"row mt-2"<"col-sm-12"tr>><"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        buttons: [
+            {
+                extend: 'excel',
+                className: 'btn btn-outline-success',
+                text: '<i class="fas fa-file-excel me-1"></i>Excel',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5]
+                }
+            },
+            {
+                extend: 'print',
+                className: 'btn btn-outline-primary',
+                text: '<i class="fas fa-print me-1"></i>چاپکردن',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5]
+                }
+            },
+            {
+                extend: 'colvis',
+                className: 'btn btn-outline-warning',
+                text: '<i class="fas fa-eye me-1"></i>ستوونەکان'
+            }
+        ]
+    });
+
+    $('#applyFilter').on('click', function() {
+        table.ajax.reload();
+    });
+
+    $('#filterType').on('change', function() {
+        table.ajax.reload();
+    });
+
+    $('#searchButton').on('click', function() {
+        table.search($('#searchInput').val()).draw();
+    });
+
+    $('#searchInput').on('keyup', function(e) {
+        if (e.key === 'Enter') {
+            table.search(this.value).draw();
+        }
+    });
+
+    $('#refreshTable').on('click', function() {
+        table.ajax.reload();
+        $('#filterType').val('');
+        $('#searchInput').val('');
+    });
+
+    $(document).on('click', '.delete-result', function() {
+        const deleteUrl = $(this).data('url');
+        $('#deleteForm').attr('action', deleteUrl);
+        $('#deleteModal').modal('show');
+    });
+
+    function exportToExcel() {
+        table.button('.buttons-excel').trigger();
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(function() {
+        table.ajax.reload(null, false);
+    }, 30000);
+});
+</script>
+@endpush

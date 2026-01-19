@@ -54,18 +54,6 @@
     {{-- Summernote JS --}}
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js" defer></script>
 
-    {{-- Core App Scripts --}}
-    <script src="{{ asset('assets/admin/js/core/app-core.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/core/dt-core.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/core/dept-filters.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/core/forms-validate.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/core/drawer.js') }}"></script>
-
-    {{-- Main Pages Script --}}
-    <script src="{{ asset('assets/admin/js/pages/index.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/pages/create.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/pages/edit.js') }}"></script>
-
     {{-- Dashboard Script --}}
     <script src="{{ asset('assets/js/dashboard.js') }}"></script>
 

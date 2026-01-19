@@ -1,19 +1,24 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.systems.index') }}" class="btn btn-outline-success">
-            <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
-        </a>
-
-        <div class=" d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title" style="font-size: 32px">
-                <i class="fa-solid fa-map-pin me-1 text-muted"></i> نوێ کردنەوەی سیستەم
+    {{-- Actions bar --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.systems.index') }}">سیستەمەکانی خوێندن</a></li>
+                        <li class="breadcrumb-item active">دەستکاری سیستەم</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    دەستکاری سیستەم
+                </h4>
             </div>
         </div>
     </div>
-
 
     <div class="row">
         <div class="col-12 col-xl-8 mx-auto">
@@ -23,28 +28,23 @@
                         <i class="fa-solid fa-pen-to-square me-2"></i> دەستکاری سیستەم
                     </h4>
 
-                    <form action="{{ route('admin.systems.update', $system->id) }}" method="POST" class="needs-validation"
-                        novalidate>
+                    <form action="{{ route('admin.systems.update', $system->id) }}" method="POST" class="needs-validation" novalidate>
                         @csrf
                         @method('PUT')
-
                         <div class="row g-3">
                             {{-- Name --}}
                             <div class="col-md-8">
                                 <label for="name" class="form-label">
-                                    <i class="fa-solid fa-tag me-1 text-muted"></i> ناوی سیستەم <span
-                                        class="text-danger">*</span>
+                                    <i class="fa-solid fa-tag me-1 text-muted"></i> ناوی سیستەم <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" id="name" name="name" class="form-control"
-                                    value="{{ $system->name }}" required minlength="2" placeholder="ناوی سیستەم...">
+                                <input type="text" id="name" name="name" class="form-control" value="{{ $system->name }}" required minlength="2" placeholder="ناوی سیستەم...">
                                 <div class="invalid-feedback">تکایە ناوێکی دروست بنوسە (کەمتر نیە لە ٢ پیت).</div>
                             </div>
 
                             {{-- Status --}}
                             <div class="col-md-4">
                                 <label for="status" class="form-label">
-                                    <i class="fa-solid fa-toggle-on me-1 text-muted"></i> دۆخ <span
-                                        class="text-danger">*</span>
+                                    <i class="fa-solid fa-toggle-on me-1 text-muted"></i> دۆخ <span class="text-danger">*</span>
                                 </label>
                                 <select id="status" name="status" class="form-select" required>
                                     <option value="1" {{ $system->status ? 'selected' : '' }}>چاڵاک</option>
@@ -70,18 +70,22 @@
 @endsection
 
 @push('scripts')
-    <script>
-        (() => {
-            const forms = document.querySelectorAll('.needs-validation');
-            forms.forEach(form => {
-                form.addEventListener('submit', e => {
-                    if (!form.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                });
+<script>
+    // Form validation
+    document.addEventListener('DOMContentLoaded', function() {
+        'use strict';
+        
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        forms.forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
             });
-        })();
-    </script>
+        });
+    });
+</script>
 @endpush

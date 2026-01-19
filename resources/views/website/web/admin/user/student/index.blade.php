@@ -5,10 +5,19 @@
 
 @section('content')
     {{-- Actions bar --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class=" d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title" style="font-size: 32px">
-                <i class="fa-solid fa-users me-2"></i> لیستی قوتابیایان
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item active">لیستی قوتابیایان</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    لیستی قوتابیایان
+                </h4>
             </div>
         </div>
     </div>

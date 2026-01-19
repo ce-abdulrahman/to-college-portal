@@ -4,12 +4,23 @@
 @section('view_name', 'index')
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class=" d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title mb-3" style="font-size: 24px;">لیستی ئەنجامەکانی قوتابیان</div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item active">لیستی هەڵبژاردراوەکانی قوتابیان</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    لیستی هەڵبژاردراوەکانی قوتابیان
+                </h4>
+            </div>
         </div>
-    </div>
-
+    </div>    
 
     {{-- Filters Toolbar --}}
     <div class="card glass mb-3">

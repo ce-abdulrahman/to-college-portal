@@ -1,19 +1,36 @@
 @extends('website.web.admin.layouts.app')
 
+@section('page_name', 'users')
+@section('view_name', 'edit')
+
 @section('content')
-    <a href="{{ route('admin.students.index') }}" class="btn btn-outline mb-4">
-        <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
-    </a>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">بەکارهێنەران</a></li>
+                        <li class="breadcrumb-item active">نوێکردنەوەی بەکارهێنەر</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-user-edit me-1"></i>
+                    نوێکردنەوەی بەکارهێنەر
+                </h4>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-12 col-xl-8 mx-auto">
             <div class="card glass fade-in">
                 <div class="card-body">
                     <h4 class="card-title mb-4">
-                        <i class="fa-solid fa-user-pen me-2"></i> نوێکردنەوەی قوتابی
+                        <i class="fa-solid fa-user-pen me-2"></i> نوێکردنەوەی بەکارهێنەر
                     </h4>
 
-                    {{-- هەڵەکان --}}
+                    {{-- Validation Errors --}}
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <i class="fa-solid fa-circle-exclamation me-1"></i> هەڵە هەیە:
@@ -25,114 +42,101 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.users.update', $user->id) }}" method="POST" class="needs-validation"
-                        novalidate>
+                    <form action="{{ route('admin.users.update', $user->id) }}" method="POST" class="needs-validation" novalidate>
                         @csrf
                         @method('PUT')
 
                         <div class="row g-3">
                             {{-- Name --}}
-                            <div class="col-12 col-md-6">
-                                <label for="name" class="form-label">ناوی قوتابی</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-regular fa-user"></i></span>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                        id="name" name="name" value="{{ old('name', $user->name) }}" required>
-                                    @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">
+                                    <i class="fa-solid fa-user me-1 text-muted"></i> ناو <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ old('name', $user->name) }}" required>
+                                <div class="invalid-feedback">تکایە ناو بنووسە.</div>
                             </div>
 
                             {{-- Code --}}
-                            <div class="col-12 col-md-6">
-                                <label for="code" class="form-label">کۆد</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
-                                    <input type="text" class="form-control @error('code') is-invalid @enderror"
-                                        id="code" name="code" value="{{ old('code', $user->code) }}" readonly>
-                                    @error('code')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
                             <div class="col-md-6">
-                                <label for="phone" class="form-label">ژمارەی مۆبایل</label>
-                                <input type="text" class="form-control @error('phone') is-invalid @enderror"
-                                    id="phone" name="phone" value="{{ old('phone', $user->phone) }}">
-                                @error('phone')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label for="code" class="form-label">
+                                    <i class="fa-solid fa-hashtag me-1 text-muted"></i> کۆد
+                                </label>
+                                <input type="text" class="form-control" id="code" name="code" 
+                                       value="{{ old('code', $user->code) }}" readonly>
+                                <div class="form-text">کۆدی بەکارهێنەر ناتوانرێ بگۆڕدرێت</div>
                             </div>
 
-                            <div class="col-12 col-md-6">
-                                <label for="role" class="form-label">پیشە</label>
-                                <select class="form-select @error('role') is-invalid @enderror" id="role"
-                                    name="role" required>
-                                    <option value="admin" @selected(old('role') === 'admin')>ئەدمین</option>
-                                    <option value="center" @selected(old('role') === 'center')>سەنتەر</option>
-                                    <option value="teacher" @selected(old('role') === 'teacher')>مامۆستا</option>
-                                    <option value="student" @selected(old('role') === 'student')>قوتابی</option>
+                            {{-- Phone --}}
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">
+                                    <i class="fa-solid fa-phone me-1 text-muted"></i> ژمارەی مۆبایل
+                                </label>
+                                <input type="text" class="form-control" id="phone" name="phone" 
+                                       value="{{ old('phone', $user->phone) }}">
+                            </div>
+
+                            {{-- Role --}}
+                            <div class="col-md-6">
+                                <label for="role" class="form-label">
+                                    <i class="fa-solid fa-user-tag me-1 text-muted"></i> پیشە <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>ئەدمین</option>
+                                    <option value="center" {{ old('role', $user->role) === 'center' ? 'selected' : '' }}>سەنتەر</option>
+                                    <option value="teacher" {{ old('role', $user->role) === 'teacher' ? 'selected' : '' }}>مامۆستا</option>
+                                    <option value="student" {{ old('role', $user->role) === 'student' ? 'selected' : '' }}>قوتابی</option>
                                 </select>
-                                @error('role')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @else
-                                    <div class="form-text">تەنها ئەدمین دەتوانێت پیشە دیاری بکات.</div>
-                                @enderror
+                                <div class="invalid-feedback">تکایە پیشە هەڵبژێرە.</div>
                             </div>
 
+                            {{-- Status --}}
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">
+                                    <i class="fa-solid fa-toggle-on me-1 text-muted"></i> دۆخ <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="1" {{ old('status', $user->status) == '1' ? 'selected' : '' }}>چاڵاک</option>
+                                    <option value="0" {{ old('status', $user->status) == '0' ? 'selected' : '' }}>ناچاڵاک</option>
+                                </select>
+                                <div class="invalid-feedback">تکایە دۆخ هەڵبژێرە.</div>
+                            </div>
                         </div>
 
-
-                        <hr class="my-4">
-
-                        {{-- Passwords --}}
-                        <div class="row g-3">
-                            <div class="col-12 col-md-4">
-                                <label for="password_old" class="form-label">تێپەڕەوشەی پێشین</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                    <input type="password" class="form-control @error('password_old') is-invalid @enderror"
-                                        id="password_old" name="password_old">
-                                    @error('password_old')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                        {{-- Password Change Section --}}
+                        <div class="mt-4 pt-3 border-top">
+                            <h5 class="mb-4">
+                                <i class="fa-solid fa-lock me-2"></i> گۆڕینی تێپەڕەوشە
+                            </h5>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label for="password_old" class="form-label">وشەی کۆن</label>
+                                    <input type="password" class="form-control" id="password_old" name="password_old">
+                                    <div class="form-text">بە بەتاڵی جێبهێڵە ئەگەر ناتەوێت بگۆڕیت</div>
                                 </div>
-                            </div>
 
-                            <div class="col-12 col-md-4">
-                                <label for="password_new" class="form-label">تێپەڕەوشەی نوێ</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
-                                    <input type="password" class="form-control @error('password_new') is-invalid @enderror"
-                                        id="password_new" name="password_new">
-                                    @error('password_new')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                <div class="col-md-6">
+                                    <label for="password_new" class="form-label">وشەی نوێ</label>
+                                    <input type="password" class="form-control" id="password_new" name="password_new">
+                                    <div class="form-text">لەکاتی گۆڕیندا، وشەی نوێ بنووسە</div>
                                 </div>
-                            </div>
 
-                            <div class="col-12 col-md-4">
-                                <label for="password_confirmation" class="form-label">دووپاتکردنەوە</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-key"></i></span>
-                                    <input type="password"
-                                        class="form-control @error('password_confirmation') is-invalid @enderror"
-                                        id="password_confirmation" name="password_confirmation">
-                                    @error('password_confirmation')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                <div class="col-md-6">
+                                    <label for="password_confirmation" class="form-label">دووبارەکردنەوەی وشە</label>
+                                    <input type="password" class="form-control" id="password_confirmation" 
+                                           name="password_confirmation">
+                                    <div class="form-text">وشەی نوێ دووبارە بکەرەوە</div>
                                 </div>
                             </div>
                         </div>
 
-                        <hr class="my-4">
-
-
-                        <div class="d-flex justify-content-end mt-4">
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{{ route('admin.users.index') }}" class="btn btn-outline">
+                                <i class="fa-solid fa-xmark me-1"></i> پاشگەزبوونەوە
+                            </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
+                                <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردنی گۆڕانکاری
                             </button>
                         </div>
                     </form>
@@ -143,20 +147,48 @@
 @endsection
 
 @push('scripts')
-    <script>
-        // Validation
-        (function() {
-            'use strict';
-            const forms = document.querySelectorAll('.needs-validation');
-            Array.from(forms).forEach(form => {
-                form.addEventListener('submit', function(event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const forms = document.querySelectorAll('.needs-validation');
+        forms.forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
             });
-        })();
-    </script>
+        });
+
+        // Password validation
+        const passwordNewInput = document.getElementById('password_new');
+        const passwordConfirmInput = document.getElementById('password_confirmation');
+        const passwordOldInput = document.getElementById('password_old');
+
+        function validatePasswords() {
+            if (passwordNewInput.value || passwordConfirmInput.value) {
+                if (passwordNewInput.value !== passwordConfirmInput.value) {
+                    passwordConfirmInput.setCustomValidity('تێپەڕەوشەکان یەک ناگرنەوە');
+                    return false;
+                }
+                
+                if (!passwordOldInput.value) {
+                    passwordOldInput.setCustomValidity('تێپەڕەوشەی پێشین پێویستە بۆ گۆڕینی تێپەڕەوشە');
+                    return false;
+                }
+            }
+            
+            passwordConfirmInput.setCustomValidity('');
+            passwordOldInput.setCustomValidity('');
+            return true;
+        }
+
+        if (passwordNewInput && passwordConfirmInput) {
+            passwordNewInput.addEventListener('input', validatePasswords);
+            passwordConfirmInput.addEventListener('input', validatePasswords);
+            passwordOldInput.addEventListener('input', validatePasswords);
+        }
+    });
+</script>
 @endpush

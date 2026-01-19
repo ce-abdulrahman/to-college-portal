@@ -1,0 +1,817 @@
+@extends('website.web.admin.layouts.app')
+
+@section('page_name', 'users')
+@section('view_name', 'create')
+
+@section('content')
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.users.index') }}">لیستی بەکارهێنەران</a></li>
+                        <li class="breadcrumb-item active">زیادکردنی بەکارهێنەری نوێ</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    زیادکردنی بەکارهێنەری نوێ
+                </h4>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 col-xl-10 mx-auto">
+            <div class="card glass fade-in">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">
+                        <i class="fa-solid fa-user-plus me-2"></i> زیادکردنی قوتابی
+                    </h4>
+
+                    {{-- Validation Errors --}}
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-circle-exclamation me-1"></i> هەڵە هەیە:
+                            <ul class="mb-0 mt-2 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('admin.users.store') }}" method="POST" class="needs-validation" novalidate>
+                        @csrf
+
+                        {{-- زانیاری سەرەکی --}}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="code" class="form-label">کۆدی داخیل بوون</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
+                                    <input type="text" class="form-control @error('code') is-invalid @enderror"
+                                        id="code" name="code" readonly>
+                                    @error('code')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">ناو</label>
+                                <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                    id="name" name="name" value="{{ old('name') }}" required>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">تێپەڕەوشە</label>
+                                <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                    id="password" name="password" required>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">ژمارەی مۆبایل</label>
+                                <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                    id="phone" name="phone" value="{{ old('phone') }}">
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="role" class="form-label">پیشە</label>
+                                <select class="form-select @error('role') is-invalid @enderror" id="role"
+                                    name="role" required>
+                                    <option value="admin" @selected(old('role') === 'admin')>ئەدمین</option>
+                                    <option value="center" @selected(old('role') === 'center')>سەنتەر</option>
+                                    <option value="teacher" @selected(old('role') === 'teacher')>مامۆستا</option>
+                                    <option value="student" @selected(old('role') === 'student')>قوتابی</option>
+                                </select>
+                                @error('role')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @else
+                                    <div class="form-text">تەنها ئەدمین دەتوانێت پیشە دیاری بکات.</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="rand_code" class="form-label">کۆدی ڕیلەیشن</label>
+                                <input type="text" class="form-control @error('rand_code') is-invalid @enderror"
+                                    id="rand_code" name="rand_code" value="{{ old('rand_code') }}" readonly>
+                                @error('rand_code')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        @php
+                            $showExtra = old('role') === 'student' || request()->has('student');
+                        @endphp
+
+                        @include('website.web.admin.user.info-student', [
+                            'provinces' => $provinces,
+                            'showExtra' => $showExtra,
+                        ])
+
+                        <hr class="my-4">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="status" class="form-label">دۆخ</label>
+                                <select class="form-select" id="status" name="status" required>
+                                    <option value="1" @selected(old('status') === '1')>چاڵاک</option>
+                                    <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+
+
+@push('scripts')
+    <script>
+        $(function() {
+            const $roleSel = $('#role');
+            const $queueSel = $('#queue');
+            const $extra = $('#extra-section');
+            const $chooseNum = $('#choose-num');
+
+            function toggleExtra() {
+                if ($roleSel.val() === 'student') {
+                    $extra.removeClass('d-none');
+                    $extra.find('select, input').each(function() {
+                        const n = this.name;
+                        if (['mark', 'province', 'type', 'gender', 'year'].includes(n)) {
+                            $(this).prop('required', true);
+                        }
+                    });
+                } else {
+                    $extra.addClass('d-none');
+                    $extra.find('select, input').prop('required', false);
+                }
+            }
+
+            function toggleNum() {
+                if ($queueSel.val() === 'yes') {
+                    $chooseNum.removeClass('d-none');
+                    $chooseNum.find('select, input').each(function() {
+                        const n = this.name;
+                        if (['zankoline_num', 'parallel_num', 'evening_num'].includes(n)) {
+                            $(this).prop('required', true);
+                        }
+                    });
+                } else {
+                    $chooseNum.addClass('d-none');
+                    $chooseNum.find('select, input').prop('required', false);
+                }
+            }
+
+            if ($roleSel.length) {
+                $roleSel.on('change', toggleExtra);
+                toggleExtra();
+            }
+            if ($queueSel.length) {
+                $queueSel.on('change', toggleNum);
+                toggleNum();
+            }
+
+            // Random codes
+            const $codeInput = $('#code');
+            const $randCodeInput = $('#rand_code');
+
+            if ($codeInput.length) {
+                const gen = () => $codeInput.val(Math.floor(100000 + Math.random() * 900000));
+                gen();
+                $codeInput.on('focus', gen);
+            }
+
+            if ($randCodeInput.length) {
+                const gen2 = () => $randCodeInput.val(Math.floor(1000 + Math.random() * 9000));
+                gen2();
+                $randCodeInput.on('focus', gen2);
+            }
+        });
+    </script>
+@endpush
+
+
+
+@extends('website.web.admin.layouts.app')
+
+@section('page_name', 'universities')
+@section('view_name', 'create')
+
+@section('content')
+    
+    {{-- Actions bar --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.universities.index') }}">زانکۆکان</a></li>
+                        <li class="breadcrumb-item active">تەواوی زانکۆکان</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-building-columns me-1"></i>
+                    تەواوی زانکۆکان
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-8 mx-auto">
+            <div class="card glass fade-in">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">
+                        <i class="fa-solid fa-building-columns me-2"></i> {{ __('دروستکردنی زانکۆ') }}
+                    </h4>
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-circle-exclamation me-1"></i> هەڵە هەیە:
+                            <ul class="mb-0 mt-2 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('admin.universities.store') }}" method="POST" class="needs-validation"
+                        enctype="multipart/form-data" novalidate>
+                        @csrf
+
+                        <div class="row g-3">
+                            {{-- Province --}}
+                            <div class="col-md-6">
+                                <label for="province_id" class="form-label">
+                                    <i class="fa-solid fa-map-pin me-1 text-muted"></i> {{ __('هەڵبژاردنی پارێزگا') }} <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <select id="province_id" name="province_id" class="form-select" required>
+                                    <option value="" disabled {{ old('province_id') ? '' : 'selected' }}>هەڵبژێرە...
+                                    </option>
+                                    @foreach ($provinces as $province)
+                                        <option value="{{ $province->id }}" @selected(old('province_id') == $province->id)>
+                                            {{ $province->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback">تکایە پارێزگا هەڵبژێرە.</div>
+                            </div>
+
+                            {{-- Name --}}
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">
+                                    <i class="fa-solid fa-tag me-1 text-muted"></i> {{ __('ناوی زانکۆ') }} <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <input id="name" name="name" type="text" class="form-control" required
+                                    minlength="2" placeholder="ناوی زانکۆ..." value="{{ old('name') }}">
+                                <div class="invalid-feedback">تکایە ناوی دروست بنوسە (کەمتر نیە لە ٢ پیت).</div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">ناوی زانکۆ (ئینگلیزی)</label>
+                                <input type="text" name="name_en" class="form-control" required
+                                    placeholder="نموونە: University of Erbil" value="{{ old('name_en') }}">
+                                <div class="invalid-feedback">ناو پێویستە.</div>
+                            </div>
+
+                            {{-- GeoJSON (Optional) --}}
+                            <div class="col-12">
+                                <label class="form-label">GeoJSON (Optional)</label>
+                                <textarea name="geojson" rows="7" class="form-control" placeholder='{"type":"FeatureCollection","features":[...]'>{{ old('geojson_text') }}</textarea>
+                                <div class="form-text">دەتوانیت GeoJSON paste بکەیت یان فایل upload بکەیت.</div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Upload GeoJSON (Optional)</label>
+                                <input type="file" name="geojson_file" class="form-control" accept=".geojson,.json,.txt">
+                            </div>
+
+                            <div id="map-university" style="height:420px;border-radius:12px"></div>
+
+                            {{-- Point (optional) --}}
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Latitude</label>
+                                <input id="lat" name="lat" type="number" step="any" class="form-control"
+                                    value="{{ old('lat') }}">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Longitude</label>
+                                <input id="lng" name="lng" type="number" step="any" class="form-control"
+                                    value="{{ old('lng') }}">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-text">لەسەر نەخشە کلیک بکە، lat/lng خۆکار پڕ دەبن.</div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">وێنە</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
+                            </div>
+
+                            {{-- Status --}}
+                            <div class="col-md-12">
+                                <label for="status" class="form-label">
+                                    <i class="fa-solid fa-toggle-on me-1 text-muted"></i> {{ __('دۆخ') }} <span
+                                        class="text-danger">*</span>
+                                </label>
+                                <select id="status" name="status" class="form-select" required>
+                                    <option value="1" @selected(old('status') === '1')>{{ __('چاڵاک') }}</option>
+                                    <option value="0" @selected(old('status') === '0')>{{ __('ناچاڵاک') }}</option>
+                                </select>
+                                <div class="invalid-feedback">تکایە دۆخ هەڵبژێرە.</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="reset" class="btn btn-outline">
+                                <i class="fa-solid fa-rotate-left me-1"></i> {{ __('پاککردنەوە') }}
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-plus me-1"></i> {{ __('پاشەکەوتکردنی زانکۆ') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+ 
+
+ @extends('website.web.admin.layouts.app')
+
+@section('page_name', 'province')
+@section('view_name', 'create')
+
+@section('content')
+    
+    {{-- Actions bar --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.provinces.index') }}">پارێزگاکان</a></li>
+                        <li class="breadcrumb-item active">تەواوی پارێزگاکان</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-map-pin me-1"></i>
+                    تەواوی پارێزگاکان
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    @if (auth()->user()->role !== 'admin')
+        <div class="alert alert-warning"><i class="fa-solid fa-lock me-1"></i> تەنها ئەدمین دەتوانێت پارێزگا دروست بکات.</div>
+    @else
+        <div class="row">
+            <div class="col-12 col-xl-8 mx-auto">
+                <div class="card glass fade-in">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4"><i class="fa-solid fa-map-location-dot me-2"></i> پارێزگای نوێ</h4>
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <i class="fa-solid fa-circle-exclamation me-1"></i> هەڵە هەیە:
+                                <ul class="mb-0 mt-2 ps-3">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <form action="{{ route('admin.provinces.store') }}" method="POST" class="needs-validation"
+                            novalidate enctype="multipart/form-data">
+                            @csrf
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">ناوی پارێزگا</label>
+                                    <input type="text" name="name" class="form-control" required
+                                        value="{{ old('name') }}" placeholder="نموونە: هەولێر">
+                                    <div class="invalid-feedback">ناو پێویستە.</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label">ناوی پارێزگا (ئینگلیزی)</label>
+                                    <input type="text" name="name_en" class="form-control" required
+                                        value="{{ old('name_en') }}" placeholder="نموونە: هەولێر">
+                                    <div class="invalid-feedback">ناو پێویستە.</div>
+                                </div>
+
+                                {{-- GeoJSON (Optional) --}}
+                                <div class="mb-3">
+                                    <label class="form-label">ڕووبەر (GeoJSON)</label>
+                                    <textarea name="geojson" rows="8" class="form-control" placeholder='{"type":"Polygon","coordinates":[...]'>{{ old('geojson') }}</textarea>
+                                    <div class="form-text">دەتوانیت GeoJSON paste بکەیت یان فایل upload بکەیت.</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Upload GeoJSON (Optional)</label>
+                                    <input type="file" name="geojson_file" class="form-control"
+                                        accept=".geojson,.json,.txt">
+                                </div>
+
+                                <div id="map-province" style="height:420px;width:100%;border-radius:12px"></div>
+
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label">وێنە</label>
+                                    <input type="file" name="image" class="form-control" accept="image/*">
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label class="form-label">دۆخ</label>
+                                    <select class="form-select" name="status" required>
+                                        <option value="1" @selected(old('status') === '1')>چاڵاک</option>
+                                        <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
+                                    </select>
+                                    <div class="invalid-feedback">دۆخ دیاری بکە.</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوت
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+@endsection
+ 
+
+ @extends('website.web.admin.layouts.app')
+
+@section('page_name', 'department')
+@section('view_name', 'create')
+
+@section('content')
+    
+    {{-- Actions bar --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('admin.departments.index') }}">بەشەکان</a></li>
+                        <li class="breadcrumb-item active">زیادکردنی بەش</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-building-columns me-1"></i>
+                    زیادکردنی بەش
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-xl-10 mx-auto">
+            <div class="card glass fade-in">
+                <div class="card-body">
+                    <h4 class="card-title mb-4"><i class="fa-solid fa-plus me-2"></i> زیادکردنی بەش</h4>
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-circle-exclamation me-1"></i> هەڵە هەیە لە داهێنان:
+                            <ul class="mb-0 mt-2 ps-3">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('admin.departments.store') }}" method="POST" class="needs-validation"
+                          enctype="multipart/form-data" novalidate>
+                        @csrf
+
+                        <div class="row g-3">
+                            {{-- System --}}
+                            <div class="col-12 col-md-6">
+                                <label for="system_id" class="form-label">سیستەم</label>
+                                <select id="system_id" name="system_id"
+                                        class="form-select @error('system_id') is-invalid @enderror" required>
+                                    <option value="" disabled selected>هەڵبژاردنی سیستەم</option>
+                                    @foreach ($systems as $system)
+                                        <option value="{{ $system->id }}" @selected(old('system_id') == $system->id)>
+                                            {{ $system->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('system_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            </div>
+
+                            {{-- Province --}}
+                            <div class="col-12 col-md-6">
+                                <label for="province_id" class="form-label">پارێزگا</label>
+                                <select id="province_id" name="province_id"
+                                        class="form-select @error('province_id') is-invalid @enderror" required>
+                                    <option value="" disabled selected>هەڵبژاردنی پارێزگا</option>
+                                    @foreach ($provinces as $province)
+                                        <option value="{{ $province->id }}" @selected(old('province_id') == $province->id)>
+                                            {{ $province->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('province_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            </div>
+
+                            {{-- University (depends on province) --}}
+                            <div class="col-12 col-md-6">
+                                <label for="university_id" class="form-label">زانکۆ</label>
+                                <select id="university_id" name="university_id"
+                                        class="form-select @error('university_id') is-invalid @enderror" required disabled>
+                                    <option value="">هەموو زانکۆكان</option>
+                                </select>
+                                @error('university_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            </div>
+
+                            {{-- College (depends on university) --}}
+                            <div class="col-12 col-md-6">
+                                <label for="college_id" class="form-label">کۆلێژ/پەیمانگا</label>
+                                <select id="college_id" name="college_id"
+                                        class="form-select @error('college_id') is-invalid @enderror" required disabled>
+                                    <option value="">هەموو کۆلێژەکان</option>
+                                </select>
+                                @error('college_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            </div>
+
+                            {{-- Names --}}
+                            <div class="col-12 col-md-6">
+                                <label for="name" class="form-label">ناوی بەش</label>
+                                <input id="name" name="name" type="text"
+                                       class="form-control @error('name') is-invalid @enderror"
+                                       value="{{ old('name') }}" required>
+                                @error('name') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label for="name_en" class="form-label">ناوی بەش (ئینگلیزی)</label>
+                                <input id="name_en" name="name_en" type="text"
+                                       class="form-control @error('name_en') is-invalid @enderror"
+                                       value="{{ old('name_en') }}" required>
+                                @error('name_en') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                            </div>
+
+                            {{-- Scores --}}
+                            <div class="col-12 col-md-3">
+                                <label for="local_score" class="form-label">ن. ناوەندی</label>
+                                <input id="local_score" name="local_score" type="number" step="0.001"
+                                       class="form-control" value="{{ old('local_score') }}">
+                            </div>
+
+                            <div class="col-12 col-md-3">
+                                <label for="external_score" class="form-label">ن. دەرەوە</label>
+                                <input id="external_score" name="external_score" type="number" step="0.001"
+                                       class="form-control" value="{{ old('external_score') }}">
+                            </div>
+
+                            {{-- Type / Sex --}}
+                            <div class="col-12 col-md-3">
+                                <label for="type" class="form-label">لق</label>
+                                <select id="type" name="type" class="form-select">
+                                    <option value="زانستی" @selected(old('type') === 'زانستی')>زانستی</option>
+                                    <option value="وێژەیی" @selected(old('type') === 'وێژەیی')>وێژەیی</option>
+                                    <option value="زانستی و وێژەیی" @selected(old('type') === 'زانستی و وێژەیی')>هەردوو</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-3">
+                                <label for="sex" class="form-label">ڕەگەز</label>
+                                <select id="sex" name="sex" class="form-select">
+                                    <option value="نێر" @selected(old('sex') === 'نێر')>نێر</option>
+                                    <option value="مێ" @selected(old('sex') === 'مێ')>مێ</option>
+                                </select>
+                            </div>
+
+                            {{-- Leaflet map --}}
+                            <div id="map-department" style="height:420px;border-radius:12px" class="m-3"></div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Latitude</label>
+                                    <input id="lat" name="lat" type="number" step="0.000001"
+                                           value="{{ old('lat') }}" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Longitude</label>
+                                    <input id="lng" name="lng" type="number" step="0.000001"
+                                           value="{{ old('lng') }}" class="form-control">
+                                </div>
+                                <div class="form-text">لەسەر نەخشە کلیک بکە بۆ دیاریکردنی شوێن.</div>
+                            </div>
+
+                            {{-- Description --}}
+                            <div class="col-12">
+                                <label for="description" class="form-label">وەسف</label>
+                                <textarea id="description" name="description" class="form-control summernote" rows="4">{{ old('description') }}</textarea>
+                            </div>
+
+                            {{-- Image --}}
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">وێنە</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
+                            </div>
+
+                            {{-- Status --}}
+                            <div class="col-12 col-md-6">
+                                <label for="status" class="form-label">دۆخ</label>
+                                <select id="status" name="status" class="form-select" required>
+                                    <option value="1" @selected(old('status') === '1')>چاڵاک</option>
+                                    <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+
+@push('scripts')
+
+    {{-- API base urls (hardcode مەکەین) --}}
+    <script>
+        window.API_UNI   = "{{ route('admin.api.universities') }}"; // ?province_id=ID
+        window.API_COLLS = "{{ route('admin.api.colleges') }}";     // ?university_id=ID
+    </script>
+
+@endpush
+
+
+@extends('website.web.admin.layouts.app')
+
+@section('page_name', 'colleges')
+@section('view_name', 'create')
+
+@section('content')
+  
+  {{-- Actions bar --}}
+  <div class="row mb-4">
+      <div class="col-12">
+          <div class="page-title-box d-flex align-items-center justify-content-between">
+              <div class="page-title-right">
+                  <ol class="breadcrumb m-0">
+                      <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                      <li class="breadcrumb-item"><a href="{{ route('admin.colleges.index') }}">کۆلێژکان</a></li>
+                      <li class="breadcrumb-item active">نوێکردنەوەی کۆلێژ</li>
+                  </ol>
+              </div>
+              <h4 class="page-title">
+                  <i class="fas fa-building-columns me-1"></i>
+                  نوێکردنەوەی کۆلێژ
+              </h4>
+          </div>
+      </div>
+  </div>
+
+  <div data-page="colleges" data-view="create">
+
+      <div class="row">
+        <div class="col-12 col-xl-8 mx-auto">
+          <div class="card glass fade-in">
+            <div class="card-body">
+              <h4 class="card-title mb-4">
+                <i class="fa-solid fa-building-columns me-2"></i> دروست کردنی کۆلێژ
+              </h4>
+
+              @if ($errors->any())
+                <div class="alert alert-danger">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i> هەڵە هەیە لە داهێنان
+                  <ul class="mb-0 mt-2 ps-3">
+                    @foreach ($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                    @endforeach
+                  </ul>
+                </div>
+              @endif
+
+              <form id="collegeForm" action="{{ route('admin.colleges.store') }}" method="POST" class="needs-validation" enctype="multipart/form-data" novalidate>
+                @csrf
+
+                {{-- University --}}
+                <div class="mb-3">
+                  <label for="university_id" class="form-label">هەڵبژاردنی زانکۆ</label>
+                  <select id="university_id" name="university_id" class="form-select @error('university_id') is-invalid @enderror" required>
+                    <option value="" disabled {{ old('university_id') ? '' : 'selected' }}>هەڵبژێرە...</option>
+                    @foreach ($universities as $uni)
+                      <option value="{{ $uni->id }}" @selected(old('university_id') == $uni->id)>{{ $uni->name }}</option>
+                    @endforeach
+                  </select>
+                  @error('university_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                </div>
+
+                {{-- Name --}}
+                <div class="mb-3">
+                  <label for="name" class="form-label">ناوی کۆلێژ</label>
+                  <input id="name" name="name" type="text" value="{{ old('name') }}" class="form-control @error('name') is-invalid @enderror" required>
+                  @error('name') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="col-12 mb-3">
+                  <label class="form-label">ناوی کۆلێژ (ئینگلیزی)</label>
+                  <input type="text" name="name_en" class="form-control" required value="{{ old('name_en') }}" placeholder="نموونە: College of Engineering">
+                  <div class="invalid-feedback">ناو پێویستە.</div>
+                </div>
+
+                {{-- GeoJSON (Optional) --}}
+                <div class="mb-3">
+                  <label class="form-label">GeoJSON (Optional)</label>
+                  <textarea name="geojson_text" rows="6" class="form-control" placeholder='{"type":"FeatureCollection","features":[...]'>{{ old('geojson_text') }}</textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Upload GeoJSON (Optional)</label>
+                  <input type="file" name="geojson_file" class="form-control" accept=".geojson,.json,.txt">
+                </div>
+
+                {{-- Map (Leaflet لە layout) --}}
+                <div id="map-college" class="m-3" style="height:420px;border-radius:12px"></div>
+
+                {{-- Point (optional) --}}
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Latitude</label>
+                    <input id="lat" name="lat" type="number" step="any" value="{{ old('lat') }}" class="form-control">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Longitude</label>
+                    <input id="lng" name="lng" type="number" step="any" value="{{ old('lng') }}" class="form-control">
+                  </div>
+                  <div class="form-text">لەسەر نەخشە کلیک بکە، lat/lng خۆکار پڕ دەبن.</div>
+                </div>
+
+                {{-- Image --}}
+                <div class="col-12 col-md-6 my-3">
+                  <label class="form-label">وێنە</label>
+                  <input type="file" name="image" class="form-control" accept="image/*">
+                </div>
+
+                {{-- Status --}}
+                <div class="mb-3">
+                  <label for="status" class="form-label">دۆخ</label>
+                  <select id="status" name="status" class="form-select @error('status') is-invalid @enderror" required>
+                    <option value="1" @selected(old('status')==='1')>چاڵاک</option>
+                    <option value="0" @selected(old('status')==='0')>ناچاڵاک</option>
+                  </select>
+                  @error('status') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="d-flex justify-content-end">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
+                  </button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+@endsection
+

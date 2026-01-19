@@ -49,7 +49,7 @@ class DashboardController extends Controller
             'features' => $features,
         ];
 
-        return view('website.web.admin.dashboard', [
+        return view('website.web.admin.map', [
             'provinceGeoJSON' => $provinceGeoJSON,
         ]);
     }

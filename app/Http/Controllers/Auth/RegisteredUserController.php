@@ -68,6 +68,10 @@ class RegisteredUserController extends Controller
             return redirect(RouteServiceProvider::TEACHER_DASHBOARD);
         }
 
+        if (Auth::user()->role === 'student') {
+            return redirect(RouteServiceProvider::STUDENT_DASHBOARD);
+        }
+
         return redirect()->route('login')->with('success', 'قوتابی نوێ بە سەرکەوتووی دروست کرا.');
     }
 }

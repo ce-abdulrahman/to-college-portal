@@ -1,0 +1,556 @@
+/**
+ *  App\Http\Controllers\Admin\MbtiAdminController.php
+ */
+
+ <?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\MbtiQuestion;
+use App\Models\MbtiAnswer;
+use App\Models\Student;
+use Illuminate\Http\Request;
+use App\Models\User;
+use Maatwebsite\Excel\Facades\Excel;
+
+class MbtiAdminController extends Controller 
+{
+
+    /**
+     * نمایشی لیستی پرسیارەکان
+     */
+    public function index()
+    {
+        $questions = MbtiQuestion::orderBy('dimension')
+                                 ->orderBy('side')
+                                 ->orderBy('order')
+                                 ->get();
+
+        return view('website.web.admin.mbti.questions.index', compact('questions'));
+    }
+
+    /**
+     * نمایشی فۆڕمی دروستکردنی پرسیاری نوێ
+     */
+    public function create()
+    {
+        $dimensions = [
+            'EI' => 'Extraversion (E) - Introversion (I)',
+            'SN' => 'Sensing (S) - Intuition (N)',
+            'TF' => 'Thinking (T) - Feeling (F)',
+            'JP' => 'Judging (J) - Perceiving (P)',
+        ];
+
+        $sides = [
+            'EI' => ['E', 'I'],
+            'SN' => ['S', 'N'],
+            'TF' => ['T', 'F'],
+            'JP' => ['J', 'P'],
+        ];
+
+        return view('website.web.admin.mbti.questions.create', compact('dimensions', 'sides'));
+    }
+
+    /**
+     * هەڵگرتنی پرسیاری نوێ
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'dimension' => 'required|in:EI,SN,TF,JP',
+            'side' => 'required|in:E,I,S,N,T,F,J,P',
+            'question_ku' => 'required|string|max:500',
+            'question_en' => 'nullable|string|max:500',
+            'order' => 'required|integer|min:1|max:100',
+        ]);
+
+        MbtiQuestion::create($request->all());
+
+        return redirect()->route('website.web.admin.mbti.questions.index')
+                         ->with('success', 'پرسیارەکە بە سەرکەوتوویی زیاد کرا.');
+    }
+
+    /**
+     * نمایشی پرسیارێکی دیاریکراو
+     */
+    public function show(MbtiQuestion $question)
+    {
+        $question->load('answers.user');
+
+        return view('website.web.admin.mbti.questions.show', compact('question'));
+    }
+
+    /**
+     * نمایشی فۆڕمی دەستکاری
+     */
+    public function edit(MbtiQuestion $question)
+    {
+        $dimensions = [
+            'EI' => 'Extraversion (E) - Introversion (I)',
+            'SN' => 'Sensing (S) - Intuition (N)',
+            'TF' => 'Thinking (T) - Feeling (F)',
+            'JP' => 'Judging (J) - Perceiving (P)',
+        ];
+
+        $sides = [
+            'EI' => ['E', 'I'],
+            'SN' => ['S', 'N'],
+            'TF' => ['T', 'F'],
+            'JP' => ['J', 'P'],
+        ];
+
+        return view('website.web.admin.mbti.questions.edit', compact('question', 'dimensions', 'sides'));
+    }
+
+    /**
+     * نوێکردنەوەی پرسیار
+     */
+    public function update(Request $request, MbtiQuestion $question)
+    {
+        $request->validate([
+            'dimension' => 'required|in:EI,SN,TF,JP',
+            'side' => 'required|in:E,I,S,N,T,F,J,P',
+            'question_ku' => 'required|string|max:500',
+            'question_en' => 'nullable|string|max:500',
+            'order' => 'required|integer|min:1|max:100',
+        ]);
+
+        $question->update($request->all());
+
+        return redirect()->route('website.web.admin.mbti.questions.index')
+                         ->with('success', 'پرسیارەکە بە سەرکەوتوویی نوێکرایەوە.');
+    }
+
+    /**
+     * سڕینەوەی پرسیار
+     */
+    public function destroy(MbtiQuestion $question)
+    {
+        // پشکنین ئەگەر وەڵامی هەیە
+        if ($question->answers()->count() > 0) {
+            return redirect()->back()
+                             ->with('error', 'ناتوانیت ئەم پرسیارە بسڕیتەوە چونکە وەڵامی هەیە. سەرەتا وەڵامەکان بسڕەوە.');
+        }
+
+        $question->delete();
+
+        return redirect()->route('admin.mbti.questions.index')
+                         ->with('success', 'پرسیارەکە بە سەرکەوتوویی سڕایەوە.');
+    }
+
+    /**
+     * نمایشی هەموو ئەنجامەکان
+     */
+    public function results()
+    {
+        $students = Student::whereNotNull('mbti_type')
+                    ->with(['mbtiAnswers' => function($query) {
+                        $query->with('question');
+                    }])
+                    ->orderBy('mbti_type')
+                    ->get();
+
+        $mbtiTypes = [
+            'ISTJ', 'ISFJ', 'INFJ', 'INTJ',
+            'ISTP', 'ISFP', 'INFP', 'INTP',
+            'ESTP', 'ESFP', 'ENFP', 'ENTP',
+            'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
+        ];
+
+        $statistics = $this->getStatistics();
+
+        return view('website.web.admin.mbti.results.index', compact('students', 'mbtiTypes', 'statistics'));
+    }
+
+    /**
+     * نمایشی ئەنجامی بەکارهێنەرێکی دیاریکراو
+     */
+    public function showUserResult(Student $student)
+    {
+        if ($student->mbti_type) {
+            return redirect()->route('admin.mbti.results.index')
+                             ->with('error', 'ئەم بەکارهێنەرە تاقیکردنەوەی MBTI نەکردووە.');
+        }
+
+        $answers = $student->mbtiAnswers()->with('question')->get();
+
+        // هەژمارکردنی ئاستەکان
+        $scores = [
+            'E' => 0, 'I' => 0,
+            'S' => 0, 'N' => 0,
+            'T' => 0, 'F' => 0,
+            'J' => 0, 'P' => 0,
+        ];
+
+        foreach ($answers as $answer) {
+            $side = $answer->question->side;
+            $scores[$side] += $answer->score;
+        }
+
+        return view('website.web.admin.mbti.results.show', compact('student', 'answers', 'scores'));
+    }
+    
+private function getMbtiTypeStrengths($type)
+{
+    $strengths = [
+        'ISTJ' => ['ڕێکخراو', 'بەرپرسیار', 'پڕاکتیکی', 'وردبین', 'بەڵێندەر'],
+        'ISFJ' => ['پارێزەر', 'پشتگیری', 'وردبین', 'خۆشەویست', 'بەرپرسیار'],
+        'INFJ' => ['ڕاوێژکار', 'داهێنەر', 'هاوسۆز', 'پێشبینیکەر', 'بەرزان'],
+        'INTJ' => ['ستراتیژیست', 'سەربەخۆ', 'بیرکار', 'پێشبینیکەر', 'بەرپرسیار'],
+        'ISTP' => ['چارەسەرکەر', 'ئارام', 'پڕاکتیکی', 'ئەکسیۆن-ئۆرینتد', 'سەربەخۆ'],
+        'ISFP' => ['هونەرمەند', 'داهێنەر', 'ئارام', 'هاوسۆز', 'بەخێوکەر'],
+        'INFP' => ['ئایدیالیست', 'داهێنەر', 'بەرزان', 'هاوسۆز', 'خۆشەویست'],
+        'INTP' => ['بیرکار', 'نەریتی', 'کنجکاو', 'سەربەخۆ', 'پاکیزە'],
+        'ESTP' => ['بەهرەمەند', 'ئەنەرجەتیک', 'پڕاکتیکی', 'سەرگەرم', 'گۆڕانکار'],
+        'ESFP' => ['ڕابەر', 'سۆزی', 'ئەنەرجەتیک', 'بەخێوکەر', 'دڵخۆشکەر'],
+        'ENFP' => ['پیشاندەر', 'داهێنەر', 'ئەنەرجەتیک', 'هاوسۆز', 'خۆشەویست'],
+        'ENTP' => ['داهێنەر', 'بیرکار', 'کنجکاو', 'ئەنەرجەتیک', 'گۆڕانکار'],
+        'ESTJ' => ['بەڕێوەبەر', 'ڕێکخراو', 'پڕاکتیکی', 'بەرپرسیار', 'کاربەدەست'],
+        'ESFJ' => ['بەخێوکەر', 'کۆمەڵایەتی', 'پشتگیری', 'بەرپرسیار', 'خۆشەویست'],
+        'ENFJ' => ['مامۆستا', 'هاوسۆز', 'پەرەپێدەر', 'بەرپرسیار', 'بەخێوکەر'],
+        'ENTJ' => ['فەرماندە', 'ستراتیژیست', 'بەڕێوەبەر', 'بەرپرسیار', 'کاریگەر'],
+    ];
+    
+    return $strengths[$type] ?? ['زانیاری بەردەست نییە'];
+}
+
+/**
+ * وەرگرتنی لەتەکانی جۆری MBTI
+ */
+private function getMbtiTypeWeaknesses($type)
+{
+    $weaknesses = [
+        'ISTJ' => ['زۆر ڕەسمی', 'نەگونجاو لەگەڵ گۆڕانکاری', 'کەمەلایەنی داهێنان', 'قورسی دەرکردنی بڕیار'],
+        'ISFJ' => ['زۆر هەستیار', 'قورسی نەبوونەوە', 'کەمەلایەنی سەربەخۆیی', 'نەگونجاو بۆ ئەرکی قورس'],
+        'INFJ' => ['زۆر تەنیاخواز', 'قورسی دەرکردنی بڕیار', 'نەگونجاو لەگەڵ ڕق', 'زۆر کەمالخواز'],
+        'INTJ' => ['زۆر ڕەسمی', 'کەمەلایەنی هەستیار', 'قورسی پەیوەندی کەسی', 'بێزارکەر لەگەڵ بێ ئەندازەیی'],
+        'ISTP' => ['بێزارکەر لەگەڵ ڕەوتین', 'کەمەلایەنی پلاندانان', 'زۆر ڕێک', 'قورسی دەربڕینی هەست'],
+        'ISFP' => ['زۆر هەستیار', 'بێ پلان', 'قورسی دەرکردنی بڕیار', 'نەگونجاو بۆ فشاری زۆر'],
+        'INFP' => ['زۆر کەمالخواز', 'قورسی ڕووکەشتن', 'زۆر هەستیار', 'نەگونجاو لەگەڵ ڕق'],
+        'INTP' => ['زۆر تەنیاخواز', 'قورسی پەیوەندی کەسی', 'بێزارکەر لەگەڵ ڕەوتین', 'زۆر ڕێک'],
+        'ESTP' => ['بێزارکەر لەگەڵ ڕەوتین', 'کەمەلایەنی پلاندانان', 'سەرگەرمی زۆر', 'قورسی تەمەرکیز'],
+        'ESFP' => ['کەمەلایەنی پلاندانان', 'نەگونجاو بۆ کارێکی تەنیا', 'سەرگەرمی زۆر', 'قورسی تەمەرکیز'],
+        'ENFP' => ['بێ پلان', 'قورسی تەمەرکیز', 'زۆر سەرگەرم', 'نەگونجاو لەگەڵ ڕەوتین'],
+        'ENTP' => ['بێزارکەر لەگەڵ ڕەوتین', 'قورسی تەمەرکیز', 'زۆر دەمەقاڵێکار', 'نەگونجاو بۆ کارێکی تەنیا'],
+        'ESTJ' => ['زۆر ڕەسمی', 'نەگونجاو لەگەڵ گۆڕانکاری', 'کەمەلایەنی هەستیار', 'بێزارکەر لەگەڵ بێ ئەندازەیی'],
+        'ESFJ' => ['زۆر هەستیار', 'قورسی نەبوونەوە', 'نەگونجاو بۆ ڕق', 'زۆر کۆنترۆڵکار'],
+        'ENFJ' => ['زۆر هەستیار', 'قورسی نەبوونەوە', 'کەمەلایەنی سەربەخۆیی', 'نەگونجاو بۆ ڕق'],
+        'ENTJ' => ['زۆر ڕەسمی', 'کەمەلایەنی هەستیار', 'بێزارکەر لەگەڵ بێ ئەندازەیی', 'قورسی پەیوەندی کەسی'],
+    ];
+    
+    return $weaknesses[$type] ?? ['زانیاری بەردەست نییە'];
+}
+
+/**
+ * وەرگرتنی کارە گونجاوەکان
+ */
+private function getMbtiTypeCareers($type)
+{
+    $careers = [
+        'ISTJ' => ['بەڕێوەبەری', 'حسابات', 'پزیشکی', 'پۆلیس', 'بارەگا ڕێکخەر'],
+        'ISFJ' => ['مامۆستا', 'نەرس', 'سێکرتێر', 'کەسانی چاودێری', 'کتێبدار'],
+        'INFJ' => ['پزیشکی دەروونی', 'ڕاوێژکار', 'مامۆستا', 'نووسەر', 'ئایینپەروەر'],
+        'INTJ' => ['بیرکار', 'پڕۆگرامساز', 'پزیشک', 'ئەندازیار', 'بەڕێوەبەر'],
+        'ISTP' => ['ئەندازیار', 'تەکنیسین', 'پۆلیس', 'فڕۆکەوان', 'میکانیک'],
+        'ISFP' => ['هونەرمەند', 'مامۆستا', 'پارێزەری ژینگە', 'پزیشکی ئاژەڵ', 'دیزاینەر'],
+        'INFP' => ['نووسەر', 'مامۆستا', 'ڕاوێژکار', 'پزیشکی دەروونی', 'هونەرمەند'],
+        'INTP' => ['بیرکار', 'پڕۆگرامساز', 'تاقیکار', 'گەردوونناس', 'فەیلەسوف'],
+        'ESTP' => ['بازرگان', 'پۆلیس', 'خۆشدوو', 'یاریزان', 'ڕێکخەری ڕووداو'],
+        'ESFP' => ['هونەرمەند', 'مامۆستا', 'ڕێکخەری ڕووداو', 'خۆشدوو', 'کارمەندی مارکێتینگ'],
+        'ENFP' => ['مامۆستا', 'ڕاوێژکار', 'ژورنالیست', 'کارمەندی مارکێتینگ', 'سیاسەتمەدار'],
+        'ENTP' => ['بازرگان', 'پڕۆگرامساز', 'پەرەپێدەر', 'ئەندازیار', 'پزیشک'],
+        'ESTJ' => ['بەڕێوەبەر', 'حسابات', 'پۆلیس', 'سەرباز', 'بارەگا ڕێکخەر'],
+        'ESFJ' => ['مامۆستا', 'نەرس', 'سێکرتێر', 'کارمەندانی کۆمەڵایەتی', 'ڕێکخەری ڕووداو'],
+        'ENFJ' => ['مامۆستا', 'ڕاوێژکار', 'کارمەندانی کۆمەڵایەتی', 'پەرەپێدەری کەسایەتی', 'سیاسەتمەدار'],
+        'ENTJ' => ['بەڕێوەبەر', 'ئەندازیار', 'پزیشک', 'پڕۆگرامساز', 'سەرباز'],
+    ];
+    
+    return $careers[$type] ?? ['زانیاری بەردەست نییە'];
+}
+
+/**
+ * وەرگرتنی شێوازی کارکردن
+ */
+private function getMbtiTypeWorkStyles($type)
+{
+    $workStyles = [
+        'ISTJ' => [
+            'شێوازی کارکردن' => ['ڕێکوپێک', 'پڕۆسەیی', 'وردبین', 'بەڵێندەر'],
+            'کار لەگەڵ کەسەکان' => ['پشتگیری', 'بەرپرسیار', 'دیسیپلیندار', 'ڕاستگۆ'],
+            'بەرەوپێشبردنی کار' => ['پلانبەند', 'ردەوامی', 'وردبین', 'پێشبینیکەر'],
+            'بەرەنگاربوون' => ['بەرپرسیار', 'پڕاکتیکی', 'ڕاستگۆ', 'بەڵێندەر']
+        ],
+        'ISFP' => [
+            'شێوازی کارکردن' => ['داهێنەر', 'هەستیار', 'ئارام', 'خۆشەویست'],
+            'کار لەگەڵ کەسەکان' => ['هاوسۆز', 'بەخشندە', 'دەستگیر', 'پشتگیری'],
+            'بەرەوپێشبردنی کار' => ['بەهەست', 'ئارام', 'داهێنەر', 'گونجاو'],
+            'بەرەنگاربوون' => ['هاوسۆز', 'بەهەست', 'دەستگیر', 'ئارام']
+        ],
+        // ... بۆ هەموو جۆرەکان
+    ];
+    
+    return $workStyles[$type] ?? [
+        'شێوازی کارکردن' => ['زانیاری بەردەست نییە'],
+        'کار لەگەڵ کەسەکان' => ['زانیاری بەردەست نییە'],
+        'بەرەوپێشبردنی کار' => ['زانیاری بەردەست نییە'],
+        'بەرەنگاربوون' => ['زانیاری بەردەست نییە']
+    ];
+}
+
+
+
+
+
+
+
+
+
+    /**
+     * سڕینەوەی ئەنجامی بەکارهێنەرێک
+     */
+    public function deleteUserResult(User $user)
+    {
+        $user->mbtiAnswers()->delete();
+        $user->update(['mbti_type' => null]);
+
+        return redirect()->route('website.web.admin.mbti.results')
+                         ->with('success', 'ئەنجامەکانی بەکارهێنەر بە سەرکەوتوویی سڕایەوە.');
+    }
+
+    /**
+     * فیلتەرکردنی ئەنجامەکان بەپێی جۆری MBTI
+     */
+    public function filterResults(Request $request)
+    {
+        $type = $request->get('type');
+
+        $query = Student::whereNotNull('mbti_type');
+
+        if ($type && $type != 'all') {
+            $query->where('mbti_type', $type);
+        }
+
+        $users = $query->orderBy('mbti_type')->paginate(20);
+
+        $mbtiTypes = [
+            'ISTJ', 'ISFJ', 'INFJ', 'INTJ',
+            'ISTP', 'ISFP', 'INFP', 'INTP',
+            'ESTP', 'ESFP', 'ENFP', 'ENTP',
+            'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
+        ];
+
+        $statistics = $this->getStatistics();
+
+        return view('website.web.admin.mbti.results.index', compact('users', 'mbtiTypes', 'statistics', 'type'));
+    }
+
+    /**
+     * ئاماری گشتی
+     */
+    public function statistics()
+    {
+        $statistics = $this->getStatistics(true);
+
+        return view('website.web.admin.mbti.statistics', compact('statistics'));
+    }
+
+    /**
+     * هەژمارکردنی ئامارەکان
+     */
+    private function getStatistics($detailed = false)
+    {
+        $stats = [
+            'total_users' => Student::count(),
+            'tested_users' => Student::whereNotNull('mbti_type')->count(),
+            'untested_users' => Student::whereNull('mbti_type')->count(),
+            'total_answers' => MbtiAnswer::count(),
+        ];
+
+        if ($detailed) {
+            // دابەشبوونی جۆرەکان
+            $typeDistribution = Student::whereNotNull('mbti_type')
+                                   ->select('mbti_type', \DB::raw('count(*) as count'))
+                                   ->groupBy('mbti_type')
+                                   ->orderBy('count', 'desc')
+                                   ->get()
+                                   ->pluck('count', 'mbti_type');
+
+            $stats['type_distribution'] = $typeDistribution;
+
+            // تێکڕای نمرەکان بۆ هەر دایمەنشنێک
+            $averageScores = MbtiAnswer::join('mbti_questions', 'mbti_answers.question_id', '=', 'mbti_questions.id')
+                                      ->select(
+                                          'mbti_questions.dimension',
+                                          'mbti_questions.side',
+                                          \DB::raw('AVG(mbti_answers.score) as average_score')
+                                      )
+                                      ->groupBy('mbti_questions.dimension', 'mbti_questions.side')
+                                      ->get();
+
+            $dimensionAverages = [];
+            foreach ($averageScores as $score) {
+                $dimensionAverages[$score->dimension][$score->side] = round($score->average_score, 2);
+            }
+
+            $stats['dimension_averages'] = $dimensionAverages;
+
+            // زیاترین و کەمترین جۆرەکان
+            $mostCommonType = $typeDistribution->sortDesc()->keys()->first();
+            $leastCommonType = $typeDistribution->sort()->keys()->first();
+
+            $stats['most_common_type'] = $mostCommonType;
+            $stats['least_common_type'] = $leastCommonType;
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Export کردنی ئەنجامەکان بە فۆرماتی Excel
+     */
+    public function exportResults()
+    {
+        return Excel::download(new MbtiResultsExport, 'mbti-results-' . date('Y-m-d') . '.xlsx');
+    }
+}
+
+
+/**
+ *  App\Http\Controllers\Student\MbtiController.php
+ */
+<?php
+
+namespace App\Http\Controllers\Student;
+
+use App\Http\Controllers\Controller;
+use App\Models\MbtiQuestion;
+use App\Models\MbtiAnswer;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Student;
+
+class MbtiController extends Controller
+{
+    /**
+     * پیشاندانی تاقیکردنەوە
+     */
+    public function index()
+    {
+        $user = Student::where('user_id', Auth::user()->id)->first();
+
+        // ئەگەر پێشتر تاقیکردنەوەی کردبێت
+        if ($user->hasCompletedMbtiTest()) {
+            return redirect()->route('mbti.result');
+        }
+
+        $questions = MbtiQuestion::getGroupedQuestions();
+
+        return view('website.web.student.mbti.test', compact('questions'));
+    }
+
+    /**
+     * وەرگرتنی وەڵامەکان
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'answers' => 'required|array',
+            'answers.*' => 'required|integer|min:1|max:10',
+        ]);
+
+        $user = Student::where('user_id', Auth::user()->id)->first();
+
+        // سڕینەوەی وەڵامە کۆنەکان (ئەگەر هەبوون)
+        MbtiAnswer::where('user_id', $user->user_id)->delete();
+
+        // هەڵگرتنی وەڵامەکان
+        foreach ($request->answers as $questionId => $score) {
+            MbtiAnswer::create([
+                'user_id' => $user->user_id,
+                'student_id' => $user->id,
+                'question_id' => $questionId,
+                'score' => $score,
+            ]);
+        }
+
+        // هەژمارکردنی ئەنجام
+        $result = MbtiAnswer::calculateResult($user->user_id);
+
+        // تۆمارکردنی ئەنجام
+        $user->update(['mbti_type' => $result]);
+
+        return redirect()->route('student.mbti.result')
+                         ->with('success', 'تاقیکردنەوەکەت بە سەرکەوتوویی تەواو بوو!');
+    }
+
+    /**
+     * پیشاندانی ئەنجام
+     */
+    public function result()
+    {
+        $user = Student::where('user_id', Auth::user()->id)->first();
+
+        if (!$user->hasCompletedMbtiTest()) {
+            return redirect()->route('mbti.index');
+        }
+
+        // زانیاری زیاتر دەربارەی جۆری MBTI
+        $typeInfo = $this->getMbtiTypeInfo($user->mbti_type);
+
+        // ئەگەر وەڵامەکان هەبوون، ئامارەکان پیشان بدە
+        $answers = $user->mbtiAnswers()->with('question')->get();
+
+        return view('website.web.student.mbti.result', [
+            'user' => $user,
+            'typeInfo' => $typeInfo,
+            'answers' => $answers,
+        ]);
+    }
+
+    /**
+     * دووبارەکردنەوەی تاقیکردنەوە
+     */
+    public function retake()
+    {
+        $user = Student::where('user_id', Auth::user()->id)->first();
+
+        // سڕینەوەی هەموو زانیاریەکانی پێشوو
+        MbtiAnswer::where(['user_id' => $user->id, 'student_id' => $user->student->id])->delete();
+        $user->update(['mbti_type' => null]);
+
+        return redirect()->route('mbti.index');
+    }
+
+    /**
+     * وەرگرتنی زانیاری جۆرەکە
+     */
+    private function getMbtiTypeInfo($type)
+    {
+        $info = [
+            'ISTJ' => [
+                'title' => 'The Inspector',
+                'title_ku' => 'پشکنینکار', 
+                'strengths' => ['ڕێکخراو', 'بەرپرسیار', 'پڕاکتیکی'],
+                'weaknesses' => ['زۆر ڕەسمی', 'نەگونجاو لەگەڵ گۆڕانکاری'],
+                'careers' => ['بەڕێوەبەری', 'حسابات', 'پزیشکی'],
+            ],
+            'ISFP' => [
+                'title' => 'The Artist',
+                'title_ku' => 'هونەرمەند',
+                'strengths' => ['هەستیار', 'خۆشەویست', 'داهێنەر'],
+                'weaknesses' => ['زۆر هەستیار', 'بێ پلان'],
+                'careers' => ['هونەرمەندی', 'مامۆستا', 'پارێزەری ژینگە'],
+            ],
+            // ... بۆ هەموو جۆرەکان
+        ];
+
+        return $info[$type] ?? [
+            'title' => 'Unknown',
+            'title_ku' => 'نەناسراو',
+            'strengths' => [],
+            'weaknesses' => [],
+            'careers' => [],
+        ];
+    }
+}

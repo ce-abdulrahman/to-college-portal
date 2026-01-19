@@ -71,6 +71,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\CheckedAdminRole::class,
         'teacher' => \App\Http\Middleware\CheckedTeacherRole::class,
         'center' => \App\Http\Middleware\CheckedCenterRole::class,
+        'student' => \App\Http\Middleware\CheckedStudentRole::class,
 
     ];
 }

@@ -44,49 +44,84 @@
                 </a>
 
 
-                <a href="{{ route('admin.systems.index') }}"
-                    class="drawer-nav-item {{ navActive('admin.systems.index') }}">
-                    <i class="bi bi-building"></i>
-                    <span>سیستەمەکان</span>
+                {{-- General Data Dropdown --}}
+                @php
+                    $isGeneralDataActive = request()->routeIs('admin.systems.index') ||
+                                           request()->routeIs('admin.provinces.index') ||
+                                           request()->routeIs('admin.universities.index') ||
+                                           request()->routeIs('admin.colleges.index') ||
+                                           request()->routeIs('admin.departments.index');
+                @endphp
+
+                <a href="#sidebarGeneralData" class="drawer-nav-item {{ $isGeneralDataActive ? '' : 'collapsed' }}"
+                    data-bs-toggle="collapse" role="button" aria-expanded="{{ $isGeneralDataActive ? 'true' : 'false' }}"
+                    aria-controls="sidebarGeneralData">
+                    <i class="bi bi-database"></i>
+                    <span>داتا سەرەکییەکان</span>
+                    <span class="ms-auto"><i class="bi bi-chevron-down"></i></span>
                 </a>
-                <a href="{{ route('admin.provinces.index') }}"
-                    class="drawer-nav-item {{ navActive('admin.provinces.index') }}">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>پارێزگاکان</span>
+
+                <div class="collapse {{ $isGeneralDataActive ? 'show' : '' }}" id="sidebarGeneralData">
+                    <div class="ps-3">
+                        <a href="{{ route('admin.systems.index') }}"
+                            class="drawer-nav-item {{ navActive('admin.systems.index') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>سیستەمەکان</span>
+                        </a>
+                        <a href="{{ route('admin.provinces.index') }}"
+                            class="drawer-nav-item {{ navActive('admin.provinces.index') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>پارێزگاکان</span>
+                        </a>
+                        <a href="{{ route('admin.universities.index') }}"
+                            class="drawer-nav-item {{ navActive('admin.universities.index') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>زانکۆکان</span>
+                        </a>
+                        <a href="{{ route('admin.colleges.index') }}"
+                            class="drawer-nav-item {{ navActive('admin.colleges.index') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>کۆلێژەکان</span>
+                        </a>
+                        <a href="{{ route('admin.departments.index') }}"
+                            class="drawer-nav-item {{ navActive('admin.departments.index') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>بەشەکانی</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="{{ route('admin.mbti.questions.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.mbti.questions.index') }}">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span>پرسیاری MBTI</span>
                 </a>
-                <a href="{{ route('admin.universities.index') }}"
-                    class="drawer-nav-item {{ navActive('admin.universities.index') }}">
-                    <i class="bi bi-mortarboard"></i>
-                    <span>زانکۆکان</span>
-                </a>
-                <a href="{{ route('admin.colleges.index') }}"
-                    class="drawer-nav-item {{ navActive('admin.colleges.index') }}">
-                    <i class="bi bi-bank"></i>
-                    <span>کۆلێژەکان</span>
-                </a>
-                <a href="{{ route('admin.departments.index') }}"
-                    class="drawer-nav-item {{ navActive('admin.departments.index') }}">
-                    <i class="fa-regular fa-building"></i>
-                    <span>بەشەکانی</span>
+
+                <a href="{{ route('admin.mbti.results.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.mbti.results.index') }}">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span>ئەنجامی پرسیاری MBTI</span>
                 </a>
 
                 <a href="{{ route('admin.centers.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.centers.index') }}">
-                    <i class="fa-regular fa-id-card"></i>
+                    <i class="fa-solid fa-building-user"></i>
                     <span>سەنتەرەکان</span>
                 </a>
 
                 <a href="{{ route('admin.teachers.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.teachers.index') }}">
-                    <i class="fa-regular fa-id-card"></i>
+                    <i class="fa-solid fa-chalkboard-user"></i>
                     <span>مامۆستایەکان</span>
                 </a>
 
                 <a href="{{ route('admin.students.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.students.index') }}">
-                    <i class="fa-regular fa-id-card"></i>
+                    <i class="fa-solid fa-user-graduate"></i>
                     <span>قوتابیان</span>
                 </a>
+
+                
 
                 <a href="{{ route('admin.results.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.results.index') }}">
@@ -108,17 +143,17 @@
             </a>
             <a href="{{ route('center.departments.index') }}"
                 class="drawer-nav-item {{ navActive('center.departments.index') }}">
-                <i class="fa-regular fa-building"></i>
+                <i class="fa-solid fa-building"></i>
                 <span>بەشەکانی</span>
             </a>
             <a href="{{ route('center.teachers.index') }}"
                 class="drawer-nav-item {{ navActive('center.teachers.index') }}">
-                <i class="fa fa-users"></i>
+                <i class="fa-solid fa-chalkboard-user"></i>
                 <span>مامۆستاکانم</span>
             </a>
             <a href="{{ route('center.students.index') }}"
                 class="drawer-nav-item {{ navActive('center.students.index') }}">
-                <i class="fa fa-users"></i>
+                <i class="fa-solid fa-user-graduate"></i>
                 <span>قوتابیەکانم</span>
             </a>
         @endif
@@ -129,12 +164,12 @@
             </a>
             <a href="{{ route('teacher.departments.index') }}"
                 class="drawer-nav-item {{ navActive('teacher.departments.index') }}">
-                <i class="fa-regular fa-building"></i>
+                <i class="fa-solid fa-building"></i>
                 <span>بەشەکانی</span>
             </a>
             <a href="{{ route('teacher.students.index') }}"
                 class="drawer-nav-item {{ navActive('teacher.students.index') }}">
-                <i class="fa-regular fa-users"></i>
+                <i class="fa-solid fa-user-graduate"></i>
                 <span>قوتابیەکانم</span>
             </a>
         @endif

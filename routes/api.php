@@ -29,7 +29,17 @@ Route::get('/provinces/geojson', [DashboardController::class, 'getProvincesGeoJS
     ->name('admin.api.provinces.geojson');
 
 
-
+Route::get('/api/universities/by-province/{province}', function($provinceId) {
+    $universities = \App\Models\University::where('province_id', $provinceId)
+        ->where('status', 1)
+        ->select('id', 'name')
+        ->get();
+    
+    return response()->json([
+        'success' => true,
+        'data' => $universities
+    ]);
+})->name('api.universities.by-province');
 
 
 // Auth (token issuance for Flutter/mobile)

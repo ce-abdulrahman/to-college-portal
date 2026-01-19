@@ -186,7 +186,7 @@ function initCollegeFilters(dt) {
             universityFilter.disabled = !provinceId;
 
             if (provinceId) {
-                fetch(`/admin/api/universities?province_id=${provinceId}`)
+                fetch(`/sadm/api/universities?province_id=${provinceId}`)
                     .then(response => response.json())
                     .then(universities => {
                         universities.forEach(uni => {
@@ -247,7 +247,7 @@ function initReferralCodeSelect2() {
             placeholder: 'کۆدی بانگێشت هەلبژێرە...',
             allowClear: true,
             ajax: {
-                url: '/admin/api/users/search-by-code',
+                url: '/sadm/api/users/search-by-code',
                 dataType: 'json',
                 delay: 250,
                 data: function(params) {

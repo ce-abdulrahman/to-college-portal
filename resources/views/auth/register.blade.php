@@ -53,7 +53,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="student_name"><i class="fas fa-id-card"></i> کۆدی ناوی</label>
+                    <label for="student_name"><i class="fas fa-id-card"></i> قوتابی ناوی</label>
                     <div class="input-icon">
                         <i class="fas fa-id-card"></i>
                         <input type="text" name="name" value="{{ old('name') }}" class="form-control"

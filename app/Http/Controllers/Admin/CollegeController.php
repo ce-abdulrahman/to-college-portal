@@ -11,6 +11,7 @@ use App\Models\Province;
 use App\Http\Controllers\Concerns\HandlesGeo;
 use App\Traits\FileUploadTrait;
 
+
 class CollegeController extends Controller
 {
     use HandlesGeo, FileUploadTrait;
@@ -20,9 +21,10 @@ class CollegeController extends Controller
      */
     public function index()
     {
-        $colleges = College::with('university')->get();
         $provinces = Province::where('status', 1)->get();
-        return view('website.web.admin.college.index', compact('colleges', 'provinces'));
+        $colleges = College::where('status', 1)->get();
+        $universities = University::where('status', 1)->get();
+        return view('website.web.admin.college.index', compact('colleges', 'provinces', 'universities'));
     }
 
     /**
@@ -30,8 +32,9 @@ class CollegeController extends Controller
      */
     public function create()
     {
+        $provinces = Province::where('status', 1)->get();
         $universities = University::where('status', 1)->get();
-        return view('website.web.admin.college.create', compact('universities'));
+        return view('website.web.admin.college.create', compact('universities', 'provinces'));
     }
 
     /**
