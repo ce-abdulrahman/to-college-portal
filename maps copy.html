@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus GIS - Interactive Campus Map</title>
+    <script src='https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css' rel='stylesheet' />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mapboxgl-popup-content {
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 15px;
+        }
+
+        .mapboxgl-popup-close-button {
+            font-size: 18px;
+            padding: 5px 8px;
+        }
+
+        .mapboxgl-ctrl-group {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            display: inline-block;
+        }
+
+        .custom-marker {
+            background-size: cover;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .custom-marker:hover {
+            transform: scale(1.2);
+        }
+
+        .building-marker {
+            background-color: #3b82f6;
+            border: 3px solid white;
+        }
+
+        .parking-marker {
+            background-color: #10b981;
+            border: 3px solid white;
+        }
+
+        .entrance-marker {
+            background-color: #8b5cf6;
+            border: 3px solid white;
+        }
+
+        .special-marker {
+            background-color: #f59e0b;
+            border: 3px solid white;
+        }
+
+        /* Custom scrollbar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100% !important;
+                height: 40vh !important;
+                position: relative !important;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            .map {
+                height: 60vh !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-700 to-blue-800 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <i class="fas fa-map-marked-alt text-3xl mr-3"></i>
+                <div>
+                    <h1 class="text-2xl font-bold">Campus GIS Web Application</h1>
+                    <p class="text-blue-200">Interactive Map for University Campus</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:block bg-blue-600 px-4 py-2 rounded-lg">
+                    <span class="font-semibold">Final Year Project</span>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-blue-200">Spatial Data Visualization & Interactive Mapping</p>
+                    <p class="text-xs text-blue-300">GIS Web Development</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container flex h-screen">
+        <!-- Sidebar / Control Panel -->
+        <div class="sidebar w-80 bg-white shadow-xl z-10 overflow-y-auto p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                <i class="fas fa-sliders-h mr-2 text-blue-600"></i> Map Controls
+            </h2>
+
+            <!-- Base Map Layers -->
+            <div class="mb-8">
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                    <i class="fas fa-layer-group mr-2 text-blue-500"></i> Base Map Layers
+                </h3>
+                <div class="space-y-2">
+                    <button class="layer-btn w-full text-left px-4 py-3 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 flex items-center justify-between" data-layer="streets">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-blue-600 mr-3"></div>
+                            <span>Streets</span>
+                        </div>
+                        <i class="fas fa-check text-blue-600"></i>
+                    </button>
+
+                    <button class="layer-btn w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 flex items-center justify-between" data-layer="satellite">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-green-600 mr-3"></div>
+                            <span>Satellite</span>
+                        </div>
+                        <i class="fas fa-check text-green-600 hidden"></i>
+                    </button>
+
+                    <button class="layer-btn w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 flex items-center justify-between" data-layer="terrain">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-amber-600 mr-3"></div>
+                            <span>Terrain</span>
+                        </div>
+                        <i class="fas fa-check text-amber-600 hidden"></i>
+                    </button>
+
+                    <button class="layer-btn w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 flex items-center justify-between" data-layer="dark">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-gray-800 mr-3"></div>
+                            <span>Dark Mode</span>
+                        </div>
+                        <i class="fas fa-check text-gray-800 hidden"></i>
+                    </button>
+
+                    <button class="layer-btn w-full text-left px-4 py-3 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 flex items-center justify-between" data-layer="light">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-gray-300 mr-3"></div>
+                            <span>Light Mode</span>
+                        </div>
+                        <i class="fas fa-check text-gray-600 hidden"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Building Categories -->
+            <div class="mb-8">
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                    <i class="fas fa-university mr-2 text-blue-500"></i> Building Categories
+                </h3>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="academic-buildings" class="mr-3 h-5 w-5 text-blue-600 rounded" checked>
+                        <label for="academic-buildings" class="text-gray-700">Academic Buildings</label>
+                        <span class="ml-auto bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">9</span>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="parking" class="mr-3 h-5 w-5 text-green-600 rounded" checked>
+                        <label for="parking" class="text-gray-700">Parking Areas</label>
+                        <span class="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">3</span>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="entrances" class="mr-3 h-5 w-5 text-purple-600 rounded" checked>
+                        <label for="entrances" class="text-gray-700">Entrances</label>
+                        <span class="ml-auto bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">2</span>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="special" class="mr-3 h-5 w-5 text-amber-600 rounded" checked>
+                        <label for="special" class="text-gray-700">Special Facilities</label>
+                        <span class="ml-auto bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="mb-8">
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                    <i class="fas fa-map-signs mr-2 text-blue-500"></i> Map Legend
+                </h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="legend-item">
+                        <div class="legend-icon bg-blue-500 border border-white"></div>
+                        <span class="text-gray-700">Academic Buildings</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon bg-green-500 border border-white"></div>
+                        <span class="text-gray-700">Parking Areas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon bg-purple-500 border border-white"></div>
+                        <span class="text-gray-700">Entrances</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon bg-amber-500 border border-white"></div>
+                        <span class="text-gray-700">Special Facilities</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="w-5 h-0 border-t-2 border-dashed border-red-500 mr-3"></div>
+                        <span class="text-gray-700">Campus Boundary</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coordinates Display -->
+            <div class="mb-6">
+                <h3 class="font-semibold text-gray-700 mb-3 flex items-center">
+                    <i class="fas fa-location-dot mr-2 text-blue-500"></i> Current Coordinates
+                </h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="text-gray-600">Latitude:</div>
+                        <div id="latitude" class="font-mono text-gray-800">36.1430</div>
+                        <div class="text-gray-600">Longitude:</div>
+                        <div id="longitude" class="font-mono text-gray-800">44.0380</div>
+                    </div>
+                    <button id="copy-coords" class="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-copy mr-2"></i> Copy Coordinates
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map Info -->
+            <div class="text-xs text-gray-500 pt-4 border-t">
+                <p class="mb-1"><i class="fas fa-info-circle mr-1"></i> Click on any marker for details</p>
+                <p><i class="fas fa-mouse-pointer mr-1"></i> Hover over markers for tooltips</p>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map flex-1 relative">
+            <div id="map" class="absolute inset-0"></div>
+
+            <!-- Map Controls Overlay -->
+            <div class="absolute top-4 right-4 flex space-x-2">
+                <button id="zoom-in" class="bg-white p-3 rounded-lg shadow-lg hover:bg-gray-50">
+                    <i class="fas fa-plus text-gray-700"></i>
+                </button>
+                <button id="zoom-out" class="bg-white p-3 rounded-lg shadow-lg hover:bg-gray-50">
+                    <i class="fas fa-minus text-gray-700"></i>
+                </button>
+                <button id="reset-view" class="bg-white p-3 rounded-lg shadow-lg hover:bg-gray-50">
+                    <i class="fas fa-home text-gray-700"></i>
+                </button>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="absolute bottom-4 left-4 bg-white p-4 rounded-lg shadow-lg max-w-xs">
+                <h3 class="font-bold text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-university mr-2 text-blue-600"></i> Campus Info
+                </h3>
+                <p class="text-sm text-gray-600 mb-2">This interactive map displays the campus layout with all key buildings and facilities.</p>
+                <div class="flex text-sm">
+                    <div class="mr-4">
+                        <span class="font-semibold text-gray-700">Buildings:</span>
+                        <span id="building-count" class="ml-1">19</span>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-700">Area:</span>
+                        <span class="ml-1">~0.5 km²</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Code -->
+    <script>
+        // Campus boundary coordinates
+        const campusBoundary = [
+            [44.034740, 36.142738],
+            [44.041311, 36.145046],
+            [44.041505, 36.144709],
+            [44.035271, 36.140940],
+            [44.034740, 36.142738] // Close the polygon
+        ];
+
+        // Building data with categories
+        const buildings = [{
+                name: "Deanship of the College",
+                coordinates: [44.035196, 36.142352],
+                category: "academic",
+                type: "building"
+            },
+            {
+                name: "Information System Engineering (ISE)",
+                coordinates: [44.036585, 36.142543],
+                category: "academic",
+                type: "building"
+            },
+            {
+                name: "Civil Engineering",
+                coordinates: [44.036317, 36.143080],
+                category: "academic",
+                type: "building"
+            },
+            {
+                name: "Mechanical and Energy Engineering",
+                coordinates: [44.036725, 36.143214],
+                category: "academic",
+                type: "building"
+            },
+            {
+                name: "Highway Engineering",
+                coordinates: [44.038559, 36.143522],
+                category: "academic",
+                type: "building"
+            },
+            {
+                name: "Library",
+                coordinates: [44.038860, 36.143569],
+                category: "special",
+                type: "building"
+            },
+            {
+                name: "Technical College of Management",
+                coordinates: [44.036205, 36.142408],
+                category: "academic",
+                type: "building"
+            },
+            {
+                name: "Accounting Techniques",
+                coordinates: [44.035936, 36.142980],
+                category: "academic",
+                type: "building"
+            },
+            {
+                name: "Media Technique",
+                coordinates: [44.038077, 36.143721],
+                category: "academic",
+                type: "building"
+            },
+            {
+                name: "Mosque",
+                coordinates: [44.039638, 36.144002],
+                category: "special",
+                type: "building"
+            },
+            {
+                name: "Photocopy",
+                coordinates: [44.037272, 36.143465],
+                category: "special",
+                type: "facility"
+            },
+            {
+                name: "College Restaurant",
+                coordinates: [44.037578, 36.143574],
+                category: "special",
+                type: "facility"
+            },
+            {
+                name: "The College Lodge",
+                coordinates: [44.037347, 36.142880],
+                category: "special",
+                type: "building"
+            },
+            {
+                name: "Parking 1",
+                coordinates: [44.035502, 36.142018],
+                category: "parking",
+                type: "parking"
+            },
+            {
+                name: "Parking 2",
+                coordinates: [44.037095, 36.142322],
+                category: "parking",
+                type: "parking"
+            },
+            {
+                name: "Parking 3",
+                coordinates: [44.038077, 36.142876],
+                category: "parking",
+                type: "parking"
+            },
+            {
+                name: "Main Entrance to College",
+                coordinates: [44.037905, 36.142473],
+                category: "entrance",
+                type: "entrance"
+            },
+            {
+                name: "Teachers' Entrance to the College",
+                coordinates: [44.035099, 36.141538],
+                category: "entrance",
+                type: "entrance"
+            },
+            {
+                name: "Girls' Dormitory",
+                coordinates: [44.039914, 36.144221],
+                category: "special",
+                type: "building"
+            }
+        ];
+
+        // Map initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the map
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://demotiles.maplibre.org/style.json', // Default streets style
+                center: [44.0380, 36.1430], // Campus center
+                zoom: 16,
+                pitch: 45, // Add a slight pitch for 3D effect
+                bearing: -20
+            });
+
+            // Add navigation controls
+            map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+            // Add scale control
+            map.addControl(new maplibregl.ScaleControl({
+                maxWidth: 200,
+                unit: 'metric'
+            }), 'bottom-left');
+
+            // Wait for map to load before adding layers
+            map.on('load', function() {
+                // Add campus boundary polygon
+                map.addSource('campus-boundary', {
+                    'type': 'geojson',
+                    'data': {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [campusBoundary]
+                        }
+                    }
+                });
+
+                map.addLayer({
+                    'id': 'campus-boundary-fill',
+                    'type': 'fill',
+                    'source': 'campus-boundary',
+                    'layout': {},
+                    'paint': {
+                        'fill-color': 'rgba(59, 130, 246, 0.1)',
+                        'fill-outline-color': 'rgba(59, 130, 246, 0.5)'
+                    }
+                });
+
+                map.addLayer({
+                    'id': 'campus-boundary-line',
+                    'type': 'line',
+                    'source': 'campus-boundary',
+                    'layout': {},
+                    'paint': {
+                        'line-color': '#ef4444',
+                        'line-width': 3,
+                        'line-dasharray': [2, 2]
+                    }
+                });
+
+                // Add building markers
+                buildings.forEach(building => {
+                    // Create a DOM element for the marker
+                    const el = document.createElement('div');
+
+                    // Determine marker class based on category
+                    let markerClass = 'building-marker';
+                    if (building.category === 'parking') markerClass = 'parking-marker';
+                    if (building.category === 'entrance') markerClass = 'entrance-marker';
+                    if (building.category === 'special' && building.type !== 'building') markerClass = 'special-marker';
+
+                    el.className = `custom-marker ${markerClass}`;
+                    el.dataset.category = building.category;
+
+                    // Add icon based on building type
+                    let icon = 'fa-building';
+                    if (building.category === 'parking') icon = 'fa-square-parking';
+                    if (building.category === 'entrance') icon = 'fa-door-open';
+                    if (building.name === 'Library') icon = 'fa-book';
+                    if (building.name === 'Mosque') icon = 'fa-mosque';
+                    if (building.name === 'College Restaurant') icon = 'fa-utensils';
+                    if (building.name === 'Photocopy') icon = 'fa-copy';
+                    if (building.name === 'Girls\' Dormitory') icon = 'fa-house-user';
+
+                    el.innerHTML = `<i class="fas ${icon} text-white text-xs absolute inset-0 flex items-center justify-center"></i>`;
+
+                    // Add marker to map
+                    new maplibregl.Marker({
+                            element: el
+                        })
+                        .setLngLat(building.coordinates)
+                        .setPopup(
+                            new maplibregl.Popup({
+                                offset: 25
+                            })
+                            .setHTML(`
+                                <div class="p-2">
+                                    <h3 class="font-bold text-lg text-gray-800">${building.name}</h3>
+                                    <div class="mt-2 text-sm">
+                                        <div class="flex items-center mb-1">
+                                            <i class="fas fa-map-pin text-blue-500 mr-2"></i>
+                                            <span>Coordinates: ${building.coordinates[0].toFixed(6)}, ${building.coordinates[1].toFixed(6)}</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-tag text-blue-500 mr-2"></i>
+                                            <span class="capitalize">${building.category} ${building.type}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `)
+                        )
+                        .addTo(map);
+
+                    // Add hover tooltip
+                    el.addEventListener('mouseenter', () => {
+                        el.style.transform = 'scale(1.3)';
+                        el.style.zIndex = '1000';
+                    });
+
+                    el.addEventListener('mouseleave', () => {
+                        el.style.transform = 'scale(1)';
+                        el.style.zIndex = 'auto';
+                    });
+                });
+
+                // Fit map to campus boundary
+                const bounds = new maplibregl.LngLatBounds();
+                campusBoundary.forEach(coord => bounds.extend(coord));
+                map.fitBounds(bounds, {
+                    padding: 50,
+                    duration: 2000
+                });
+            });
+
+            // Update coordinates on mouse move
+            map.on('mousemove', function(e) {
+                document.getElementById('latitude').textContent = e.lngLat.lat.toFixed(6);
+                document.getElementById('longitude').textContent = e.lngLat.lng.toFixed(6);
+            });
+
+            // Base map layer switching
+            const layerButtons = document.querySelectorAll('.layer-btn');
+            layerButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const layer = this.dataset.layer;
+
+                    // Update UI
+                    layerButtons.forEach(btn => {
+                        btn.classList.remove('bg-blue-50', 'border-blue-200');
+                        btn.classList.add('bg-gray-50', 'border-gray-200');
+                        btn.querySelector('.fa-check').classList.add('hidden');
+                    });
+
+                    this.classList.remove('bg-gray-50', 'border-gray-200');
+                    this.classList.add('bg-blue-50', 'border-blue-200');
+                    this.querySelector('.fa-check').classList.remove('hidden');
+
+                    // Change map style based on selection
+                    let styleUrl = 'https://demotiles.maplibre.org/style.json'; // Streets
+
+                    if (layer === 'satellite') {
+                        styleUrl = 'https://api.maptiler.com/maps/hybrid/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL';
+                    } else if (layer === 'terrain') {
+                        styleUrl = 'https://api.maptiler.com/maps/outdoor/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL';
+                    } else if (layer === 'dark') {
+                        styleUrl = 'https://api.maptiler.com/maps/darkmatter/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL';
+                    } else if (layer === 'light') {
+                        styleUrl = 'https://api.maptiler.com/maps/streets/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL';
+                    }
+
+                    map.setStyle(styleUrl);
+
+                    // Re-add sources and layers after style change
+                    map.once('styledata', () => {
+                        // Re-add campus boundary
+                        if (map.getSource('campus-boundary')) {
+                            map.addLayer({
+                                'id': 'campus-boundary-fill',
+                                'type': 'fill',
+                                'source': 'campus-boundary',
+                                'layout': {},
+                                'paint': {
+                                    'fill-color': 'rgba(59, 130, 246, 0.1)',
+                                    'fill-outline-color': 'rgba(59, 130, 246, 0.5)'
+                                }
+                            }, 'waterway-label');
+
+                            map.addLayer({
+                                'id': 'campus-boundary-line',
+                                'type': 'line',
+                                'source': 'campus-boundary',
+                                'layout': {},
+                                'paint': {
+                                    'line-color': '#ef4444',
+                                    'line-width': 3,
+                                    'line-dasharray': [2, 2]
+                                }
+                            }, 'campus-boundary-fill');
+                        }
+                    });
+                });
+            });
+
+            // Building category toggling
+            const categoryCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+            categoryCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const category = this.id.replace('-buildings', '').replace('-', '');
+                    const markers = document.querySelectorAll('.custom-marker');
+
+                    markers.forEach(marker => {
+                        if (marker.dataset.category === category) {
+                            marker.style.display = this.checked ? 'block' : 'none';
+                        }
+
+                        // Handle "academic" checkbox (covers multiple categories)
+                        if (category === 'academic' && marker.dataset.category === 'academic') {
+                            marker.style.display = this.checked ? 'block' : 'none';
+                        }
+                    });
+
+                    // Update building count
+                    const visibleMarkers = document.querySelectorAll('.custom-marker[style*="display: block"]').length;
+                    document.getElementById('building-count').textContent = visibleMarkers;
+                });
+            });
+
+            // Map control buttons
+            document.getElementById('zoom-in').addEventListener('click', () => {
+                map.zoomIn();
+            });
+
+            document.getElementById('zoom-out').addEventListener('click', () => {
+                map.zoomOut();
+            });
+
+            document.getElementById('reset-view').addEventListener('click', () => {
+                const bounds = new maplibregl.LngLatBounds();
+                campusBoundary.forEach(coord => bounds.extend(coord));
+                map.fitBounds(bounds, {
+                    padding: 50,
+                    duration: 1000
+                });
+            });
+
+            // Copy coordinates button
+            document.getElementById('copy-coords').addEventListener('click', () => {
+                const lat = document.getElementById('latitude').textContent;
+                const lng = document.getElementById('longitude').textContent;
+                const coords = `${lat}, ${lng}`;
+
+                navigator.clipboard.writeText(coords).then(() => {
+                    const originalText = document.getElementById('copy-coords').innerHTML;
+                    document.getElementById('copy-coords').innerHTML = '<i class="fas fa-check mr-2"></i> Copied!';
+
+                    setTimeout(() => {
+                        document.getElementById('copy-coords').innerHTML = originalText;
+                    }, 2000);
+                });
+            });
+
+            // Responsive sidebar toggle for mobile
+            const createMobileToggle = () => {
+                if (window.innerWidth <= 768) {
+                    // Check if toggle button already exists
+                    if (!document.getElementById('sidebar-toggle')) {
+                        const toggleBtn = document.createElement('button');
+                        toggleBtn.id = 'sidebar-toggle';
+                        toggleBtn.className = 'absolute top-4 left-4 bg-white p-3 rounded-lg shadow-lg z-20 md:hidden';
+                        toggleBtn.innerHTML = '<i class="fas fa-bars text-gray-700"></i>';
+
+                        document.querySelector('.map').appendChild(toggleBtn);
+
+                        toggleBtn.addEventListener('click', () => {
+                            const sidebar = document.querySelector('.sidebar');
+                            sidebar.classList.toggle('hidden');
+                        });
+
+                        // Close sidebar when clicking on map
+                        map.getCanvas().addEventListener('click', () => {
+                            if (window.innerWidth <= 768) {
+                                document.querySelector('.sidebar').classList.add('hidden');
+                            }
+                        });
+                    }
+                }
+            };
+
+            // Initialize mobile toggle
+            createMobileToggle();
+
+            // Update on resize
+            window.addEventListener('resize', createMobileToggle);
+        });
+    </script>
+</body>
+
+</html>

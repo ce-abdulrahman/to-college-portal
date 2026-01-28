@@ -103,6 +103,20 @@
                     <span>ئەنجامی پرسیاری MBTI</span>
                 </a>
 
+                @php
+                    $pendingCount = \App\Models\RequestMoreDepartments::where('status', 'pending')->count();
+                @endphp
+
+                <a href="{{ route('admin.requests.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.requests.index') }}">
+                    <i class="fa-solid fa-building-user"></i>
+                    <span>پرسەکانی بەشەکانی</span>
+                    <span class="ms-auto"><i class="bi bi-chevron-down"></i></span>
+                    @if($pendingCount > 0)
+                <span class="badge bg-danger ms-1">{{ $pendingCount }}</span>
+                @endif
+                </a>
+
                 <a href="{{ route('admin.centers.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.centers.index') }}">
                     <i class="fa-solid fa-building-user"></i>
@@ -172,6 +186,28 @@
                 <i class="fa-solid fa-user-graduate"></i>
                 <span>قوتابیەکانم</span>
             </a>
+        @endif
+
+        @if (auth()->check() && auth()->user()->role === 'student')
+            <a href="{{ route('student.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
+                <i class="bi bi-house"></i><span>ماڵەوە</span>
+            </a>
+            <a href="{{ route('student.mbti.index') }}"
+                class="drawer-nav-item {{ navActive('student.mbti.index') }}">
+                <i class="fa-solid fa-id-card"></i>
+                <span>MBTI</span>
+            </a>
+            <a href="{{ route('student.departments.selection') }}"
+                class="drawer-nav-item {{ navActive('student.departments.selection') }}">
+                <i class="fa-solid fa-id-card"></i>
+                <span>هەڵبژاردنی بەش</span>
+            </a>
+            <a href="{{ route('student.departments.request-more') }}"
+                class="drawer-nav-item {{ navActive('student.departments.request-more') }}">
+                <i class="fa-solid fa-id-card"></i>
+                <span>مێژووی داواکاری بۆ بەش</span>
+            </a>
+            
         @endif
 
     </div>

@@ -24,11 +24,6 @@ class MbtiController extends Controller
         $user = Auth::user();
         $student = $user->student;
         
-        if (!$student) {
-            return redirect()->route('student.dashboard')
-                             ->with('error', 'تۆ قوتابی نیت یان زانیاریەکانی قوتابی تۆمار نەکراوە.');
-        }
-        
         // ئەگەر پێشتر تاقیکردنەوەی کردبێت
         if ($student->hasCompletedMbtiTest()) {
             return redirect()->route('student.mbti.result');
@@ -36,7 +31,7 @@ class MbtiController extends Controller
         
         $questions = MbtiQuestion::getGroupedQuestions();
         
-        return view('student.mbti.test', compact('questions', 'student'));
+        return view('website.web.student.mbti.test', compact('questions', 'student'));
     }
     
     /**
@@ -114,7 +109,7 @@ class MbtiController extends Controller
         // زانیاریەکانی جۆری MBTI
         $mbtiInfo = $this->getMbtiTypeInfo($student->mbti_type);
         
-        return view('student.mbti.result', compact('student', 'answers', 'scores', 'mbtiInfo'));
+        return view('website.web.student.mbti.result', compact('student', 'answers', 'scores', 'mbtiInfo'));
     }
     
     /**

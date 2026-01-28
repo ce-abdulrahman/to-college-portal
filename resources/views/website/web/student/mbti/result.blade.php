@@ -1,6 +1,6 @@
 
 
-@extends('website.web.student.layouts.app')
+@extends('website.web.admin.layouts.app')
 
 @section('title', 'ئەنجامی تاقیکردنەوە')
 
@@ -64,7 +64,7 @@
 
                     <!-- جۆری MBTI -->
                     <div class="text-center mb-4">
-                        <div class="mbti-badge display-2 fw-bold text-success mb-3">
+                        <div class="mbti-badge display-2 fw-bold text-white mb-3">
                             {{ $student->mbti_type }}
                         </div>
                         <h4 class="mb-2">{{ $student->mbti_full_name }}</h4>

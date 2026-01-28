@@ -1,5 +1,5 @@
 
-@extends('website.web.student.layouts.app')
+@extends('website.web.admin.layouts.app')
 
 @section('title', 'تاقیکردنەوەی جۆری کەسی')
 
@@ -35,8 +35,8 @@
                         @csrf
                         
                         @foreach($questions as $dimension => $dimensionQuestions)
-                        <div class="card mb-4 border-{{ $this->getDimensionColor($dimension) }}">
-                            <div class="card-header bg-{{ $this->getDimensionColor($dimension) }} text-white">
+                        <div class="card mb-4 border-primary">
+                            <div class="card-header bg-primary text-white">
                                 <h5 class="card-title mb-0">
                                     @switch($dimension)
                                         @case('EI')
@@ -222,16 +222,7 @@ function getDimensionColor(dimension) {
             });
         });
 
-        // Helper function for dimension color
-        function getDimensionColor(dimension) {
-            const colors = {
-                'EI': 'primary',
-                'SN': 'success',
-                'TF': 'warning',
-                'JP': 'info'
-            };
-            return colors[dimension] || 'secondary';
-        }
+        
     </script>
 
     <style>

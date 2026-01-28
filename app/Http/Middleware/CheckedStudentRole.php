@@ -20,7 +20,7 @@ class CheckedStudentRole
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['message' => 'دەستکاری ناڕەوا'], 403);
             }
-            return redirect()->route('home')->with('error', 'تۆ قوتابی نیت.');
+            return redirect()->route('student.dashboard')->with('error', 'تۆ قوتابی نیت.');
         }
         
         return $next($request);

@@ -83,3 +83,31 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->group(function () {
         ->name('colleges.departments');
 });
 
+// routes/web.php
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    // ... ڕووتەکانی تر
+    
+    // بەڕێوەبردنی داواکاریەکان
+    Route::prefix('requests')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\RequestManagementController::class, 'index'])
+            ->name('admin.requests.index');
+        
+        Route::get('/{id}', [\App\Http\Controllers\Admin\RequestManagementController::class, 'show'])
+            ->name('admin.requests.show');
+        
+        Route::post('/{id}/approve', [\App\Http\Controllers\Admin\RequestManagementController::class, 'approve'])
+            ->name('admin.requests.approve');
+        
+        Route::post('/{id}/reject', [\App\Http\Controllers\Admin\RequestManagementController::class, 'reject'])
+            ->name('admin.requests.reject');
+        
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\RequestManagementController::class, 'destroy'])
+            ->name('admin.requests.destroy');
+        
+        Route::get('/stats/data', [\App\Http\Controllers\Admin\RequestManagementController::class, 'stats'])
+            ->name('admin.requests.stats');
+        
+        Route::get('/search', [\App\Http\Controllers\Admin\RequestManagementController::class, 'search'])
+            ->name('admin.requests.search');
+    });
+});

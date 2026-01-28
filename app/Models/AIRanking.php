@@ -5,25 +5,27 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ResultDep extends Model
+class AIRanking extends Model
 {
     use HasFactory;
 
-    protected $table = 'result_deps';
+    protected $table = 'ai_rankings';
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'user_id',
         'student_id',
         'department_id',
-        'status',
+        'score',
         'rank',
+        'reason',
+        'match_factors'
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $casts = [
+        'score' => 'float',
+        'rank' => 'integer',
+        'match_factors' => 'array',
+    ];
 
     public function student()
     {
@@ -33,10 +35,5 @@ class ResultDep extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
-    }
-
-    public function system()
-    {
-        return $this->belongsTo(System::class);
     }
 }

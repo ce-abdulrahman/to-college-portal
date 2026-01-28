@@ -19,11 +19,17 @@ class Student extends Model
         'referral_code',
         'status',
         'mbti_type',
+        'ai_rank',
+        'gis',
+        'all_departments',
     ];
 
     protected $casts = [
         'mark' => 'integer',
         'year' => 'integer',
+        'ai_rank' => 'boolean',
+        'gis' => 'boolean',
+        'all_departments' => 'boolean',
     ];
 
     public function user()

@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Campus GIS - Interactive Map</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            color: #4f46e5;
+            font-size: 2.5rem;
+        }
+
+        .logo-text h1 {
+            color: #1e293b;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .project-badge {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 1.5rem;
+            height: calc(100vh - 120px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            color: #1e293b;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #4f46e5;
+        }
+
+        /* Map Layers */
+        .layer-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .layer-btn {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .layer-btn:hover {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.1);
+        }
+
+        .layer-btn.active {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        }
+
+        .layer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .layer-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .layer-check {
+            color: #4f46e5;
+            font-size: 1.2rem;
+        }
+
+        /* Filter Controls */
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .filter-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .filter-count {
+            background: #e2e8f0;
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Legend */
+        .legend-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .legend-symbol {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        /* Coordinates */
+        .coordinates-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: auto;
+        }
+
+        .coords-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .coord-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .coord-label {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .coord-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Map Container */
+        .map-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+        }
+
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f46e5;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #4f46e5;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            z-index: 1000;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        /* Custom Markers */
+        .custom-marker {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .custom-marker:hover {
+            transform: scale(1.3) rotate(10deg);
+            z-index: 1000 !important;
+        }
+
+        .custom-marker::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: inherit;
+            border-radius: 50%;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.7;
+        }
+
+        .marker-academic {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+        }
+
+        .marker-parking {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .marker-entrance {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        }
+
+        .marker-special {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        }
+
+        /* Popup Styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 15px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            min-width: 250px;
+        }
+
+        .popup-header {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white;
+            padding: 1rem;
+        }
+
+        .popup-body {
+            padding: 1rem;
+        }
+
+        .popup-coords {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .popup-coord {
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .sidebar {
+                height: 400px;
+            }
+
+            .map-container {
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .main-container {
+                margin: 1rem auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-map-marked-alt logo-icon"></i>
+                <div class="logo-text">
+                    <h1>University Campus GIS</h1>
+                    <p>Interactive Campus Mapping System - Final Year Project</p>
+                </div>
+            </div>
+            <div class="project-badge">
+                <i class="fas fa-graduation-cap"></i> GIS Final Project
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <!-- Map Layers -->
+            <section>
+                <h3 class="section-title">
+                    <i class="fas fa-layer-group"></i> Base Map Layers
+                </h3>
+                <div class="layer-buttons">
+                    <button class="layer-btn active" data-layer="streets">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #4f46e5;"></div>
+                            <span>OpenStreetMap</span>
+                        </div>
+                        <i class="fas fa-check layer-check"></i>
+                    </button>
+                    <button class="layer-btn" data-layer="satellite">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #10b981;"></div>
+                            <span>Satellite View</span>
+                        </div>
+                        <i class="fas fa-check layer-check"></i>
+                    </button>
+                    <button class="layer-btn" data-layer="topographic">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #f59e0b;"></div>
+                            <span>Topographic</span>
+                        </div>
+                        <i class="fas fa-check layer-check"></i>
+                    </button>
+                    <button class="layer-btn" data-layer="dark">
+                        <div class="layer-info">
+                            <div class="layer-color" style="background: #1e293b;"></div>
+                            <span>Dark Mode</span>
+                        </div>
+                        <i class="fas fa-check layer-check"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Building Filters -->
+            <section>
+                <h3 class="section-title">
+                    <i class="fas fa-filter"></i> Filter Buildings
+                </h3>
+                <div class="filter-group">
+                    <label class="filter-item">
+                        <div class="filter-label">
+                            <div class="filter-icon" style="background: #4f46e5;">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <span>Academic Buildings</span>
+                        </div>
+                        <span class="filter-count">9</span>
+                        <input type="checkbox" class="filter-checkbox" data-category="academic" checked>
+                    </label>
+                    <label class="filter-item">
+                        <div class="filter-label">
+                            <div class="filter-icon" style="background: #10b981;">
+                                <i class="fas fa-square-parking"></i>
+                            </div>
+                            <span>Parking Areas</span>
+                        </div>
+                        <span class="filter-count">3</span>
+                        <input type="checkbox" class="filter-checkbox" data-category="parking" checked>
+                    </label>
+                    <label class="filter-item">
+                        <div class="filter-label">
+                            <div class="filter-icon" style="background: #8b5cf6;">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                            <span>Entrances</span>
+                        </div>
+                        <span class="filter-count">2</span>
+                        <input type="checkbox" class="filter-checkbox" data-category="entrance" checked>
+                    </label>
+                    <label class="filter-item">
+                        <div class="filter-label">
+                            <div class="filter-icon" style="background: #f59e0b;">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span>Special Facilities</span>
+                        </div>
+                        <span class="filter-count">5</span>
+                        <input type="checkbox" class="filter-checkbox" data-category="special" checked>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Legend -->
+            <section>
+                <h3 class="section-title">
+                    <i class="fas fa-map-signs"></i> Map Legend
+                </h3>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-symbol marker-academic">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <span>Academic Buildings</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol marker-parking">
+                            <i class="fas fa-square-parking"></i>
+                        </div>
+                        <span>Parking Areas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol marker-entrance">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <span>Entrances</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-symbol marker-special">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <span>Special Facilities</span>
+                    </div>
+                    <div class="legend-item">
+                        <div style="width: 24px; height: 3px; background: #ef4444; border-radius: 2px;"></div>
+                        <span>Campus Boundary</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Coordinates -->
+            <section class="coordinates-box">
+                <h3 class="section-title">
+                    <i class="fas fa-location-dot"></i> Current Coordinates
+                </h3>
+                <div class="coords-display">
+                    <div class="coord-item">
+                        <div class="coord-label">Latitude</div>
+                        <div class="coord-value" id="latitude">36.143000</div>
+                    </div>
+                    <div class="coord-item">
+                        <div class="coord-label">Longitude</div>
+                        <div class="coord-value" id="longitude">44.038000</div>
+                    </div>
+                </div>
+                <button class="copy-btn" id="copyCoords">
+                    <i class="fas fa-copy"></i> Copy Coordinates
+                </button>
+            </section>
+        </aside>
+
+        <!-- Map -->
+        <div class="map-container">
+            <div id="map"></div>
+
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="control-btn" id="zoomIn">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="control-btn" id="zoomOut">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="control-btn" id="resetView">
+                    <i class="fas fa-home"></i>
+                </button>
+                <button class="control-btn" id="fullScreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="info-panel">
+                <h3 style="color: #1e293b; font-size: 1.1rem; margin-bottom: 10px;">
+                    <i class="fas fa-info-circle" style="color: #4f46e5;"></i> Campus Overview
+                </h3>
+                <p style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">
+                    Interactive campus map showing all buildings, facilities, and infrastructure.
+                </p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalBuildings">19</div>
+                        <div class="stat-label">Buildings</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">0.5</div>
+                        <div class="stat-label">km² Area</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Campus boundary coordinates
+        const campusBoundary = [
+            [36.142738, 44.034740],
+            [36.145046, 44.041311],
+            [36.144709, 44.041505],
+            [36.140940, 44.035271],
+            [36.142738, 44.034740] // Close polygon
+        ];
+
+        // Building data
+        const buildings = [{
+                name: "Deanship of the College",
+                lat: 36.142352,
+                lng: 44.035196,
+                category: "academic",
+                icon: "fa-building"
+            },
+            {
+                name: "Information System Engineering (ISE)",
+                lat: 36.142543,
+                lng: 44.036585,
+                category: "academic",
+                icon: "fa-laptop-code"
+            },
+            {
+                name: "Civil Engineering",
+                lat: 36.143080,
+                lng: 44.036317,
+                category: "academic",
+                icon: "fa-ruler-combined"
+            },
+            {
+                name: "Mechanical and Energy Engineering",
+                lat: 36.143214,
+                lng: 44.036725,
+                category: "academic",
+                icon: "fa-cogs"
+            },
+            {
+                name: "Highway Engineering",
+                lat: 36.143522,
+                lng: 44.038559,
+                category: "academic",
+                icon: "fa-road"
+            },
+            {
+                name: "Library",
+                lat: 36.143569,
+                lng: 44.038860,
+                category: "special",
+                icon: "fa-book"
+            },
+            {
+                name: "Technical College of Management",
+                lat: 36.142408,
+                lng: 44.036205,
+                category: "academic",
+                icon: "fa-chart-line"
+            },
+            {
+                name: "Accounting Techniques",
+                lat: 36.142980,
+                lng: 44.035936,
+                category: "academic",
+                icon: "fa-calculator"
+            },
+            {
+                name: "Media Technique",
+                lat: 36.143721,
+                lng: 44.038077,
+                category: "academic",
+                icon: "fa-video"
+            },
+            {
+                name: "Mosque",
+                lat: 36.144002,
+                lng: 44.039638,
+                category: "special",
+                icon: "fa-mosque"
+            },
+            {
+                name: "Photocopy",
+                lat: 36.143465,
+                lng: 44.037272,
+                category: "special",
+                icon: "fa-copy"
+            },
+            {
+                name: "College Restaurant",
+                lat: 36.143574,
+                lng: 44.037578,
+                category: "special",
+                icon: "fa-utensils"
+            },
+            {
+                name: "The College Lodge",
+                lat: 36.142880,
+                lng: 44.037347,
+                category: "special",
+                icon: "fa-house-user"
+            },
+            {
+                name: "Parking 1",
+                lat: 36.142018,
+                lng: 44.035502,
+                category: "parking",
+                icon: "fa-square-parking"
+            },
+            {
+                name: "Parking 2",
+                lat: 36.142322,
+                lng: 44.037095,
+                category: "parking",
+                icon: "fa-square-parking"
+            },
+            {
+                name: "Parking 3",
+                lat: 36.142876,
+                lng: 44.038077,
+                category: "parking",
+                icon: "fa-square-parking"
+            },
+            {
+                name: "Main Entrance to College",
+                lat: 36.142473,
+                lng: 44.037905,
+                category: "entrance",
+                icon: "fa-door-open"
+            },
+            {
+                name: "Teachers' Entrance to the College",
+                lat: 36.141538,
+                lng: 44.035099,
+                category: "entrance",
+                icon: "fa-door-open"
+            },
+            {
+                name: "Girls' Dormitory",
+                lat: 36.144221,
+                lng: 44.039914,
+                category: "special",
+                icon: "fa-female"
+            }
+        ];
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map
+            const map = L.map('map', {
+                center: [36.1430, 44.0380],
+                zoom: 17,
+                zoomControl: false
+            });
+
+            // Define base layers
+            const layers = {
+                streets: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }),
+                satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: '© Esri',
+                    maxZoom: 19
+                }),
+                topographic: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenTopoMap',
+                    maxZoom: 17
+                }),
+                dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© CARTO',
+                    maxZoom: 19
+                })
+            };
+
+            // Add default layer
+            layers.streets.addTo(map);
+
+            // Draw campus boundary
+            const campusPolygon = L.polygon(campusBoundary, {
+                color: '#ef4444',
+                weight: 4,
+                opacity: 0.8,
+                fillColor: '#4f46e5',
+                fillOpacity: 0.1,
+                dashArray: '10, 5'
+            }).addTo(map);
+
+            // Fit map to boundary
+            map.fitBounds(campusPolygon.getBounds(), {
+                padding: [50, 50]
+            });
+
+            // Store markers for filtering
+            const markers = [];
+
+            // Create custom markers
+            buildings.forEach(building => {
+                // Determine marker class
+                let markerClass = 'marker-academic';
+                if (building.category === 'parking') markerClass = 'marker-parking';
+                if (building.category === 'entrance') markerClass = 'marker-entrance';
+                if (building.category === 'special') markerClass = 'marker-special';
+
+                // Create custom icon
+                const customIcon = L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div class="custom-marker ${markerClass}" data-category="${building.category}">
+                             <i class="fas ${building.icon}"></i>
+                           </div>`,
+                    iconSize: [36, 36],
+                    iconAnchor: [18, 18],
+                    popupAnchor: [0, -18]
+                });
+
+                // Create marker with popup
+                const marker = L.marker([building.lat, building.lng], {
+                    icon: customIcon,
+                    category: building.category
+                }).bindPopup(`
+                    <div class="popup-header">
+                        <h4 style="margin: 0; font-size: 1.1rem;">${building.name}</h4>
+                    </div>
+                    <div class="popup-body">
+                        <p style="color: #64748b; margin-bottom: 10px;">
+                            <i class="fas fa-tag" style="color: #4f46e5;"></i>
+                            <span style="text-transform: capitalize;">${building.category}</span>
+                        </p>
+                        <div class="popup-coords">
+                            <div class="popup-coord">
+                                <div style="font-size: 0.7rem; color: #94a3b8;">Latitude</div>
+                                <div>${building.lat.toFixed(6)}</div>
+                            </div>
+                            <div class="popup-coord">
+                                <div style="font-size: 0.7rem; color: #94a3b8;">Longitude</div>
+                                <div>${building.lng.toFixed(6)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `);
+
+                // Add tooltip
+                marker.bindTooltip(building.name, {
+                    direction: 'top',
+                    offset: [0, -10],
+                    opacity: 0.9
+                });
+
+                marker.addTo(map);
+                markers.push(marker);
+            });
+
+            // Layer switching
+            document.querySelectorAll('.layer-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const layerType = this.dataset.layer;
+
+                    // Update UI
+                    document.querySelectorAll('.layer-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.querySelector('.layer-check').style.opacity = '0';
+                    });
+                    this.classList.add('active');
+                    this.querySelector('.layer-check').style.opacity = '1';
+
+                    // Switch map layer
+                    Object.values(layers).forEach(layer => map.removeLayer(layer));
+                    layers[layerType].addTo(map);
+
+                    // Re-add boundary and markers
+                    campusPolygon.addTo(map);
+                    markers.forEach(marker => {
+                        if (marker._map === null) {
+                            marker.addTo(map);
+                        }
+                    });
+                });
+            });
+
+            // Filter buildings
+            document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const category = this.dataset.category;
+                    const isChecked = this.checked;
+
+                    markers.forEach(marker => {
+                        if (marker.options.category === category) {
+                            if (isChecked) {
+                                if (marker._map === null) {
+                                    marker.addTo(map);
+                                }
+                            } else {
+                                if (marker._map !== null) {
+                                    map.removeLayer(marker);
+                                }
+                            }
+                        }
+                    });
+
+                    // Update visible count
+                    updateBuildingCount();
+                });
+            });
+
+            // Map controls
+            document.getElementById('zoomIn').addEventListener('click', () => map.zoomIn());
+            document.getElementById('zoomOut').addEventListener('click', () => map.zoomOut());
+            document.getElementById('resetView').addEventListener('click', () => {
+                map.fitBounds(campusPolygon.getBounds(), {
+                    padding: [50, 50]
+                });
+            });
+            document.getElementById('fullScreen').addEventListener('click', () => {
+                const elem = document.querySelector('.map-container');
+                if (!document.fullscreenElement) {
+                    elem.requestFullscreen().catch(err => {
+                        alert(`Error attempting to enable full-screen mode: ${err.message}`);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            // Update coordinates on mouse move
+            map.on('mousemove', function(e) {
+                document.getElementById('latitude').textContent = e.latlng.lat.toFixed(6);
+                document.getElementById('longitude').textContent = e.latlng.lng.toFixed(6);
+            });
+
+            // Copy coordinates
+            document.getElementById('copyCoords').addEventListener('click', function() {
+                const lat = document.getElementById('latitude').textContent;
+                const lng = document.getElementById('longitude').textContent;
+                const coords = `${lat}, ${lng}`;
+
+                navigator.clipboard.writeText(coords).then(() => {
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    this.style.background = '#10b981';
+
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.style.background = '';
+                    }, 2000);
+                }).catch(err => {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = coords;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                    this.style.background = '#10b981';
+
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.style.background = '';
+                    }, 2000);
+                });
+            });
+
+            // Update building count
+            function updateBuildingCount() {
+                let visibleCount = 0;
+                markers.forEach(marker => {
+                    if (marker._map !== null) {
+                        visibleCount++;
+                    }
+                });
+                document.getElementById('totalBuildings').textContent = visibleCount;
+            }
+
+            // Initialize building count
+            updateBuildingCount();
+
+            // Add some interactivity to markers
+            markers.forEach(marker => {
+                marker.on('mouseover', function() {
+                    this.openPopup();
+                });
+
+                marker.on('mouseout', function() {
+                    this.closePopup();
+                });
+            });
+
+            // Add attribution control
+            L.control.attribution({
+                position: 'bottomright'
+            }).addTo(map);
+        });
+    </script>
+</body>
+
+</html>

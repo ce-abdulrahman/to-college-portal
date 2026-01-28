@@ -20,7 +20,7 @@ class CheckedAdminRole
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['message' => 'دەستکاری ناڕەوا'], 403);
             }
-            return redirect()->route('home')->with('error', 'تۆ مافی چوونە ژوورەوەی ئەم بەشەت نییە.');
+            return redirect()->route('admin.dashboard')->with('error', 'تۆ مافی چوونە ژوورەوەی ئەم بەشەت نییە.');
         }
         
         return $next($request);
