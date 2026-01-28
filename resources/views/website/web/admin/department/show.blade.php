@@ -159,7 +159,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h6 class="card-title text-muted"><i class="fa-solid fa-align-left me-2"></i> وەسف</h6>
-                                        <p class="card-text">{!! nl2br(e($department->description)) !!}</p>
+                                        <p class="card-text">{!! $department->description !!}</p>
                                     </div>
                                 </div>
                             </div>
