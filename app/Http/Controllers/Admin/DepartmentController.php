@@ -14,7 +14,12 @@ use App\Http\Requests\Admin\DepartmentStoreRequest;
 use App\Http\Requests\Admin\DepartmentUpdateRequest;
 use App\Http\Resources\UniversityResource;
 use App\Http\Resources\CollegeResource;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DepartmentsExport;
+use App\Exports\DepartmentsTemplateExport;
+use App\Imports\DepartmentsImport;
 use App\Traits\FileUploadTrait;
+use Illuminate\Support\Facades\Storage;
 
 class DepartmentController extends Controller
 {
@@ -157,6 +162,7 @@ class DepartmentController extends Controller
         $department = Department::findOrFail($id);
 
         if (!empty($department->geojson_path)) {
+            // command storage:link
             Storage::disk('public')->delete($department->geojson_path);
         }
 
@@ -185,5 +191,38 @@ class DepartmentController extends Controller
         $colleges = College::select('id', 'name')->where('university_id', $uid)->where('status', 1)->get();
 
         return response()->json($colleges)->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
+    }
+
+    public function export()
+    {
+        return Excel::download(new DepartmentsExport(), 'departments_' . date('Y-m-d_H-i-s') . '.xlsx');
+    }
+
+    /**
+     * دانانی فایلێکی نموونە بۆ Import
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new DepartmentsTemplateExport(), 'departments_template.xlsx');
+    }
+
+    /**
+     * Import بەشەکان لە Excel
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls'
+        ]);
+        
+        try {
+            Excel::import(new DepartmentsImport($request->update_existing), $request->file('file'));
+            
+            return redirect()->route('admin.departments.index')
+                ->with('success', 'بەشەکان بە سەرکەوتوویی Import کراون!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'هەڵەیەک ڕوویدا: ' . $e->getMessage());
+        }
     }
 }

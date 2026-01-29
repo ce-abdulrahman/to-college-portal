@@ -40,6 +40,25 @@
                     </a>
                 </div>
             </div>
+
+            <div class="dropdown">
+                <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-file-import me-1"></i> Import/Export
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#importModal" class="dropdown-item" data-bs-toggle="modal">
+                        <i class="fa-solid fa-file-import me-2"></i> Import بەشەکان
+                    </a>
+                    <a href="{{ route('admin.departments.export') }}" class="dropdown-item">
+                        <i class="fa-solid fa-file-export me-2"></i> Export بەشەکان
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{{ route('admin.departments.download-template') }}" class="dropdown-item">
+                        <i class="fa-solid fa-file-excel me-2"></i> داگرتنی نموونە
+                    </a>
+                </div>
+            </div>
+            
             
             <a href="{{ route('admin.departments.create') }}" class="btn btn-primary">
                 <i class="fa-solid fa-plus me-1"></i> زیادکردنی بەش
@@ -220,6 +239,56 @@
         </div>
     </div>
 @endsection
+
+{{-- Modal بۆ Import --}}
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('admin.departments.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fa-solid fa-file-import me-2"></i> Import بەشەکان
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fa-solid fa-circle-info me-2"></i>
+                        فایلەکە دەبێت Excel (xlsx/xls) بێت. 
+                        <a href="{{ route('admin.departments.download-template') }}" class="alert-link">
+                            نموونەیەک داگرە
+                        </a>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="importFile" class="form-label">فایلی Excel</label>
+                        <input type="file" class="form-control" id="importFile" name="file" accept=".xlsx,.xls" required>
+                        <small class="text-muted">تەنها فایلەکانی Excel پشتگیری دەکرێن</small>
+                    </div>
+                    
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="update_existing" id="updateExisting">
+                        <label class="form-check-label" for="updateExisting">
+                            نوێکردنەوەی تۆمارە هەبووەکان (بەپێی ID)
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-times me-1"></i> هەڵوەشاندنەوە
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-file-import me-1"></i> Import
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @push('scripts')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">

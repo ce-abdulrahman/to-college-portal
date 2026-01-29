@@ -1,59 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Exports;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Department;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class Department extends Model
+class DepartmentsExport implements FromCollection, WithHeadings, WithMapping
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'system_id',
-        'province_id',
-        'university_id',
-        'college_id',
-        'name',
-        'name_en',
-        'local_score',
-        'external_score',
-        'type',
-        'sex',
-        'description',
-        'image'
-    ];
-
-    protected $casts = [
-        'geojson' => 'array',
-        'lat' => 'float',
-        'lng' => 'float',
-        'status' => 'boolean',
-    ];
-
-    public function system()
-    {
-        return $this->belongsTo(System::class);
-    }
-
-    public function province()
-    {
-        return $this->belongsTo(Province::class);
-    }
-
-    public function university()
-    {
-        return $this->belongsTo(University::class);
-    }
-
-    public function college()
-    {
-        return $this->belongsTo(College::class);
-    }
-
     public function collection()
     {
         return Department::with(['system', 'province', 'university', 'college'])->get();
