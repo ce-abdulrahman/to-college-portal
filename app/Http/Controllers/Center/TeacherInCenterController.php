@@ -51,9 +51,7 @@ class TeacherInCenterController extends Controller
             'password' => ['required', 'string', 'min:8'],
             'rand_code' => ['required', 'integer', 'unique:users,rand_code'],
             'role' => ['required', Rule::in(['teacher', 'student'])],
-            // هەرکە لە فۆرمەکەت هەیە، ڕاگرتووە؛ دەتوانیت دابنێیت:
-            'referral_teacher_code' => ['required', 'string', 'max:255'],
-
+            // 'referral_teacher_code' => ['required', 'string', 'max:255'], // Removed as it should be auto-assigned
             'status' => ['required', 'in:1,0'],
         ]);
 
@@ -62,15 +60,20 @@ class TeacherInCenterController extends Controller
             'code' => $data['code'],
             'password' => Hash::make($data['password']),
             'role' => $data['role'],
-            // ئەگەر status هەیە لە فۆرم:
             'status' => (int) $data['status'],
             'phone' => $data['phone'] ?? null,
             'rand_code' => (int) $data['rand_code'] ?? 0,
         ]);
 
+        // Inherit features from the Center
+        $center = auth()->user()->center;
+        
         Teacher::create([
             'user_id' => $user->id,
-            'referral_code' => $data['referral_teacher_code'],
+            'referral_code' => auth()->user()->rand_code,
+            'ai_rank' => $center->ai_rank ?? 0,
+            'gis' => $center->gis ?? 0,
+            'all_departments' => $center->all_departments ?? 0,
         ]);
 
         return redirect()->route('center.teachers.index')->with('success', 'بەکارهێنەر دروستکرا بەسەرکەوتوویی.');

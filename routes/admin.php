@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\CenterController;
 use App\Http\Controllers\Admin\TeacherController;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,16 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
             Route::get('export', [MbtiAdminController::class, 'exportResults'])->name('export');
         });
 
+        // [file name]: web.php (لە بەشی Admin)
+        Route::prefix('backups')->name('backups.')->group(function () {
+            Route::get('/', [BackupController::class, 'index'])->name('index');
+            Route::get('/create', [BackupController::class, 'create'])->name('create');
+            Route::post('/', [BackupController::class, 'store'])->name('store');
+            Route::get('/{backup}/restore', [BackupController::class, 'restore'])->name('restore');
+            Route::post('/{backup}/restore', [BackupController::class, 'performRestore'])->name('perform-restore');
+            Route::get('/{backup}/download', [BackupController::class, 'download'])->name('download');
+            Route::delete('/{backup}', [BackupController::class, 'destroy'])->name('destroy');
+        });
     });
 
 

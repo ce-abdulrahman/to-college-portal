@@ -35,7 +35,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
                                     <input type="text" class="form-control @error('code') is-invalid @enderror"
-                                        id="code" name="code" >
+                                        id="code" name="code">
                                     @error('code')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -81,9 +81,44 @@
 
                         </div>
 
+                        {{-- Feature Inheritance Display --}}
                         @php
+                            $teacher = auth()->user()->teacher;
                             $showExtra = old('role') === 'student' || request()->has('student');
                         @endphp
+
+                        @if ($teacher)
+                            <div class="alert alert-info mt-4">
+                                <h6 class="mb-2"><i class="fa-solid fa-info-circle me-2"></i>تایبەتمەندییەکانی وەرگیراو
+                                </h6>
+                                <p class="mb-2 small">ئەم قوتابییە ئەم تایبەتمەندیانە لە تۆوە وەردەگرێت:</p>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <span class="badge {{ $teacher->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                        <i class="fa-solid {{ $teacher->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                        AI Rank {{ $teacher->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
+                                    </span>
+                                    <span class="badge {{ $teacher->gis ? 'bg-success' : 'bg-secondary' }}">
+                                        <i class="fa-solid {{ $teacher->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                        GIS {{ $teacher->gis ? '(چالاکە)' : '(ناچالاکە)' }}
+                                    </span>
+                                    <span class="badge {{ $teacher->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                        <i
+                                            class="fa-solid {{ $teacher->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                        All Departments (50) {{ $teacher->all_departments ? '(چالاکە)' : '(ناچالاکە)' }}
+                                    </span>
+                                </div>
+                                @if (!$teacher->ai_rank || !$teacher->gis || !$teacher->all_departments)
+                                    <p class="mb-0 mt-2 small text-muted">
+                                        <i class="fa-solid fa-lightbulb me-1"></i>
+                                        ئەگەر پێویستت بە تایبەتمەندی زیاتر هەیە،
+                                        <a href="{{ route('teacher.features.request') }}"
+                                            class="text-decoration-none fw-bold">
+                                            داواکاری بۆ ئەدمین بنێرە
+                                        </a>.
+                                    </p>
+                                @endif
+                            </div>
+                        @endif
 
                         @include('website.web.teacher.student.info-student', [
                             'provinces' => $provinces,

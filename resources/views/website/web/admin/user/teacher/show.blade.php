@@ -1,7 +1,6 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-
     {{-- Actions bar --}}
     <div class="row mb-4">
         <div class="col-12">
@@ -85,6 +84,33 @@
                                 <td>{{ $user->rand_code ?? '—' }}</td>
                             </tr>
 
+                            {{-- Feature Flags Display --}}
+                            @if ($user->teacher)
+                                <tr>
+                                    <th><i class="fa-solid fa-star me-1 text-muted"></i> تایبەتمەندییەکان</th>
+                                    <td>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <span
+                                                class="badge {{ $user->teacher->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                                <i
+                                                    class="fa-solid {{ $user->teacher->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                                AI Rank
+                                            </span>
+                                            <span class="badge {{ $user->teacher->gis ? 'bg-success' : 'bg-secondary' }}">
+                                                <i
+                                                    class="fa-solid {{ $user->teacher->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                                GIS
+                                            </span>
+                                            <span
+                                                class="badge {{ $user->teacher->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                                <i
+                                                    class="fa-solid {{ $user->teacher->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                                All Departments (50)
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
 
                             </tr>
                         </tbody>
@@ -113,7 +139,6 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($students as $index => $student)
-
                                         <tr>
                                             <td>{{ ++$index }}</td>
                                             <td>
@@ -138,17 +163,15 @@
                                             </td>
 
                                         </tr>
-
-
-                                        @endforeach
-                                        @if (count($students) == 0)
-                                            <tr>
-                                                <td colspan="9" class="text-center text-muted">
-                                                    <i class="fa-solid fa-circle-info me-1"></i>
-                                                    هیچ قوتابیەک بۆ ئەم مامۆستایە نەدۆزرایەوە
-                                                </td>
-                                            </tr>
-                                        @endif
+                                    @endforeach
+                                    @if (count($students) == 0)
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted">
+                                                <i class="fa-solid fa-circle-info me-1"></i>
+                                                هیچ قوتابیەک بۆ ئەم مامۆستایە نەدۆزرایەوە
+                                            </td>
+                                        </tr>
+                                    @endif
 
 
                                 </tbody>

@@ -28,14 +28,9 @@ class DepartmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $systems = System::all();
-        $provinces = Province::all();
-        $universities = University::all();
-        $colleges = College::all();
-        $departments = Department::all();
-        return view('website.web.admin.department.index', compact('departments', 'systems', 'universities', 'provinces', 'colleges'));
+        return view('website.web.admin.department.index');
     }
 
     /**

@@ -88,7 +88,10 @@ class TeacherByStudentController extends Controller
                 ]);
 
                 // 4) Student (ئەگەر student ـە)
+                // 4) Student (ئەگەر student ـە)
                 if ($data['role'] === 'student') {
+                    $teacher = auth()->user()->teacher;
+
                     Student::updateOrCreate(
                         ['user_id' => $user->id],
                         [
@@ -97,8 +100,11 @@ class TeacherByStudentController extends Controller
                             'type' => $data['type'] ?? null,
                             'gender' => $data['gender'] ?? null,
                             'year' => isset($data['year']) ? (int) $data['year'] : null,
-                            'referral_code' => $data['referral_student_code'] ?? null,
+                            'referral_code' => auth()->user()->rand_code,
                             'status' => (int) ($data['status'] ?? 1),
+                            'ai_rank' => $teacher->ai_rank ?? 0,
+                            'gis' => $teacher->gis ?? 0,
+                            'all_departments' => $teacher->all_departments ?? 0,
                         ],
                     );
 

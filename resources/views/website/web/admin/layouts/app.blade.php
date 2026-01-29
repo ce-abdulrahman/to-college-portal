@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ku" dir="rtl">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -30,10 +31,19 @@
     <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/admin/css/nav.css') }}">
 
+    @livewireStyles
     @stack('head-scripts')
 </head>
 
 <body class="d-flex flex-column min-vh-100" data-page="@yield('page_name', 'default')" data-view="@yield('view_name', 'index')">
+    @php
+        if (!function_exists('navActive')) {
+            function navActive($route)
+            {
+                return request()->routeIs($route) ? 'active' : '';
+            }
+        }
+    @endphp
 
     @include('layouts.toasts')
     @include('website.web.admin.layouts.header')
@@ -59,7 +69,9 @@
     {{-- Dashboard Script --}}
     <script src="{{ asset('assets/js/dashboard.js') }}"></script>
 
+    @livewireScripts
     @stack('scripts')
 
 </body>
+
 </html>

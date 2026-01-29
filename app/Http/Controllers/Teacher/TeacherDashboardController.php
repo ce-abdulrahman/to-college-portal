@@ -17,7 +17,18 @@ class TeacherDashboardController extends Controller
      */
     public function index()
     {
-        return view('website.web.teacher.index');
+        $user = auth()->user();
+        $teacher = $user->teacher;
+        
+        // Check if teacher has GIS feature enabled
+        $hasGIS = $teacher && $teacher->gis == 1;
+        
+        // Show GIS map dashboard if enabled, otherwise show simple dashboard
+        if ($hasGIS) {
+            return view('website.web.teacher.dashboard-gis');
+        } else {
+            return view('website.web.teacher.dashboard-simple');
+        }
     }
 
     public function departments()

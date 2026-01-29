@@ -53,7 +53,7 @@
         <div class="col-md-6">
             <label for="referral_code" class="form-label">کۆدی بانگێشت</label>
             <input type="text" class="form-control" id="referral_code" name="referral_code" 
-                   value="{{ auth()->user()->rand_code }}" readonly>
+                   value="{{ auth()->user()->rand_code }}" >
         </div>
 
         <div class="col-md-6">

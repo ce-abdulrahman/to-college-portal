@@ -14,7 +14,18 @@ class DashboardCenterController extends Controller
 {
     public function index()
     {
-        return view('website.web.center.index');
+        $user = auth()->user();
+        $center = $user->center;
+        
+        // Check if center has GIS feature enabled
+        $hasGIS = $center && $center->gis == 1;
+        
+        // Show GIS map dashboard if enabled, otherwise show simple dashboard
+        if ($hasGIS) {
+            return view('website.web.center.dashboard-gis');
+        } else {
+            return view('website.web.center.dashboard-simple');
+        }
     }
 
     public function departments()

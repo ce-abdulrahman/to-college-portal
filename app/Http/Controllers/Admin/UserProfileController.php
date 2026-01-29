@@ -75,21 +75,44 @@ class UserProfileController extends Controller
         $data = array_merge($base, $student);
 
         try {
-            DB::transaction(function () use ($data, $selector) {
+            DB::transaction(function () use ($data, $selector, $request) {
                 // 3) دروستکردنی بەکارهێنەر
                 $user = User::create([
                     'name' => $data['name'],
                     'code' => $data['code'],
                     'password' => Hash::make($data['password']),
                     'role' => $data['role'],
-                    // ئەگەر status هەیە لە فۆرم:
-                    'status' => (int) $data['status'],
+                    'status' => (int) ($data['status'] ?? 1),
                     'phone' => $data['phone'] ?? null,
-                    'rand_code' => (int) $data['rand_code'] ?? 0,
+                    'rand_code' => (int) $data['rand_code'],
                 ]);
 
-                // 4) تەنیا بۆ قوتابی
-                if ($data['role'] === 'student') {
+                // Defaul values for flags
+                $ai_rank = $request->has('ai_rank') ? 1 : 0;
+                $gis = $request->has('gis') ? 1 : 0;
+                $all_departments = $request->has('all_departments') ? 1 : 0;
+                $creator_code = auth()->user()->rand_code ?? null;
+
+                // Handle Role Specific Tables
+                if ($data['role'] === 'center') {
+                    \App\Models\Center::create([
+                        'user_id' => $user->id,
+                        'address' => $request->address,
+                        'description' => $request->description,
+                        'ai_rank' => $ai_rank,
+                        'gis' => $gis,
+                        'all_departments' => $all_departments,
+                        'referral_code' => $creator_code,
+                    ]);
+                } elseif ($data['role'] === 'teacher') {
+                    \App\Models\Teacher::create([
+                        'user_id' => $user->id,
+                        'ai_rank' => $ai_rank,
+                        'gis' => $gis,
+                        'all_departments' => $all_departments,
+                        'referral_code' => $creator_code,
+                    ]);
+                } elseif ($data['role'] === 'student') {
                     Student::updateOrCreate(
                         ['user_id' => $user->id],
                         [
@@ -98,8 +121,12 @@ class UserProfileController extends Controller
                             'type' => $data['type'],
                             'gender' => $data['gender'],
                             'year' => (int) $data['year'],
-                            'referral_code' => $data['referral_code'] ?? auth()->user()->rand_code,
+                            'referral_code' => $data['referral_code'] ?? $creator_code,
                             'status' => 1,
+                            // Admin likely sets these for students too if they exist on student table
+                            'ai_rank' => $ai_rank,
+                            'gis' => $gis,
+                            'all_departments' => $all_departments,
                         ],
                     );
 

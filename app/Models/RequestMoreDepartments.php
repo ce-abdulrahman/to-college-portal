@@ -13,6 +13,9 @@ class RequestMoreDepartments extends Model
 
     protected $fillable = [
         'student_id',
+        'teacher_id',
+        'center_id',
+        'user_type',
         'user_id',
         'request_all_departments',
         'request_ai_rank',
@@ -44,6 +47,16 @@ class RequestMoreDepartments extends Model
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
+    }
+
+    public function center()
+    {
+        return $this->belongsTo(Center::class);
     }
 
     public function isPending()

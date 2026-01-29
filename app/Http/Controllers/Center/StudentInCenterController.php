@@ -82,6 +82,8 @@ class StudentInCenterController extends Controller
 
                 // 4) Student (ئەگەر student ـە)
                 if ($data['role'] === 'student') {
+                    $center = auth()->user()->center;
+                    
                     Student::updateOrCreate(
                         ['user_id' => $user->id],
                         [
@@ -90,8 +92,11 @@ class StudentInCenterController extends Controller
                             'type' => $data['type'] ?? null,
                             'gender' => $data['gender'] ?? null,
                             'year' => isset($data['year']) ? (int) $data['year'] : null,
-                            'referral_code' => $data['referral_student_code'] ?? null,
+                            'referral_code' => auth()->user()->rand_code,
                             'status' => (int) ($data['status'] ?? 1),
+                            'ai_rank' => $center->ai_rank ?? 0,
+                            'gis' => $center->gis ?? 0,
+                            'all_departments' => $center->all_departments ?? 0,
                         ],
                     );
 

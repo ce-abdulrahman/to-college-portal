@@ -22,7 +22,7 @@ class RequestManagementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = RequestMoreDepartments::with(['student.user', 'admin'])
+        $query = RequestMoreDepartments::with(['user', 'admin', 'student', 'teacher', 'center'])
             ->orderBy('created_at', 'desc');
 
         // فیلتەر بەپێی بار
@@ -30,10 +30,10 @@ class RequestManagementController extends Controller
             $query->where('status', $request->status);
         }
 
-        // گەڕان بەپێی ناوی قوتابی
+        // گەڕان بەپێی ناوی بەکارهێنەر (قوتابی، مامۆستا یان سەنتەر)
         if ($request->has('search')) {
             $search = $request->search;
-            $query->whereHas('student.user', function($q) use ($search) {
+            $query->whereHas('user', function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('code', 'like', "%{$search}%");
             });
@@ -56,19 +56,28 @@ class RequestManagementController extends Controller
      */
     public function show($id)
     {
-        $request = RequestMoreDepartments::with(['student.user', 'student', 'admin'])
+        $request = RequestMoreDepartments::with(['user', 'student', 'teacher', 'center', 'admin'])
             ->findOrFail($id);
 
-        $student = $request->student;
-        $selectedCount = $student->resultDeps()->count();
+        $requester = null;
+        $selectedCount = 0;
 
-        return view('website.web.admin.requests.show', compact('request', 'student', 'selectedCount'));
+        if ($request->user_type == 'student') {
+            $requester = $request->student;
+            $selectedCount = $requester ? $requester->resultDeps()->count() : 0;
+        } elseif ($request->user_type == 'teacher') {
+            $requester = $request->teacher;
+        } elseif ($request->user_type == 'center') {
+            $requester = $request->center;
+        }
+
+        return view('website.web.admin.requests.show', compact('request', 'requester', 'selectedCount'));
     }
 
-    // app/Http\Controllers\Admin\RequestManagementController.php
+    // app/Http\Controllers/Admin/RequestManagementController.php
 public function approve(Request $request, $id)
 {
-    $adminRequest = RequestMoreDepartments::with('student')->findOrFail($id);
+    $adminRequest = RequestMoreDepartments::with(['student', 'teacher', 'center', 'user'])->findOrFail($id);
 
     if ($adminRequest->status !== 'pending') {
         return redirect()->back()->with('error', 'تەنها داواکاریەکانی چاوەڕوان دەتوانن پەسەند بکرێن.');
@@ -80,34 +89,47 @@ public function approve(Request $request, $id)
         'approve_types.*' => 'in:all_departments,ai_rank,gis',
     ]);
 
+    $userID = auth()->user()->id;
     DB::beginTransaction();
     try {
         // نوێکردنەوەی داواکاری
         $adminRequest->update([
             'status' => 'approved',
-            'admin_id' => auth()->id(),
+            'admin_id' => $userID,
             'admin_notes' => $validated['notes'] ?? null,
             'approved_at' => now(),
         ]);
 
         // چالاککردنی جۆرە پەسەندکراوەکان
-        $student = $adminRequest->student;
-        $updates = [];
         
-        if (in_array('all_departments', $validated['approve_types']) && $student->all_departments == 0) {
-            $updates['all_departments'] = 1;
+        $targetModel = null;
+        
+        if ($adminRequest->user_type == 'student') {
+            $targetModel = $adminRequest->student;
+        } elseif ($adminRequest->user_type == 'teacher') {
+            $targetModel = $adminRequest->teacher;
+        } elseif ($adminRequest->user_type == 'center') {
+            $targetModel = $adminRequest->center;
         }
-        
-        if (in_array('ai_rank', $validated['approve_types']) && $student->ai_rank == 0) {
-            $updates['ai_rank'] = 1;
-        }
-        
-        if (in_array('gis', $validated['approve_types']) && $student->gis == 0) {
-            $updates['gis'] = 1;
-        }
-        
-        if (!empty($updates)) {
-            $student->update($updates);
+
+        if ($targetModel) {
+            $updates = [];
+            
+            if (in_array('all_departments', $validated['approve_types']) && $targetModel->all_departments == 0) {
+                $updates['all_departments'] = 1;
+            }
+            
+            if (in_array('ai_rank', $validated['approve_types']) && $targetModel->ai_rank == 0) {
+                $updates['ai_rank'] = 1;
+            }
+            
+            if (in_array('gis', $validated['approve_types']) && $targetModel->gis == 0) {
+                $updates['gis'] = 1;
+            }
+            
+            if (!empty($updates)) {
+                $targetModel->update($updates);
+            }
         }
 
         DB::commit();
@@ -190,7 +212,7 @@ public function approve(Request $request, $id)
      */
     public function search(Request $request)
     {
-        $query = RequestMoreDepartments::with(['student.user', 'admin'])
+        $query = RequestMoreDepartments::with(['user', 'admin', 'student', 'teacher', 'center'])
             ->orderBy('created_at', 'desc');
 
         if ($request->has('status') && $request->status !== 'all') {
@@ -199,7 +221,7 @@ public function approve(Request $request, $id)
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->whereHas('student.user', function($q) use ($search) {
+            $query->whereHas('user', function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('code', 'like', "%{$search}%");
             });

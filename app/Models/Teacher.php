@@ -15,6 +15,9 @@ class Teacher extends Model
     protected $fillable = [
         'user_id',
         'referral_code',
+        'ai_rank',
+        'gis',
+        'all_departments',
     ];
 
     public function user()

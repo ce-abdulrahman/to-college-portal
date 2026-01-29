@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // if role is teacher
             $table->string('referral_code')->nullable()->comment('Get Relation in User Role Teacher column to rand_code');
             $table->timestamps();
         });

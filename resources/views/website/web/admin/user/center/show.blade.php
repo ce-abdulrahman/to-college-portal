@@ -1,7 +1,6 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-
     {{-- Actions bar --}}
     <div class="row mb-4">
         <div class="col-12">
@@ -81,6 +80,33 @@
                                 <td>{{ $user->rand_code ?? '—' }}</td>
                             </tr>
 
+                            {{-- Feature Flags Display --}}
+                            @if ($user->center)
+                                <tr>
+                                    <th><i class="fa-solid fa-star me-1 text-muted"></i> تایبەتمەندییەکان</th>
+                                    <td>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            <span
+                                                class="badge {{ $user->center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                                <i
+                                                    class="fa-solid {{ $user->center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                                AI Rank
+                                            </span>
+                                            <span class="badge {{ $user->center->gis ? 'bg-success' : 'bg-secondary' }}">
+                                                <i
+                                                    class="fa-solid {{ $user->center->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                                GIS
+                                            </span>
+                                            <span
+                                                class="badge {{ $user->center->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                                <i
+                                                    class="fa-solid {{ $user->center->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                                All Departments (50)
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
 
                             </tr>
                         </tbody>

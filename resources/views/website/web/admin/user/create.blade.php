@@ -51,8 +51,8 @@
                                 <label for="name" class="form-label">
                                     <i class="fa-solid fa-user me-1 text-muted"></i> ناو <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" class="form-control" id="name" name="name" 
-                                       value="{{ old('name') }}" required placeholder="ناوی بەکارهێنەر...">
+                                <input type="text" class="form-control" id="name" name="name"
+                                    value="{{ old('name') }}" required placeholder="ناوی بەکارهێنەر...">
                                 <div class="invalid-feedback">تکایە ناو بنووسە.</div>
                             </div>
 
@@ -60,14 +60,15 @@
                                 <label for="phone" class="form-label">
                                     <i class="fa-solid fa-phone me-1 text-muted"></i> ژمارەی مۆبایل
                                 </label>
-                                <input type="text" class="form-control" id="phone" name="phone" 
-                                       value="{{ old('phone') }}" placeholder="٠٧٧٠١٢٣٤٥٦٧">
+                                <input type="text" class="form-control" id="phone" name="phone"
+                                    value="{{ old('phone') }}" placeholder="٠٧٧٠١٢٣٤٥٦٧">
                                 <div class="form-text">بەشێوەی کرداری ٠٧٧٠١٢٣٤٥٦٧</div>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="password" class="form-label">
-                                    <i class="fa-solid fa-lock me-1 text-muted"></i> تێپەڕەوشە <span class="text-danger">*</span>
+                                    <i class="fa-solid fa-lock me-1 text-muted"></i> تێپەڕەوشە <span
+                                        class="text-danger">*</span>
                                 </label>
                                 <input type="password" class="form-control" id="password" name="password" required>
                                 <div class="invalid-feedback">تکایە تێپەڕەوشە بنووسە.</div>
@@ -75,16 +76,18 @@
 
                             <div class="col-md-6">
                                 <label for="password_confirmation" class="form-label">
-                                    <i class="fa-solid fa-lock me-1 text-muted"></i> دووبارەکردنەوەی تێپەڕەوشە <span class="text-danger">*</span>
+                                    <i class="fa-solid fa-lock me-1 text-muted"></i> دووبارەکردنەوەی تێپەڕەوشە <span
+                                        class="text-danger">*</span>
                                 </label>
-                                <input type="password" class="form-control" id="password_confirmation" 
-                                       name="password_confirmation" required>
+                                <input type="password" class="form-control" id="password_confirmation"
+                                    name="password_confirmation" required>
                                 <div class="invalid-feedback">تکایە تێپەڕەوشە دووبارە بکەرەوە.</div>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="code" class="form-label">
-                                    <i class="fa-solid fa-hashtag me-1 text-muted"></i> کۆد چوونەژوورەوە <span class="text-danger">*</span>
+                                    <i class="fa-solid fa-hashtag me-1 text-muted"></i> کۆد چوونەژوورەوە <span
+                                        class="text-danger">*</span>
                                 </label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="code" name="code" readonly>
@@ -110,7 +113,8 @@
 
                             <div class="col-md-6">
                                 <label for="role" class="form-label">
-                                    <i class="fa-solid fa-user-tag me-1 text-muted"></i> پیشە <span class="text-danger">*</span>
+                                    <i class="fa-solid fa-user-tag me-1 text-muted"></i> پیشە <span
+                                        class="text-danger">*</span>
                                 </label>
                                 <select class="form-select" id="role" name="role" required>
                                     <option value="">هەڵبژێرە...</option>
@@ -124,13 +128,43 @@
 
                             <div class="col-md-6">
                                 <label for="status" class="form-label">
-                                    <i class="fa-solid fa-toggle-on me-1 text-muted"></i> دۆخ <span class="text-danger">*</span>
+                                    <i class="fa-solid fa-toggle-on me-1 text-muted"></i> دۆخ <span
+                                        class="text-danger">*</span>
                                 </label>
                                 <select class="form-select" id="status" name="status" required>
                                     <option value="1" @selected(old('status') === '1')>چاڵاک</option>
                                     <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
                                 </select>
                                 <div class="invalid-feedback">تکایە دۆخ هەڵبژێرە.</div>
+                            </div>
+                        </div>
+
+                        {{-- Feature Flags (AI, GIS, All Departments) --}}
+                        <div id="features-section" class="row g-3 mt-1 d-none">
+                            <div class="col-12">
+                                <hr>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label mb-2">
+                                    <i class="fa-solid fa-star me-1 text-muted"></i> تایبەتمەندییەکان
+                                </label>
+                                <div class="d-flex gap-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="ai_rank" name="ai_rank"
+                                            value="1" @checked(old('ai_rank'))>
+                                        <label class="form-check-label" for="ai_rank">AI Rank</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="gis" name="gis"
+                                            value="1" @checked(old('gis'))>
+                                        <label class="form-check-label" for="gis">GIS</label>
+                                    </div>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="all_departments"
+                                            name="all_departments" value="1" @checked(old('all_departments'))>
+                                        <label class="form-check-label" for="all_departments">All Departments (50)</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -143,14 +177,16 @@
 
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="mark" class="form-label">نمرەی قوتابی <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="mark" name="mark" 
-                                           step="0.01" min="0" max="100" placeholder="نموونە: ٨٩.٥٠">
+                                    <label for="mark" class="form-label">نمرەی قوتابی <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="mark" name="mark"
+                                        step="0.01" min="0" max="100" placeholder="نموونە: ٨٩.٥٠">
                                     <div class="invalid-feedback">تکایە نمرەی دروست بنووسە (٠-١٠٠).</div>
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="province" class="form-label">پارێزگا <span class="text-danger">*</span></label>
+                                    <label for="province" class="form-label">پارێزگا <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select" id="province" name="province">
                                         <option value="">هەڵبژێرە...</option>
                                         @foreach ($provinces as $province)
@@ -163,7 +199,8 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="type" class="form-label">لق <span class="text-danger">*</span></label>
+                                    <label for="type" class="form-label">لق <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select" id="type" name="type">
                                         <option value="زانستی">زانستی</option>
                                         <option value="وێژەیی">وێژەیی</option>
@@ -172,7 +209,8 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="gender" class="form-label">ڕەگەز <span class="text-danger">*</span></label>
+                                    <label for="gender" class="form-label">ڕەگەز <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select" id="gender" name="gender">
                                         <option value="نێر">نێر</option>
                                         <option value="مێ">مێ</option>
@@ -181,16 +219,17 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="year" class="form-label">ساڵ <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="year" name="year" 
-                                           min="2000" max="{{ date('Y') }}" value="{{ date('Y') }}">
+                                    <label for="year" class="form-label">ساڵ <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="year" name="year"
+                                        min="2000" max="{{ date('Y') }}" value="{{ date('Y') }}">
                                     <div class="invalid-feedback">تکایە ساڵی دروست بنووسە.</div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label for="referral_code" class="form-label">کۆدی بانگێشت</label>
-                                    <input type="text" class="form-control" id="referral_code" name="referral_code" 
-                                           value="{{ auth()->user()->rand_code }}" readonly>
+                                    <input type="text" class="form-control" id="referral_code" name="referral_code"
+                                        value="{{ auth()->user()->rand_code }}" readonly>
                                 </div>
 
                                 <div class="col-md-6">
@@ -206,20 +245,20 @@
                                 <div id="queue-numbers-section" class="row g-3 mt-3 d-none">
                                     <div class="col-md-4">
                                         <label for="zankoline_num" class="form-label">زانکۆلاین</label>
-                                        <input type="number" class="form-control" id="zankoline_num" name="zankoline_num" 
-                                               step="0.01" min="0">
+                                        <input type="number" class="form-control" id="zankoline_num"
+                                            name="zankoline_num" step="0.01" min="0">
                                     </div>
 
                                     <div class="col-md-4">
                                         <label for="parallel_num" class="form-label">پارالیل</label>
-                                        <input type="number" class="form-control" id="parallel_num" name="parallel_num" 
-                                               step="0.01" min="0">
+                                        <input type="number" class="form-control" id="parallel_num" name="parallel_num"
+                                            step="0.01" min="0">
                                     </div>
 
                                     <div class="col-md-4">
                                         <label for="evening_num" class="form-label">ئێواران</label>
-                                        <input type="number" class="form-control" id="evening_num" name="evening_num" 
-                                               step="0.01" min="0">
+                                        <input type="number" class="form-control" id="evening_num" name="evening_num"
+                                            step="0.01" min="0">
                                     </div>
                                 </div>
                             </div>
@@ -241,115 +280,125 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Form validation
-        const forms = document.querySelectorAll('.needs-validation');
-        forms.forEach(function(form) {
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            });
-        });
-
-        // Generate random codes
-        function generateRandomCode(length = 6) {
-            return Math.floor(Math.pow(10, length - 1) + Math.random() * 9 * Math.pow(10, length - 1));
-        }
-
-        function generateRandomShortCode(length = 4) {
-            return Math.floor(Math.pow(10, length - 1) + Math.random() * 9 * Math.pow(10, length - 1));
-        }
-
-        // Generate code buttons
-        const codeInput = document.getElementById('code');
-        const randCodeInput = document.getElementById('rand_code');
-        const generateCodeBtn = document.getElementById('generate-code');
-        const generateRandCodeBtn = document.getElementById('generate-rand-code');
-
-        if (codeInput) {
-            codeInput.value = generateRandomCode(6);
-            
-            generateCodeBtn.addEventListener('click', function() {
-                codeInput.value = generateRandomCode(6);
-            });
-        }
-
-        if (randCodeInput) {
-            randCodeInput.value = generateRandomShortCode(4);
-            
-            generateRandCodeBtn.addEventListener('click', function() {
-                randCodeInput.value = generateRandomShortCode(4);
-            });
-        }
-
-        // Show/hide student information based on role
-        const roleSelect = document.getElementById('role');
-        const studentInfoSection = document.getElementById('student-info-section');
-        const queueSelect = document.getElementById('queue');
-        const queueNumbersSection = document.getElementById('queue-numbers-section');
-
-        function toggleStudentInfo() {
-            if (roleSelect.value === 'student') {
-                studentInfoSection.classList.remove('d-none');
-                
-                // Make student fields required
-                const studentFields = studentInfoSection.querySelectorAll('input, select');
-                studentFields.forEach(field => {
-                    if (field.id !== 'referral_code' && field.id !== 'queue') {
-                        field.required = true;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation
+            const forms = document.querySelectorAll('.needs-validation');
+            forms.forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
                     }
+                    form.classList.add('was-validated');
                 });
-            } else {
-                studentInfoSection.classList.add('d-none');
-                
-                // Remove required from student fields
-                const studentFields = studentInfoSection.querySelectorAll('input, select');
-                studentFields.forEach(field => {
-                    field.required = false;
+            });
+
+            // Generate random codes
+            function generateRandomCode(length = 6) {
+                return Math.floor(Math.pow(10, length - 1) + Math.random() * 9 * Math.pow(10, length - 1));
+            }
+
+            function generateRandomShortCode(length = 4) {
+                return Math.floor(Math.pow(10, length - 1) + Math.random() * 9 * Math.pow(10, length - 1));
+            }
+
+            // Generate code buttons
+            const codeInput = document.getElementById('code');
+            const randCodeInput = document.getElementById('rand_code');
+            const generateCodeBtn = document.getElementById('generate-code');
+            const generateRandCodeBtn = document.getElementById('generate-rand-code');
+
+            if (codeInput) {
+                codeInput.value = generateRandomCode(6);
+
+                generateCodeBtn.addEventListener('click', function() {
+                    codeInput.value = generateRandomCode(6);
                 });
             }
-        }
 
-        function toggleQueueNumbers() {
-            if (queueSelect.value === 'yes') {
-                queueNumbersSection.classList.remove('d-none');
-                
-                // Make queue number fields required
-                const queueFields = queueNumbersSection.querySelectorAll('input');
-                queueFields.forEach(field => {
-                    field.required = true;
-                });
-            } else {
-                queueNumbersSection.classList.add('d-none');
-                
-                // Remove required from queue number fields
-                const queueFields = queueNumbersSection.querySelectorAll('input');
-                queueFields.forEach(field => {
-                    field.required = false;
+            if (randCodeInput) {
+                randCodeInput.value = generateRandomShortCode(4);
+
+                generateRandCodeBtn.addEventListener('click', function() {
+                    randCodeInput.value = generateRandomShortCode(4);
                 });
             }
-        }
 
-        // Initial setup
-        if (roleSelect) {
-            toggleStudentInfo();
-            roleSelect.addEventListener('change', toggleStudentInfo);
-        }
+            // Show/hide student information based on role
+            const roleSelect = document.getElementById('role');
+            const studentInfoSection = document.getElementById('student-info-section');
+            const featuresSection = document.getElementById('features-section');
+            const queueSelect = document.getElementById('queue');
+            const queueNumbersSection = document.getElementById('queue-numbers-section');
 
-        if (queueSelect) {
-            toggleQueueNumbers();
-            queueSelect.addEventListener('change', toggleQueueNumbers);
-        }
+            function toggleStudentInfo() {
+                const role = roleSelect.value;
 
-        // Set referral code to current user's rand_code
-        const referralCodeInput = document.getElementById('referral_code');
-        if (referralCodeInput) {
-            referralCodeInput.value = '{{ auth()->user()->rand_code }}';
-        }
-    });
-</script>
+                if (role === 'student') {
+                    studentInfoSection.classList.remove('d-none');
+
+                    // Make student fields required
+                    const studentFields = studentInfoSection.querySelectorAll('input, select');
+                    studentFields.forEach(field => {
+                        if (field.id !== 'referral_code' && field.id !== 'queue') {
+                            field.required = true;
+                        }
+                    });
+                } else {
+                    studentInfoSection.classList.add('d-none');
+
+                    // Remove required from student fields
+                    const studentFields = studentInfoSection.querySelectorAll('input, select');
+                    studentFields.forEach(field => {
+                        field.required = false;
+                    });
+                }
+
+                // Toggle Features Section (Center, Teacher, Student)
+                if (['center', 'teacher', 'student'].includes(role)) {
+                    featuresSection.classList.remove('d-none');
+                } else {
+                    featuresSection.classList.add('d-none');
+                }
+            }
+
+            function toggleQueueNumbers() {
+                if (queueSelect.value === 'yes') {
+                    queueNumbersSection.classList.remove('d-none');
+
+                    // Make queue number fields required
+                    const queueFields = queueNumbersSection.querySelectorAll('input');
+                    queueFields.forEach(field => {
+                        field.required = true;
+                    });
+                } else {
+                    queueNumbersSection.classList.add('d-none');
+
+                    // Remove required from queue number fields
+                    const queueFields = queueNumbersSection.querySelectorAll('input');
+                    queueFields.forEach(field => {
+                        field.required = false;
+                    });
+                }
+            }
+
+            // Initial setup
+            if (roleSelect) {
+                toggleStudentInfo();
+                roleSelect.addEventListener('change', toggleStudentInfo);
+            }
+
+            if (queueSelect) {
+                toggleQueueNumbers();
+                queueSelect.addEventListener('change', toggleQueueNumbers);
+            }
+
+            // Set referral code to current user's rand_code
+            const referralCodeInput = document.getElementById('referral_code');
+            if (referralCodeInput) {
+                referralCodeInput.value = '{{ auth()->user()->rand_code }}';
+            }
+        });
+    </script>
 @endpush

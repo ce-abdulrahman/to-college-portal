@@ -34,7 +34,7 @@ trait FileUploadTrait
      *
      * @param string $imagePath
      */
-    function DeleteImage(string $path)
+    function DeleteImage(?string $path)
     {
         if ($path && File::exists(public_path($path))) {
             File::delete(public_path($path));

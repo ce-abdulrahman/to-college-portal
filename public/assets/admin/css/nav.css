@@ -18,6 +18,18 @@
     /* A warm accent for highlights */
 }
 
+/* Dark Mode Overrides */
+[data-bs-theme="dark"] {
+    --background-color: #212529;
+    --card-background: #343a40;
+    --text-color: #f8f9fa;
+    --light-text-color: #adb5bd;
+    --border-color: #495057;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --primary-color: #8c85ff;
+    /* Lighter purple for dark mode */
+}
+
 .navbar {
     padding: 0.5rem 1rem;
     background-color: var(--card-background);
@@ -68,6 +80,16 @@
 
 .drawer.active {
     right: 0;
+}
+
+@media (min-width: 992px) {
+    .drawer {
+        display: none !important;
+    }
+
+    .drawer-overlay {
+        display: none !important;
+    }
 }
 
 .drawer-header {
@@ -326,6 +348,7 @@
 .drawer-nav-item span {
     font-size: 14px;
 }
+
 /* ✅ Drawer Scroll Vertical */
 .drawer-content {
     flex: 1;
@@ -371,10 +394,10 @@
 
 .drawer-content::before {
     top: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent);
 }
 
 .drawer-content::after {
     bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
 }

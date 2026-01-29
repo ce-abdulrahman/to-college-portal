@@ -40,6 +40,16 @@ class User extends Authenticatable
     {
         return $this->hasOne(Student::class);
     }
+
+    public function center()
+    {
+        return $this->hasOne(Center::class);
+    }
+    
+    public function isCenter()
+    {
+        return $this->role === 'center';
+    }
     
     public function isStudent()
     {

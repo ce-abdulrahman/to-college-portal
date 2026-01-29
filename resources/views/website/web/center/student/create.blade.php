@@ -84,9 +84,10 @@
 
                             <div class="col-12 col-md-6">
                                 <label for="referral_teacher_code" class="form-label">کۆدی بانگێشت</label>
-                                <input type="number" class="form-control @error('referral_teacher_code') is-invalid @enderror"
-                                    id="referral_teacher_code" name="referral_teacher_code" value="{{ auth()->user()->rand_code }}"
-                                    readonly>
+                                <input type="number"
+                                    class="form-control @error('referral_teacher_code') is-invalid @enderror"
+                                    id="referral_teacher_code" name="referral_teacher_code"
+                                    value="{{ auth()->user()->rand_code }}" readonly>
                                 @error('referral_teacher_code')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -96,9 +97,44 @@
 
                         </div>
 
+                        {{-- Feature Inheritance Display --}}
                         @php
+                            $center = auth()->user()->center;
                             $showExtra = old('role') === 'student' || request()->has('student');
                         @endphp
+
+                        @if ($center)
+                            <div class="alert alert-info mt-4">
+                                <h6 class="mb-2"><i class="fa-solid fa-info-circle me-2"></i>تایبەتمەندییەکانی وەرگیراو
+                                </h6>
+                                <p class="mb-2 small">ئەم قوتابییە ئەم تایبەتمەندیانە لە سەنتەرەکەت وەردەگرێت:</p>
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                        <i class="fa-solid {{ $center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                        AI Rank {{ $center->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
+                                    </span>
+                                    <span class="badge {{ $center->gis ? 'bg-success' : 'bg-secondary' }}">
+                                        <i class="fa-solid {{ $center->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                        GIS {{ $center->gis ? '(چالاکە)' : '(ناچالاکە)' }}
+                                    </span>
+                                    <span class="badge {{ $center->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                        <i
+                                            class="fa-solid {{ $center->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                        All Departments (50) {{ $center->all_departments ? '(چالاکە)' : '(ناچالاکە)' }}
+                                    </span>
+                                </div>
+                                @if (!$center->ai_rank || !$center->gis || !$center->all_departments)
+                                    <p class="mb-0 mt-2 small text-muted">
+                                        <i class="fa-solid fa-lightbulb me-1"></i>
+                                        ئەگەر پێویستت بە تایبەتمەندی زیاتر هەیە،
+                                        <a href="{{ route('center.features.request') }}"
+                                            class="text-decoration-none fw-bold">
+                                            داواکاری بۆ ئەدمین بنێرە
+                                        </a>.
+                                    </p>
+                                @endif
+                            </div>
+                        @endif
 
                         @include('website.web.teacher.student.info-student', [
                             'provinces' => $provinces,

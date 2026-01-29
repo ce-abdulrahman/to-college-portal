@@ -123,6 +123,12 @@ Route::prefix('center')->name('center.')->middleware(['auth','center'])
         Route::resource('students', StudentInCenterController::class);
         Route::get('/profile/edit/{id}', [CenterProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/{id}', [CenterProfileController::class, 'update'])->name('profile.update');
+        
+        // Feature Requests
+        Route::get('/features/request', [\App\Http\Controllers\Center\FeatureRequestController::class, 'showRequestForm'])->name('features.request');
+        Route::post('/features/submit-request', [\App\Http\Controllers\Center\FeatureRequestController::class, 'submitRequest'])->name('features.submit-request');
+        Route::delete('/features/cancel-request/{id}', [\App\Http\Controllers\Center\FeatureRequestController::class, 'cancelRequest'])->name('features.cancel-request');
+        Route::get('/features/request-history', [\App\Http\Controllers\Center\FeatureRequestController::class, 'requestHistory'])->name('features.request-history');
     });
 
 
@@ -140,5 +146,11 @@ Route::middleware(['auth', 'teacher'])
 
         Route::get('/profile/edit/{id}', [TeacherProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/{id}', [TeacherProfileController::class, 'update'])->name('profile.update');
+        
+        // Feature Requests
+        Route::get('/features/request', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'showRequestForm'])->name('features.request');
+        Route::post('/features/submit-request', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'submitRequest'])->name('features.submit-request');
+        Route::delete('/features/cancel-request/{id}', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'cancelRequest'])->name('features.cancel-request');
+        Route::get('/features/request-history', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'requestHistory'])->name('features.request-history');
 
     });
