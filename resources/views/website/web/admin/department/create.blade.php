@@ -199,6 +199,15 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<!-- Summernote CSS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<!-- jQuery (پێویستی Summernote) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Summernote JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<!-- Summernote RTL -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/lang/summernote-fa-IR.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Map initialization
@@ -278,6 +287,33 @@
                     collegeSelect.innerHTML = options;
                 });
         });
+
+        // Summernote initialization for description
+        const descriptionTextarea = document.getElementById('description');
+        if (descriptionTextarea) {
+            $(descriptionTextarea).summernote({
+                height: 200,
+                lang: 'fa-IR',
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onChange: function(contents, $editable) {
+                        descriptionTextarea.value = contents;
+                    }
+                }
+            });
+            
+            // دڵنیابوون لەوەی کە نرخی کۆن لەسەر دەمێنێتەوە
+            $(descriptionTextarea).summernote('code', descriptionTextarea.value);
+        }
     });
 </script>
 @endpush

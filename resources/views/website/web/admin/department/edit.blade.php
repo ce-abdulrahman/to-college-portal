@@ -202,6 +202,15 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+<!-- Summernote CSS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<!-- jQuery (پێویستی Summernote) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Summernote JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<!-- Summernote RTL -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/lang/summernote-fa-IR.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Map initialization
@@ -237,6 +246,77 @@
             
             marker = L.marker([lat, lng]).addTo(map);
         });
+
+        // Dynamic dropdowns
+        const provinceSelect = document.getElementById('province_id');
+        const universitySelect = document.getElementById('university_id');
+        const collegeSelect = document.getElementById('college_id');
+
+        provinceSelect.addEventListener('change', function() {
+            const provinceId = this.value;
+            
+            if (!provinceId) {
+                universitySelect.innerHTML = '<option value="">تکایە یەکەم پارێزگا هەڵبژێرە</option>';
+                collegeSelect.innerHTML = '<option value="">تکایە یەکەم زانکۆ هەڵبژێرە</option>';
+                return;
+            }
+
+            fetch(`{{ route('admin.api.universities') }}?province_id=${provinceId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let options = '<option value="">هەموو زانکۆكان</option>';
+                    data.forEach(university => {
+                        options += `<option value="${university.id}">${university.name}</option>`;
+                    });
+                    universitySelect.innerHTML = options;
+                });
+        });
+
+        universitySelect.addEventListener('change', function() {
+            const universityId = this.value;
+            
+            if (!universityId) {
+                collegeSelect.innerHTML = '<option value="">تکایە یەکەم زانکۆ هەڵبژێرە</option>';
+                return;
+            }
+
+            fetch(`{{ route('admin.api.colleges') }}?university_id=${universityId}`)
+                .then(response => response.json())
+                .then(data => {
+                    let options = '<option value="">هەموو کۆلێژەکان</option>';
+                    data.forEach(college => {
+                        options += `<option value="${college.id}">${college.name}</option>`;
+                    });
+                    collegeSelect.innerHTML = options;
+                });
+        });
+
+        // Summernote initialization for description
+        const descriptionTextarea = document.getElementById('description');
+        if (descriptionTextarea) {
+            $(descriptionTextarea).summernote({
+                height: 200,
+                lang: 'fa-IR',
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onChange: function(contents, $editable) {
+                        descriptionTextarea.value = contents;
+                    }
+                }
+            });
+            
+            // دڵنیابوون لەوەی کە نرخی کۆن لەسەر دەمێنێتەوە
+            $(descriptionTextarea).summernote('code', descriptionTextarea.value);
+        }
     });
 </script>
 @endpush
