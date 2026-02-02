@@ -23,6 +23,9 @@
             <a href="https://www.instagram.com/agha_ace" target="_blank" class="text-light" data-bs-toggle="tooltip" title="Instagram">
                 <i class="fab fa-instagram"></i>
             </a>
+            <a href="viber://chat?number=9647504342452" target="_blank" class="text-light" data-bs-toggle="tooltip" title="Viber">
+                <i class="fab fa-viber"></i>
+            </a>
         </div>
     </div>
 </footer>

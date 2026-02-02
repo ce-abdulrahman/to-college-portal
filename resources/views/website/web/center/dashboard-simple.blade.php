@@ -7,16 +7,16 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="page-title mb-0">
-                        <i class="fas fa-home me-2"></i>
-                        بەخێربێیت، {{ auth()->user()->name }}
-                    </h4>
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="{{ route('center.dashboard') }}">داشبۆرد</a></li>
                             <li class="breadcrumb-item active">سەرەکی</li>
                         </ol>
                     </div>
+                    <h4 class="page-title">
+                        <i class="fas fa-home me-1"></i>
+                        بەخێربێیت، {{ auth()->user()->name }}
+                    </h4>
                 </div>
             </div>
         </div>
@@ -38,9 +38,14 @@
                         </div>
                         <div class="d-flex align-items-end justify-content-between mt-4">
                             <div>
+                                @php
+                                    $countTeachers = App\Models\Teacher::where(
+                                        'referral_code',
+                                        auth()->user()->rand_code,
+                                    )->count();
+                                @endphp
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                    <span class="counter-value"
-                                        data-target="{{ auth()->user()->center->teachers()->count() ?? 0 }}">0</span>
+                                    <span class="counter-value" data-target="{{ $countTeachers }}">0</span>
                                 </h4>
                                 <a href="{{ route('center.teachers.index') }}" class="text-decoration-underline">بینینی
                                     هەموو</a>
@@ -70,9 +75,14 @@
                         </div>
                         <div class="d-flex align-items-end justify-content-between mt-4">
                             <div>
+                                @php
+                                    $countStudents = App\Models\Student::where(
+                                        'referral_code',
+                                        auth()->user()->rand_code,
+                                    )->count();
+                                @endphp
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                    <span class="counter-value"
-                                        data-target="{{ auth()->user()->center->students()->count() ?? 0 }}">0</span>
+                                    <span class="counter-value" data-target="{{ $countStudents }}">0</span>
                                 </h4>
                                 <a href="{{ route('center.students.index') }}" class="text-decoration-underline">بینینی
                                     هەموو</a>
@@ -103,7 +113,7 @@
                                 <div class="d-flex gap-2 flex-wrap">
                                     <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
                                         <i class="fa-solid {{ $center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        AI Rank
+                                        ڕیزبەندی کرد بە زیرەکی دەستکرد
                                     </span>
                                     <span class="badge {{ $center->gis ? 'bg-success' : 'bg-secondary' }}">
                                         <i class="fa-solid {{ $center->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
@@ -142,7 +152,7 @@
                                 <h4 class="fs-22 fw-semibold ff-secondary mb-4">
                                     <i class="fas fa-building"></i>
                                 </h4>
-                                <a href="{{ route('center.profile.edit', auth()->id()) }}"
+                                <a href="{{ route('center.profile.edit', auth()->user()->id) }}"
                                     class="text-decoration-underline">دەستکاری پرۆفایل</a>
                             </div>
                             <div class="avatar-sm flex-shrink-0">
@@ -187,7 +197,7 @@
                                 </a>
                             </div>
                             <div class="col-md-3">
-                                <a href="{{ route('center.profile.edit', auth()->id()) }}"
+                                <a href="{{ route('center.profile.edit', auth()->user()->id) }}"
                                     class="btn btn-soft-warning w-100 py-3">
                                     <i class="fas fa-edit fs-4 d-block mb-2"></i>
                                     دەستکاری پرۆفایل

@@ -1,293 +1,226 @@
-{{-- resources/views/student/departments/selection.blade.php --}}
 @extends('website.web.admin.layouts.app')
 
 @section('title', 'هەڵبژاردنی بەشەکان')
 
 @section('content')
-    <div class="container py-4">
-        <!-- باڵای پەیج: زانیاری قوتابی و ئامارەکان -->
-        <div class="card border-primary shadow-sm mb-4">
-            <div class="card-header bg-primary text-white py-3">
-                {{-- لە بەشی card-header ی یەکەم --}}
+    <div class="container-fluid py-4">
+        <!-- Page Title & Breadcrumb -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}">داشبۆرد</a></li>
+                            <li class="breadcrumb-item active">هەڵبژاردنی بەشەکان</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">
+                        <i class="fas fa-building-columns me-1"></i>
+                        هەڵبژاردنی بەشەکان
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header Info Card -->
+        <div class="card glass border-0 shadow-sm mb-4 fade-in">
+            <div class="card-header bg-primary text-white border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h4 class="mb-1"><i class="fas fa-university me-2"></i>هەڵبژاردنی بەشەکان</h4>
-                        <p class="mb-0">قوتابی: {{ $student->user->name }} | کۆد: {{ $student->user->code }}</p>
-                    </div>
-                    <div class="text-end">
-                        @if ($student->all_departments == 0 || $student->ai_rank == 0 || $student->gis == 0)
-                            <div class="card border-warning mt-4 shadow-sm text-start">
-                                <div class="card-body py-4">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-8">
-                                            <h5 class="text-warning mb-2">
-                                                <i class="fas fa-crown me-2"></i>تایبەتمەندییە نایابەکان (Premium Features)
-                                            </h5>
-                                            <p class="mb-3 text-muted">بۆ ئەوەی پڕۆسەی هەڵبژاردنی بەشەکانت ئاسانتر و
-                                                سەرکەوتووتر بێت، دەتوانیت داوای ئەم خزمەتگوزارییانە بکەیت:</p>
-
-                                            <div class="row g-3 mb-3">
-                                                @if ($student->all_departments == 0)
-                                                    <div class="col-sm-4">
-                                                        <div class="p-2 border rounded bg-light">
-                                                            <h6 class="mb-1 fw-bold text-warning"><i
-                                                                    class="fas fa-list-ol me-1"></i> ٥٠ بەش</h6>
-                                                            <small class="text-secondary d-block">زیادکردنی سنووری هەڵبژاردن
-                                                                لە ٢٠ بەشەوە بۆ ٥٠ بەش.</small>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if ($student->ai_rank == 0)
-                                                    <div class="col-sm-4">
-                                                        <div class="p-2 border rounded bg-light">
-                                                            <h6 class="mb-1 fw-bold text-success"><i
-                                                                    class="fas fa-robot me-1"></i> زیرەکی دەستکرد</h6>
-                                                            <small class="text-secondary d-block">ڕیزکردنی بەشەکان بەپێی
-                                                                نمرە و حەزەکانت لەڕێی AI.</small>
-                                                        </div>
-                                                    </div>
-                                                @endif
-
-                                                @if ($student->gis == 0)
-                                                    <div class="col-sm-4">
-                                                        <div class="p-2 border rounded bg-light">
-                                                            <h6 class="mb-1 fw-bold text-info"><i
-                                                                    class="fas fa-map-marked-alt me-1"></i> نەخشەی GIS</h6>
-                                                            <small class="text-secondary d-block">دۆزینەوە و بینینی بەشەکان
-                                                                لەسەر نەخشەی کوردستان.</small>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            </div>
-
-                                            <p class="small text-secondary mb-0">
-                                                <i class="fas fa-info-circle me-1"></i> کلیک لەسەر "ناردنی داواکاری" بکە بۆ
-                                                دیاریکردنی ئەو خزمەتگوزارییانە.
-                                            </p>
-                                        </div>
-                                        <div class="col-md-4 text-end mt-3 mt-md-0">
-                                            <a href="{{ route('student.departments.request-more') }}"
-                                                class="btn btn-warning px-4">
-                                                <i class="fas fa-paper-plane me-2"></i>ناردنی داواکاری
-                                            </a>
-                                            <div class="mt-2">
-                                                <a href="{{ route('student.departments.request-history') }}"
-                                                    class="text-decoration-none small text-info">
-                                                    <i class="fas fa-history me-1"></i>مێژووی داواکاریەکان
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
+                        <h4 class="mb-1"><i class="fas fa-university me-2"></i> زانیاری قوتابی</h4>
+                        <p class="mb-0 opacity-75 small"> قوتابی: {{ $student->user->name }} | کۆد:
+                            {{ $student->user->code }}</p>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="text-center p-3 border rounded bg-light">
+            <div class="card-body p-4">
+                <div class="row g-4 text-center">
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 border-soft rounded-4 bg-light shadow-none">
                             <div class="fs-4 fw-bold text-primary">{{ $student->mark }}</div>
-                            <small class="text-muted">نمرەی کۆی قوتابی</small>
+                            <small class="text-muted fw-bold"> نمرەی کۆی قوتابی</small>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="text-center p-3 border rounded bg-light">
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 border-soft rounded-4 bg-light shadow-none">
                             <div class="fs-4 fw-bold text-success">{{ $student->type }}</div>
-                            <small class="text-muted">لقی قوتابی</small>
+                            <small class="text-muted fw-bold"> لقی قوتابی</small>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="text-center p-3 border rounded bg-light">
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 border-soft rounded-4 bg-light shadow-none">
                             <div class="fs-4 fw-bold text-warning">{{ $maxSelections }}</div>
-                            <small class="text-muted">سنووری هەڵبژاردن</small>
+                            <small class="text-muted fw-bold"> سنووری هەڵبژاردن</small>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="text-center p-3 border rounded bg-light">
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 border-soft rounded-4 bg-light shadow-none">
                             <div class="fs-4 fw-bold {{ $student->all_departments ? 'text-danger' : 'text-info' }}">
                                 {{ $student->all_departments ? '٥٠ بەش' : '٢٠ بەش' }}
                             </div>
-                            <small class="text-muted">جۆری هەڵبژاردن</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- بەشە هەڵبژێردراوەکان (ئێستا) -->
-        <div class="card border-success shadow-sm mb-4" id="selectedDepartmentsCard">
-            <div class="card-header bg-success text-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>بەشە هەڵبژێردراوەکان</h5>
-                <span class="badge bg-light text-dark" id="selectedCount">{{ $currentCount }}</span>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover" id="selectedDepartmentsTable">
-
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ناوی بەش</th>
-                                <th>نمرەی </th>
-                                <th>کردار</th>
-                            </tr>
-                        </thead>
-                        <tbody class="table-group-divider">
-                            @forelse($selectedDepartments as $item)
-                                <tr>
-                                    <td>
-                                        <span
-                                            class="badge bg-{{ $item->department->system->name === 1 ? 'primary' : ($item->department->system->name === 2 ? 'warning' : 'danger') }}">
-
-                                            {{ $item->department->system->name ?? '' }}
-                                        </span>
-
-                                        / {{ $item->department->province->name ?? '' }} /
-                                        {{ $item->department->university->name ?? '' }} /
-                                        {{ $item->department->college->name ?? '' }} / {{ $item->department->name }}
-                                    </td>
-                                    <td>{{ $item->department->local_score }}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-danger remove-btn" data-id="{{ $item->id }}"
-                                            data-name="{{ $item->department->name_ku }}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr id="noDepartmentsRow">
-                                    <td colspan="5" class="text-center text-muted py-4">
-                                        <i class="fas fa-inbox fa-2x mb-3"></i>
-                                        <p class="mb-0">هیچ بەشێک هەڵنەبژاردووە.</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-
-
-                </div>
-            </div>
-        </div>
-
-        <!-- هەموو بەشە گونجاوەکان -->
-        <div class="card border-info shadow-sm">
-            <div class="card-header bg-info text-white py-3">
-                <h5 class="mb-0"><i class="fas fa-list me-2"></i>بەشە گونجاوەکان</h5>
-            </div>
-            <div class="card-body">
-                <!-- فیلتەر و گەڕان -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            <input type="text" class="form-control" id="searchInput" placeholder="گەڕان بە ناوی بەش...">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select" id="sortSelect">
-                            <option value="mark_desc">نمرە (بەرز بۆ نزم)</option>
-                            <option value="mark_asc">نمرە (نزم بۆ بەرز)</option>
-                            <option value="name">ناو (أ-ی)</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="showOnlyEligible">
-                            <label class="form-check-label" for="showOnlyEligible">
-                                تەنها نیشانی بەشە گونجاوەکان بدە
-                            </label>
+                            <small class="text-muted fw-bold"> جۆری هەڵبژاردن</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- لیستی بەشەکان -->
-                <div class="row" id="departmentsContainer">
-                    {{-- لە بەشی نمایشی بەشەکان --}}
-                    @foreach ($availableDepartments as $department)
-                        <table class="table table-hover table-striped">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>ناوی بەش</th>
-                                    <th>نمرەی </th>
-                                    <th>کردار</th>
-                                </tr>
-                            </thead>
-                            <tbody class="table-group-divider">
-                                @foreach ($availableDepartments as $department)
-                                    <tr>
-                                        <td> {{ $department->system->name ?? '' }} /
-                                            {{ $department->province->name ?? '' }} /
-                                            {{ $department->university->name ?? '' }} /
-                                            {{ $department->college->name ?? '' }} / {{ $department->name }}</td>
-                                        <td>{{ $department->local_score }}</td>
-                                        <td>
-                                            {{-- دوگمەی زیادکردن --}}
-                                            @if (in_array($department->id, $selectedDepartments->pluck('department_id')->toArray()))
-                                                <button class="btn btn-success btn-sm w-100" disabled>
-                                                    <i class="fas fa-check me-1"></i>هەڵبژێردراوە
-                                                </button>
-                                            @elseif($student->mark < $department->local_score)
-                                                <button class="btn btn-secondary btn-sm w-100" disabled
-                                                    title="نمرەکەت پێویست نییە">
-                                                    <i class="fas fa-lock me-1"></i>نمرە کەمە
-                                                </button>
-                                            @elseif(!in_array($department->type, [$student->type, 'زانستی و وێژەیی']))
-                                                <button class="btn btn-secondary btn-sm w-100" disabled
-                                                    title="تیپەکەت گونجاو نییە">
-                                                    <i class="fas fa-lock me-1"></i>تیپ گونجاو نییە
-                                                </button>
-                                            @elseif(!in_array($department->sex, [$student->gender, 'هەردووکیان']))
-                                                <button class="btn btn-secondary btn-sm w-100" disabled
-                                                    title="جێندەرەکەت گونجاو نییە">
-                                                    <i class="fas fa-lock me-1"></i>جێندەر گونجاو نییە
-                                                </button>
-                                            @elseif($currentCount >= $maxSelections)
-                                                <button class="btn btn-warning btn-sm w-100" disabled
-                                                    title="گەیشتیتە سنووری هەڵبژاردن">
-                                                    <i class="fas fa-ban me-1"></i>سنوور تێپەڕی
-                                                </button>
-                                            @else
-                                                <button class="btn btn-primary btn-sm w-100 add-department-btn"
-                                                    data-id="{{ $department->id }}" data-name="{{ $department->name }}">
-                                                    <i class="fas fa-plus me-1"></i>زیادکردن
-                                                </button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    @endforeach
-                </div>
-
-                <!-- Pagination -->
-                @if ($availableDepartments->hasPages())
-                    <div class="d-flex justify-content-center mt-4">
-                        {{ $availableDepartments->links() }}
+                @if ($student->all_departments == 0 || $student->ai_rank == 0 || $student->gis == 0)
+                    <div class="alert alert-soft-warning border-0 mt-4 d-flex align-items-center p-3 rounded-4">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fas fa-crown text-warning fs-3"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark p-1"> تایبەتمەندییە نایابەکان</div>
+                            <div class="small text-muted p-1"> دەتوانیت AI، GIS و جێگای زیاتر بۆ بەشەکانت چالاک بکەیت.</div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <a href="{{ route('student.departments.request-more') }}"
+                                class="btn btn-warning btn-sm fw-bold px-3">
+                                ناردنی داواکاری
+                            </a>
+                        </div>
                     </div>
                 @endif
             </div>
         </div>
-    </div>
 
-    <!-- Modal بۆ پشتڕاستکردنەوەی سڕینەوە -->
-    <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-danger me-2"></i>دڵنیای لە سڕینەوە؟
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="row g-4">
+            <!-- Available Departments (Right Side in RTL) -->
+            <div class="col-xl-8">
+                <!-- Filters Card -->
+                <div class="card glass border-0 shadow-sm mb-4 fade-in">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <span class="avatar-title bg-soft-primary text-primary rounded-circle fs-4">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </span>
+                            </div>
+                            <div>
+                                <h5 class="mb-0 fw-bold"> گەڕان و فلتەرکردنی بەشەکان</h5>
+                                <p class="text-muted small mb-0"> بەشە گونجاوەکان ڕەچاوکراون بەپێی نمرە و ڕەگەز و لقی
+                                    خوێندنت</p>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted"> سیستەم</label>
+                                <select id="filter-system" class="form-select border-soft">
+                                    <option value=""> هەموو سیستەمەکان</option>
+                                    @foreach ($systems as $system)
+                                        <option value="{{ $system->id }}">{{ $system->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted"> پارێزگا</label>
+                                <select id="filter-province" class="form-select border-soft">
+                                    <option value=""> هەموو پارێزگاکان</option>
+                                    @foreach ($provinces as $province)
+                                        <option value="{{ $province->id }}">{{ $province->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted"> زانکۆ</label>
+                                <select id="filter-university" class="form-select border-soft">
+                                    <option value=""> هەموو زانکۆکان</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted"> کۆلێژ</label>
+                                <select id="filter-college" class="form-select border-soft">
+                                    <option value=""> هەموو کۆلێژەکان</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted"> گەڕان</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-soft"><i
+                                            class="fa-solid fa-search"></i></span>
+                                    <input id="filter-search" type="text" class="form-control border-soft"
+                                        placeholder=" بگەڕێ بۆ ناوی بەش...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <p>ئایا دڵنیای لە سڕینەوەی بەشی <span id="departmentNameToDelete" class="fw-bold"></span>؟</p>
+
+                <!-- Database Table Card -->
+                <div class="card glass border-0 shadow-sm overflow-hidden">
+                    <div class="card-header bg-soft-light border-0 py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-primary"><i class="fa-solid fa-list-ul me-2"></i> بەشە بەردەستەکان</h6>
+                    </div>
+                    <div class="p-3">
+                        <table id="depts-table" class="table table-hover align-middle mb-0" style="width:100%">
+                            <thead class="bg-soft-secondary text-muted small">
+                                <tr>
+                                    <th> بەش و زانیاری</th>
+                                    <th class="text-center"> نمرە</th>
+                                    <th class="text-center"> سیستەم</th>
+                                    <th class="text-center"> کردار</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">هەڵوەشاندنەوە</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">سڕینەوە</button>
+            </div>
+
+            <!-- Ranked Selection List (Left Side in RTL) -->
+            <div class="col-xl-4">
+                <div class="card glass border-0 shadow-lg sticky-top" style="top: 2rem; z-index: 100;">
+                    <div
+                        class="card-header bg-primary text-white border-0 py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-white"><i class="fa-solid fa-ranking-star me-2"></i> ڕێزبەندی
+                            هەڵبژاردنەکان</h6>
+                        <span id="selected-count-badge"
+                            class="badge bg-white text-primary px-3">{{ $selectedDepartments->count() }} /
+                            {{ $maxSelections }}</span>
+                    </div>
+                    <div class="card-body p-0" style="max-height: 70vh; overflow-y: auto;">
+                        <div class="list-group list-group-flush" id="selected-list">
+                            @forelse ($selectedDepartments as $index => $item)
+                                <div class="list-group-item bg-transparent border-soft py-3 selected-dept-row"
+                                    data-id="{{ $item->department_id }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3 p-1">
+                                            <i class="fa-solid fa-grip-vertical text-muted cursor-move drag-handle"></i>
+                                        </div>
+                                        <div class="me-3 text-muted fw-bold rank-number" style="width: 25px;">
+                                            {{ $index + 1 }}</div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-bold text-dark small">{{ $item->department->name }} 
+                                                <span style="font-weight: bold !important;" class="badge {{ $item->department->system->name == 'زانکۆلاین' ? 'bg-soft-success border-success text-success bg-light' : ($item->department->system->name == 'پاراڵیل' ? 'bg-soft-danger border-danger text-danger bg-light' : 'bg-soft-dark text-dark') }}">
+                                                    {{ $item->department->system->name }}
+                                                </span>
+                                            </div>
+                                            <div style="font-size: 12px;" class="text-muted smaller">{{ $item->department->university->name }}/{{ $item->department->college->name }}
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-sm btn-soft-danger rounded-circle p-0 remove-btn ms-2"
+                                            style="width: 30px; height: 30px;">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-5 text-center no-depts-msg">
+                                    <i class="fa-solid fa-list-ol fa-3x text-muted opacity-25 mb-3 d-block"></i>
+                                    <p class="text-muted small"> هێشتا چ بەشێکت هەڵنەبژاردووە بۆ ڕێزبەندکردن.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                    <div class="card-footer bg-soft-light border-0 p-3">
+                        <div id="unsaved-alert" class="alert alert-warning border-0 small py-2 px-3 mb-3 d-none">
+                            <i class="fa-solid fa-circle-exclamation me-1"></i> گۆڕانکارییەکان هێشتا پاشەکەوت نەکراون!
+                        </div>
+                        <button id="save-ranking-btn" class="btn btn-success w-100 py-2 fw-bold shadow-sm"
+                            {{ $selectedDepartments->count() === 0 ? 'disabled' : '' }}>
+                            <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردنی ڕێزبەندی
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -295,255 +228,311 @@
 @endsection
 
 @push('styles')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
     <style>
-        .department-card {
-            transition: transform 0.2s;
+        .glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
-        .department-card:hover {
-            transform: translateY(-5px);
+        .bg-soft-primary {
+            background-color: rgba(108, 99, 255, 0.1);
         }
 
-        .card-footer .btn {
-            transition: all 0.3s;
+        .bg-soft-secondary {
+            background-color: rgba(108, 117, 125, 0.1);
         }
 
-        #selectedDepartmentsTable tbody tr {
-            vertical-align: middle;
+        .bg-soft-success {
+            background-color: rgba(25, 135, 84, 0.1);
         }
 
-        .badge {
-            font-size: 0.85em;
+        .bg-soft-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .bg-soft-light {
+            background-color: rgba(243, 246, 249, 0.8);
+        }
+
+        .border-soft {
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .smaller {
+            font-size: 0.75rem;
+        }
+
+        .btn-xs {
+            padding: 0.1rem 0.4rem;
+            font-size: 0.7rem;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cursor-move {
+            cursor: move;
+        }
+
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #f0f0f0;
+        }
+
+        /* DataTables Custom Styling */
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.2em 0.8em;
+        }
+
+        .dataTables_filter {
+            display: none;
+        }
+
+        /* We use custom search */
+        table.dataTable thead th {
+            border-bottom: none;
+        }
+
+        table.dataTable td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
     </style>
 @endpush
 
 @push('scripts')
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
-            let departmentToDelete = null;
-            let csrfToken = $('meta[name="csrf-token"]').attr('content');
+            const maxSelections = {{ $maxSelections }};
+            const studentId = {{ $student->id }};
+            let unsavedChanges = false;
+            let selectedIds = @json($selectedDepartments->pluck('department_id'));
 
-            // فیلتەر و گەڕان
-            $('#searchInput').on('keyup', function() {
-                let searchText = $(this).val().toLowerCase();
-                $('.department-card').each(function() {
-                    let name = $(this).data('name').toLowerCase();
-                    if (name.includes(searchText)) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
+            // Initialize DataTable
+            const table = $('#depts-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('student.departments.available-api') }}",
+                    data: function(d) {
+                        d.system_id = $('#filter-system').val();
+                        d.province_id = $('#filter-province').val();
+                        d.university_id = $('#filter-university').val();
+                        d.college_id = $('#filter-college').val();
+                        d.search_val = $('#filter-search').val();
                     }
-                });
+                },
+                columns: [{
+                        data: 'name',
+                        render: function(data, type, row) {
+                            return `<div><div class="fw-bold text-dark">${data}</div><div class="text-muted smaller">${row.province} • ${row.university} • ${row.college}</div></div>`;
+                        }
+                    },
+                    {
+                        data: 'local_score',
+                        className: 'text-center',
+                        render: data =>
+                            `<span class="badge bg-soft-primary text-primary px-3 py-2">${data}</span>`
+                    },
+                    {
+                        data: 'system_name',
+                        className: 'text-center',
+                        render: (data, type, row) => {
+                            let badgeClass = 'bg-soft-dark text-dark';
+                            if (data === 'زانکۆلاین') badgeClass = 'bg-soft-success border-success text-success bg-light';
+                            else if (data === 'پاراڵیل') badgeClass = 'bg-soft-danger border-danger text-danger bg-light';
+                            return `<span class="badge ${badgeClass} px-2 py-1">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-center',
+                        sortable: false,
+                        render: function(data, type, row) {
+                            const isSelected = selectedIds.includes(data);
+                            return `<button class="btn btn-sm w-100 add-dept-btn ${isSelected ? 'btn-soft-success' : 'btn-primary shadow-sm'}" data-id="${data}" data-name="${row.name}" data-uni="${row.university}" ${isSelected ? 'disabled' : ''}>
+                                    ${isSelected ? '<i class="fa-solid fa-check me-1"></i> هەڵبژێردرا' : '<i class="fa-solid fa-plus me-1"></i> زیادکردن'}
+                                </button>`;
+                        }
+                    }
+                ],
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.7/i18n/ku.json" ||
+                        "" // Kurdish language if available
+                },
+                pageLength: 10,
+                dom: 'rtp',
             });
 
-            // Sort departments
-            $('#sortSelect').change(function() {
-                let container = $('#departmentsContainer');
-                let items = container.children('.department-card').get();
-
-                items.sort(function(a, b) {
-                    let aMark = $(a).data('mark');
-                    let bMark = $(b).data('mark');
-                    let aName = $(a).data('name');
-                    let bName = $(b).data('name');
-
-                    switch ($(this).val()) {
-                        case 'mark_desc':
-                            return bMark - aMark;
-                        case 'mark_asc':
-                            return aMark - bMark;
-                        case 'name':
-                            return aName.localeCompare(bName);
-                        default:
-                            return 0;
-                    }
-                }.bind(this));
-
-                container.empty().append(items);
+            // Filters implementation
+            $('#filter-system, #filter-province, #filter-university, #filter-college').on('change', () => table.ajax
+                .reload());
+            $('#filter-search').on('keyup', function() {
+                if (window.searchTimeout) clearTimeout(window.searchTimeout);
+                window.searchTimeout = setTimeout(() => table.ajax.reload(), 300);
             });
 
-            // Show only eligible departments
-            $('#showOnlyEligible').change(function() {
-                if ($(this).is(':checked')) {
-                    $('.department-card[data-eligible="0"]').hide();
-                } else {
-                    $('.department-card').show();
+            // Cascading filters
+            $('#filter-province').on('change', function() {
+                const id = $(this).val();
+                $('#filter-university').html('<option value=""> هەموو زانکۆکان</option>').prop('disabled', !
+                    id);
+                $('#filter-college').html('<option value=""> هەموو کۆلێژەکان</option>').prop('disabled',
+                    true);
+                if (id) {
+                    $.get(`/s/universities-by-province/${id}`, function(data) {
+                        data.forEach(uni => $('#filter-university').append(
+                            `<option value="${uni.id}">${uni.name}</option>`));
+                    });
                 }
             });
 
-            // زیادکردنی بەش
-            $(document).on('click', '.add-department-btn', function() {
-                let btn = $(this);
-                let departmentId = btn.data('id');
-                let departmentName = btn.data('name');
-
-                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>چاوەڕوانی...');
-
-                $.ajax({
-                    url: '{{ route('student.departments.add') }}',
-                    method: 'POST',
-                    data: {
-                        _token: csrfToken,
-                        department_id: departmentId
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // نوێکردنەوەی لیست
-                            updateSelectedDepartments(response.data);
-
-                            // گۆڕینی دوگمە
-                            btn.removeClass('btn-primary').addClass('btn-success')
-                                .html('<i class="fas fa-check me-1"></i>هەڵبژێردراوە')
-                                .prop('disabled', true);
-
-                            // پەیامی سەرکەوتوو
-                            showToast('سەرکەوتوو', response.message, 'success');
-
-                            // نوێکردنەوەی ژمارەکان
-                            $('#selectedCount').text(parseInt($('#selectedCount').text()) + 1);
-
-                            // چەککردنەوەی دوگمەکان ئەگەر گەیشتە سنوور
-                            if (response.data.remaining <= 0) {
-                                $('.add-department-btn:not(:disabled)').prop('disabled', true)
-                                    .removeClass('btn-primary').addClass('btn-warning')
-                                    .html('<i class="fas fa-ban me-1"></i>سنوور تێپەڕی');
-                            }
-                        } else {
-                            showToast('هەڵە', response.message, 'error');
-                            btn.prop('disabled', false).html(
-                                '<i class="fas fa-plus me-1"></i>زیادکردن');
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMsg = 'هەڵەیەک ڕوویدا';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-                        showToast('هەڵە', errorMsg, 'error');
-                        btn.prop('disabled', false).html(
-                            '<i class="fas fa-plus me-1"></i>زیادکردن');
-                    }
-                });
+            $('#filter-university').on('change', function() {
+                const id = $(this).val();
+                $('#filter-college').html('<option value=""> هەموو کۆلێژەکان</option>').prop('disabled', !
+                    id);
+                if (id) {
+                    $.get(`/s/colleges-by-university/${id}`, function(data) {
+                        data.forEach(col => $('#filter-college').append(
+                            `<option value="${col.id}">${col.name}</option>`));
+                    });
+                }
             });
 
-            // سڕینەوەی بەش
+            // Sortable implementation
+            const sortable = new Sortable(document.getElementById('selected-list'), {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                onEnd: function() {
+                    updateRankingNumbers();
+                    markUnsaved();
+                }
+            });
+
+            // Add Department logic
+            $(document).on('click', '.add-dept-btn', function() {
+                if (selectedIds.length >= maxSelections) {
+                    Swal.fire('هەڵە', `تۆ ناتوانیت زیاتر لە ${maxSelections} بەش هەڵبژێریت.`, 'error');
+                    return;
+                }
+
+                const btn = $(this);
+                const id = btn.data('id');
+                const name = btn.data('name');
+                const uni = btn.data('uni');
+
+                if (!selectedIds.includes(id)) {
+                    selectedIds.push(id);
+                    $('.no-depts-msg').addClass('d-none');
+                    const rank = selectedIds.length;
+                    const html = `
+                        <div class="list-group-item bg-transparent border-soft py-3 selected-dept-row" data-id="${id}">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3 p-1">
+                                    <i class="fa-solid fa-grip-vertical text-muted cursor-move drag-handle"></i>
+                                </div>
+                                <div class="me-3 text-muted fw-bold rank-number" style="width: 25px;">${rank}</div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold text-dark small">${name}</div>
+                                    <div class="text-muted smaller">${uni}</div>
+                                </div>
+                                <button class="btn btn-sm btn-soft-danger rounded-circle p-0 remove-btn ms-2" style="width: 30px; height: 30px;">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>`;
+
+                    $('#selected-list').append(html);
+                    updateCounters();
+                    markUnsaved();
+                    table.ajax.reload(null, false);
+                }
+            });
+
+            // Remove logic
             $(document).on('click', '.remove-btn', function() {
-                departmentToDelete = {
-                    id: $(this).data('id'),
-                    name: $(this).data('name')
-                };
-                $('#departmentNameToDelete').text(departmentToDelete.name);
-                $('#confirmDeleteModal').modal('show');
+                const row = $(this).closest('.selected-dept-row');
+                const id = row.data('id');
+                selectedIds = selectedIds.filter(i => i != id);
+                row.remove();
+                if (selectedIds.length === 0) $('.no-depts-msg').removeClass('d-none');
+                updateRankingNumbers();
+                updateCounters();
+                markUnsaved();
+                table.ajax.reload(null, false);
             });
 
-            $('#confirmDeleteBtn').click(function() {
-                if (!departmentToDelete) return;
+            // Save Function
+            $('#save-ranking-btn').on('click', function() {
+                const btn = $(this);
+                const originalHtml = btn.html();
+                const ids = [];
+                $('.selected-dept-row').each(function() {
+                    ids.push($(this).data('id'));
+                });
+
+                btn.prop('disabled', true).html(
+                    '<span class="spinner-border spinner-border-sm me-1"></span> خەریکی پاشەکەوتکردنە...'
+                );
 
                 $.ajax({
-                    url: '{{ url('student/departments/remove') }}/' + departmentToDelete.id,
-                    method: 'DELETE',
+                    url: "{{ route('student.departments.save-ranking') }}",
+                    method: "POST",
                     data: {
-                        _token: csrfToken
+                        _token: "{{ csrf_token() }}",
+                        department_ids: ids
                     },
-                    success: function(response) {
-                        if (response.success) {
-                            // سڕینەوەی ڕیز
-                            $('#row-' + departmentToDelete.id).remove();
-
-                            // نوێکردنەوەی لیستی بەشەکان
-                            let card = $('.department-card').find(
-                                    `.add-department-btn[data-id="${departmentToDelete.id}"]`)
-                                .closest('.department-card');
-                            let btn = card.find('.btn');
-                            btn.removeClass('btn-success').addClass('btn-primary')
-                                .html('<i class="fas fa-plus me-1"></i>زیادکردن')
-                                .prop('disabled', false)
-                                .removeClass('add-department-btn')
-                                .addClass('add-department-btn');
-
-                            // پەیامی سەرکەوتوو
-                            showToast('سەرکەوتوو', response.message, 'success');
-
-                            // نوێکردنەوەی ژمارەکان
-                            let currentCount = parseInt($('#selectedCount').text());
-                            $('#selectedCount').text(currentCount - 1);
-
-                            // چەککردنەوەی دوگمەکان ئەگەر لیست بەتاڵ بوو
-                            if (currentCount - 1 === 0) {
-                                $('#noDepartmentsRow').show();
-                            }
-
-                            // چالاککردنەوەی هەموو دوگمەکان
-                            if (response.data.remaining > 0) {
-                                $('.add-department-btn').prop('disabled', false)
-                                    .removeClass('btn-warning').addClass('btn-primary')
-                                    .html('<i class="fas fa-plus me-1"></i>زیادکردن');
-                            }
-                        }
-                        $('#confirmDeleteModal').modal('hide');
+                    success: function(res) {
+                        unsavedChanges = false;
+                        $('#unsaved-alert').addClass('d-none');
+                        Swal.fire('سەرکەوتوو', res.message, 'success');
                     },
                     error: function(xhr) {
-                        let errorMsg = 'هەڵەیەک ڕوویدا';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-                        showToast('هەڵە', errorMsg, 'error');
-                        $('#confirmDeleteModal').modal('hide');
+                        Swal.fire('هەڵە', xhr.responseJSON?.message || 'کێشەیەک ڕوویدا',
+                            'error');
+                    },
+                    complete: function() {
+                        btn.prop('disabled', false).html(originalHtml);
                     }
                 });
             });
 
-            // زیادکردنی ڕیزێکی نوێ بۆ لیستی هەڵبژێردراوەکان
-            function updateSelectedDepartments(departmentData) {
-                let tableBody = $('#selectedDepartmentsTable tbody');
-                let noDepartmentsRow = $('#noDepartmentsRow');
-
-                if (noDepartmentsRow.is(':visible')) {
-                    noDepartmentsRow.hide();
-                }
-
-                let newRow = `
-            <tr id="row-${departmentData.id}">
-                <td>${tableBody.children('tr').length + 1}</td>
-                <td>${departmentData.department_name}</td>
-                <td>
-                    <span class="badge bg-success">
-                        ${departmentData.local_mark}
-                    </span>
-                </td>
-                <td>${departmentData.created_at}</td>
-                <td>
-                    <button class="btn btn-sm btn-danger remove-btn" 
-                            data-id="${departmentData.id}"
-                            data-name="${departmentData.department_name}">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-
-                tableBody.prepend(newRow);
-
-                // نوێکردنەوەی ژمارەکان
-                tableBody.children('tr').each(function(index) {
-                    $(this).find('td:first').text(index + 1);
+            function updateRankingNumbers() {
+                $('.selected-dept-row').each(function(idx) {
+                    $(this).find('.rank-number').text(idx + 1);
+                    $(this).find('.move-up').prop('disabled', idx === 0);
+                    $(this).find('.move-down').prop('disabled', idx === $('.selected-dept-row').length - 1);
                 });
             }
 
-            // Toast notification
-            function showToast(title, message, type) {
-                // ئەگەر Toast پێگەیەنت هەیە، بەکاری بێنە
-                if (typeof Toast !== 'undefined') {
-                    Toast.fire({
-                        icon: type,
-                        title: title,
-                        text: message
-                    });
-                } else {
-                    // پەیامی سادە
-                    alert(title + ': ' + message);
-                }
+            function updateCounters() {
+                const count = selectedIds.length;
+                $('#selected-count-badge').text(`${count} / ${maxSelections}`);
+                $('#save-ranking-btn').prop('disabled', count === 0);
+            }
+
+            function markUnsaved() {
+                unsavedChanges = true;
+                $('#unsaved-alert').removeClass('d-none');
             }
         });
     </script>

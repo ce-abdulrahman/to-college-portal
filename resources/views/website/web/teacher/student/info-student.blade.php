@@ -79,25 +79,15 @@
 
         <div class="col-12 col-md-6">
             <label for="referral_student_code" class="form-label">کۆدی بانگێشت</label>
-            <input type="number" class="form-control @error('referral_student_code') is-invalid @enderror" id="referral_code"
-            name="referral_student_code" value="{{ auth()->user()->rand_code }}" readonly>
+            <input type="number" class="form-control @error('referral_student_code') is-invalid @enderror"
+                id="referral_code" name="referral_student_code" value="{{ auth()->user()->rand_code }}" readonly>
             @error('referral_student_code')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
 
-        <div class="col-12 col-md-6">
-            <label for="queue" class="form-label">رێزبەندی کرد</label>
-            <select class="form-select @error('queue') is-invalid @enderror" id="queue" name="queue">
-                <option value="" disabled @selected(!old('queue'))>بەڵی یان نەخیر</option>
-                <option value="yes" @selected(old('queue') === 'yes')>بەڵی</option>
-                <option value="no" @selected(old('queue') === 'no')>نەخێر</option>
-            </select>
-            @error('queue')
-                <div class="invalid-feedback d-block">{{ $message }}</div>
-            @enderror
-        </div>
+
 
     </div>
 </div>
@@ -120,8 +110,8 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-star-half-stroke"></i></span>
                 <input type="number" class="form-control @error('zankoline_num') is-invalid @enderror"
-                    id="zankoline_num" name="zankoline_num" value="{{ old('zankoline_num') }}" required
-                    min="0" step="0.01" placeholder="نموونە: 89.50">
+                    id="zankoline_num" name="zankoline_num" value="{{ old('zankoline_num') }}" required min="0"
+                    step="0.01" placeholder="نموونە: 89.50">
                 @error('zankoline_num')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @else

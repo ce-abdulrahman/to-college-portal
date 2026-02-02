@@ -71,19 +71,8 @@ class DashboardController extends Controller
                 $a = json_decode($t, true);
                 return is_array($a) ? $a : null;
             }
-            // Else treat as storage path
-            if (Storage::exists($jsonOrPath)) {
-                $txt = Storage::get($jsonOrPath);
-                $a = json_decode($txt, true);
-                return is_array($a) ? $a : null;
-            }
         }
         return null;
-    }
-
-    private function takeExistingCols(string $table, array $wanted): array
-    {
-        return array_values(array_filter($wanted, fn($c) => Schema::hasColumn($table, $c)));
     }
 
     private function mapRow(object $row, ?string $kind = null): array
@@ -96,7 +85,7 @@ class DashboardController extends Controller
             'lng'      => isset($row->lng) ? (float) $row->lng : null,
             'image'    => $row->image ?? null,
             'image_url'=> $row->image_url ?? ($row->image ?? null),
-            'geojson'  => $this->decodeGeo($row->geojson ?? ($row->geojson_path ?? null)),
+            'geojson'  => $this->decodeGeo($row->geojson ?? null),
         ];
 
         if ($kind === 'dep') {
@@ -106,10 +95,10 @@ class DashboardController extends Controller
                 'type'           => $row->type ?? null,
                 'sex'            => $row->sex ?? null,
                 'description'    => $row->description ?? null,
+                'province_name'  => $row->province->name   ?? null,
+                'university_name'=> $row->university->name ?? null,
+                'college_name'   => $row->college->name    ?? null,
             ];
-            $base['province_name']      = $row->province->name   ?? null;
-            $base['university_name']    = $row->university->name ?? null;
-            $base['college_name']       = $row->college->name    ?? null;
         }
         return $base;
     }
@@ -117,17 +106,16 @@ class DashboardController extends Controller
     // GET /api/provinces/geojson
     public function getProvincesGeoJSON(): JsonResponse
     {
-        $cols = $this->takeExistingCols('provinces', ['id','name','name_en','geojson','geojson_path','status','image']);
+        // Hardcoded verified columns for performance
         $rows = Province::query()
-            ->when(Schema::hasColumn('provinces','status'), fn($q)=>$q->where('status',1))
-            ->get($cols);
+            ->where('status', 1)
+            ->get(['id','name','name_en','geojson','image']);
 
         $features = [];
         foreach ($rows as $p) {
-            $geom = $this->decodeGeo($p->geojson ?? $p->geojson_path);
+            $geom = $this->decodeGeo($p->geojson);
             if (!$geom) continue;
 
-            // Accept Feature/FeatureCollection/Geometry
             if (($geom['type'] ?? null) === 'FeatureCollection' && isset($geom['features'])) {
                 foreach ($geom['features'] as $f) {
                     if (!isset($f['geometry'])) continue;
@@ -154,18 +142,15 @@ class DashboardController extends Controller
     // GET /api/provinces/{id}/universities
     public function getUniversitiesByProvince(int $provinceId): JsonResponse
     {
-        $cols = $this->takeExistingCols('universities', ['id','name','name_en','lat','lng','image','image_url','geojson','status','province_id']);
         $rows = University::query()
-            ->where('province_id',$provinceId)
-            ->when(Schema::hasColumn('universities','status'), fn($q)=>$q->where('status',1))
-            ->get($cols);
+            ->where('province_id', $provinceId)
+            ->where('status', 1)
+            ->get(['id','name','name_en','lat','lng','image','image_url','geojson','province_id']);
 
         return response()->json([
-            'items'=>$rows->map(fn($r)=>$this->mapRow($r,'uni'))->values(),
+            'items' => $rows->map(fn($r)=>$this->mapRow($r,'uni'))->values(),
             'counts' => [
                 'universities' => $rows->count(),
-                'colleges' => $rows->sum('colleges_count'),
-                'departments' => $rows->sum('departments_count'),
             ]
         ]);
     }
@@ -173,11 +158,10 @@ class DashboardController extends Controller
     // GET /api/universities/{id}/colleges
     public function getCollegesByUniversity(int $universityId): JsonResponse
     {
-        $cols = $this->takeExistingCols('colleges', ['id','name','name_en','lat','lng','image','image_url','geojson','status','university_id','type']);
         $rows = College::query()
-            ->where('university_id',$universityId)
-            ->when(Schema::hasColumn('colleges','status'), fn($q)=>$q->where('status',1))
-            ->get($cols);
+            ->where('university_id', $universityId)
+            ->where('status', 1)
+            ->get(['id','name','name_en','lat','lng','image','image_url','geojson','university_id','type']);
 
         return response()->json([
             'university' => University::find($universityId, ['id','name','name_en','image']),
@@ -188,17 +172,14 @@ class DashboardController extends Controller
     // GET /api/colleges/{id}/departments
     public function getDepartmentsByCollege(int $collegeId): JsonResponse
     {
-        $cols = $this->takeExistingCols('departments', [
-            'id','name','name_en','lat','lng','image','image_url', // safe
-            // 'geojson', // only if exists in schema
-            'local_score','external_score','type','sex','description',
-            'province_id','university_id','college_id','status'
-        ]);
-
         $rows = Department::with(['province:id,name','university:id,name','college:id,name'])
-            ->where('college_id',$collegeId)
-            ->when(Schema::hasColumn('departments','status'), fn($q)=>$q->where('status',1))
-            ->get($cols);
+            ->where('college_id', $collegeId)
+            ->where('status', 1)
+            ->get([
+                'id','name','name_en','lat','lng','image','image_url',
+                'local_score','external_score','type','sex','description',
+                'province_id', 'university_id', 'college_id', 'status'
+            ]);
 
         return response()->json([
             'college' => College::find($collegeId, ['id','name','name_en','image']),

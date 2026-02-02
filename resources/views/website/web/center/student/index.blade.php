@@ -3,10 +3,19 @@
 @section('content')
     {{-- Actions bar --}}
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class=" d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title" style="font-size: 32px">
-                <i class="fa-solid fa-users me-2"></i> لیستی قوتابیەکان
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('center.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item active">قوتابیەکان</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-users me-1"></i>
+                    لیستی قوتابیەکان
+                </h4>
             </div>
         </div>
     </div>
@@ -94,15 +103,15 @@
                                         </td>
                                         <td class="actions">
                                             <a href="{{ route('center.students.show', $student->user->id) }}"
-                                                    class="text-decoration-none btn-outline-light">
-                                                    <i class="fa fa-eye me-1"></i>
-                                                </a>
-                                                <a href="{{ route('center.students.edit', $student->id) }}"
-                                                    class="text-decoration-none btn-outline-light">
-                                                    <i class="fa fa-edit me-1"></i>
-                                                </a>
-                                            <form action="{{ route('center.students.destroy', $student->user->id) }}" method="POST"
-                                                class="d-inline"
+                                                class="text-decoration-none btn-outline-light">
+                                                <i class="fa fa-eye me-1"></i>
+                                            </a>
+                                            <a href="{{ route('center.students.edit', $student->id) }}"
+                                                class="text-decoration-none btn-outline-light">
+                                                <i class="fa fa-edit me-1"></i>
+                                            </a>
+                                            <form action="{{ route('center.students.destroy', $student->user->id) }}"
+                                                method="POST" class="d-inline"
                                                 onsubmit="return confirm('دڵنیایت لە سڕینەوەی ئەم قوتابیە');">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"

@@ -21,6 +21,10 @@ return new class extends Migration
             $table->integer('year');
             $table->string('referral_code')->nullable()->comment('Get Relation in User Role Student column to rand_code');
             $table->boolean('status')->default(1);
+            $table->string('mbti_type')->nullable()->index();
+            $table->boolean('ai_rank')->default(0);
+            $table->boolean('gis')->default(0);
+            $table->boolean('all_departments')->default(0);
             $table->timestamps();
         });
     }

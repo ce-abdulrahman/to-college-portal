@@ -2,6 +2,23 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('teacher.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('teacher.students.index') }}">قوتابیەکان</a></li>
+                        <li class="breadcrumb-item active">دەستکاری</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-user-edit me-1"></i>
+                    دەستکاریکردنی زانیاری قوتابی
+                </h4>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12 col-xl-8 mx-auto">
             <a href="{{ route('teacher.students.index') }}" class="btn btn-outline mb-3">

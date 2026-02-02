@@ -8,6 +8,7 @@ use App\Http\Controllers\Teacher\TeacherByStudentController;
 use App\Http\Controllers\Teacher\TeacherDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\AIRankingController;
+use App\Http\Controllers\Student\FinalReportController;
 use App\Http\Controllers\Teacher\TeacherProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,7 @@ Route::prefix('s')->name('student.')
     ->middleware(['auth','student'])
     ->group(function () {
         Route::get('/d', [DashboardStudentController::class, 'index'])->name('dashboard');
+        Route::get('/final-report', [FinalReportController::class, 'index'])->name('final-report');
 
         Route::prefix('mbti')
         ->name('mbti.')
@@ -76,6 +78,16 @@ Route::prefix('s')->name('student.')
         Route::get('/departments/request-history', [DepartmentSelectionController::class, 'requestHistory'])
             ->name('departments.request-history');
 
+        // New API Routes for Department Selection (No Livewire)
+        Route::get('/departments/available-api', [DepartmentSelectionController::class, 'availableApi'])
+            ->name('departments.available-api');
+        Route::post('/departments/save-ranking', [DepartmentSelectionController::class, 'saveRanking'])
+            ->name('departments.save-ranking');
+        Route::get('/universities-by-province/{province_id}', [DepartmentSelectionController::class, 'getUniversities'])
+            ->name('universities-by-province');
+        Route::get('/colleges-by-university/{university_id}', [DepartmentSelectionController::class, 'getColleges'])
+            ->name('colleges-by-university');
+
         Route::prefix('gis')->group(function () {
             Route::get('/', [GISController::class, 'index'])
                 ->name('gis.index');
@@ -109,6 +121,25 @@ Route::prefix('s')->name('student.')
             
             Route::post('/add-to-selection', [AIRankingController::class, 'addToSelection'])
                 ->name('ai-ranking.add');
+
+            // نوێ Routes
+            Route::get('/check-status', [AIRankingController::class, 'checkAIStatus'])
+                ->name('check-status');
+            
+            Route::get('/export/excel', [AIRankingController::class, 'exportExcel'])
+                ->name('export-excel');
+            
+            Route::get('/export/pdf', [AIRankingController::class, 'exportPDF'])
+                ->name('export-pdf');
+            
+            Route::get('/department/{id}/details', [AIRankingController::class, 'departmentDetails'])
+                ->name('department-details');
+            
+            Route::post('/reorder', [AIRankingController::class, 'reorderByFactor'])
+                ->name('reorder');
+
+            Route::get('/compare', [AIRankingController::class, 'compareRankings'])
+                ->name('compare');
         });
     });
 

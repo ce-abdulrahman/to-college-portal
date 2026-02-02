@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\UserProfileController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\MbtiAdminController;
+use App\Http\Controllers\Admin\AIQuestionController;
 
 Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
     ->prefix('sadm')
@@ -62,10 +63,21 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
             Route::get('results', [MbtiAdminController::class, 'results'])->name('results.index');
             Route::get('/data', [MbtiAdminController::class, 'getResultsData'])->name('results.data');
             Route::get('results/filter', [MbtiAdminController::class, 'filterResults'])->name('results.filter');
-            Route::get('results/user/{user}', [MbtiAdminController::class, 'showUserResult'])->name('results.show'); 
+            Route::get('results/user/{user}', [MbtiAdminController::class, 'showUserResult'])->name('results.show');
             Route::delete('results/user/{user}', [MbtiAdminController::class, 'deleteUserResult'])->name('results.delete');
             Route::get('statistics', [MbtiAdminController::class, 'statistics'])->name('statistics');
             Route::get('export', [MbtiAdminController::class, 'exportResults'])->name('export');
+        });
+
+        // AI Ranking Management
+        Route::prefix('ai')->name('ai.')->group(function () {
+            // پرسیارەکان - CRUD
+            Route::resource('questions', AIQuestionController::class);
+
+            // وەڵامەکانی قوتابیان
+            Route::get('/results', [AIQuestionController::class, 'results'])->name('results');
+            Route::get('/results/{studentId}', [AIQuestionController::class, 'showStudentAnswers'])->name('results.show');
+            Route::delete('/results/{studentId}', [AIQuestionController::class, 'deleteStudentAnswers'])->name('results.delete');
         });
 
         // [file name]: web.php (لە بەشی Admin)
@@ -100,27 +112,27 @@ Route::middleware(['auth', 'admin'])->prefix('dashboard')->group(function () {
 // routes/web.php
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // ... ڕووتەکانی تر
-    
+
     // بەڕێوەبردنی داواکاریەکان
     Route::prefix('requests')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\RequestManagementController::class, 'index'])
             ->name('admin.requests.index');
-        
+
         Route::get('/{id}', [\App\Http\Controllers\Admin\RequestManagementController::class, 'show'])
             ->name('admin.requests.show');
-        
+
         Route::post('/{id}/approve', [\App\Http\Controllers\Admin\RequestManagementController::class, 'approve'])
             ->name('admin.requests.approve');
-        
+
         Route::post('/{id}/reject', [\App\Http\Controllers\Admin\RequestManagementController::class, 'reject'])
             ->name('admin.requests.reject');
-        
+
         Route::delete('/{id}', [\App\Http\Controllers\Admin\RequestManagementController::class, 'destroy'])
             ->name('admin.requests.destroy');
-        
+
         Route::get('/stats/data', [\App\Http\Controllers\Admin\RequestManagementController::class, 'stats'])
             ->name('admin.requests.stats');
-        
+
         Route::get('/search', [\App\Http\Controllers\Admin\RequestManagementController::class, 'search'])
             ->name('admin.requests.search');
     });

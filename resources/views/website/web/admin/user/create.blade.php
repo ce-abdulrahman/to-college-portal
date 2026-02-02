@@ -152,7 +152,8 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="ai_rank" name="ai_rank"
                                             value="1" @checked(old('ai_rank'))>
-                                        <label class="form-check-label" for="ai_rank">AI Rank</label>
+                                        <label class="form-check-label" for="ai_rank">ڕیزبەندی کرد بە زیرەکی
+                                            دەستکرد</label>
                                     </div>
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="gis" name="gis"
@@ -221,8 +222,7 @@
                                 <div class="col-md-6">
                                     <label for="year" class="form-label">ساڵ <span
                                             class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="year" name="year"
-                                        min="2000" max="{{ date('Y') }}" value="{{ date('Y') }}">
+                                    <input type="number" class="form-control" id="year" name="year">
                                     <div class="invalid-feedback">تکایە ساڵی دروست بنووسە.</div>
                                 </div>
 
@@ -232,7 +232,7 @@
                                         value="{{ auth()->user()->rand_code }}" readonly>
                                 </div>
 
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <label for="queue" class="form-label">رێزبەندی کرد</label>
                                     <select class="form-select" id="queue" name="queue">
                                         <option value="">هەڵبژێرە...</option>
@@ -241,7 +241,7 @@
                                     </select>
                                 </div>
 
-                                {{-- Queue Numbers (hidden by default) --}}
+                                Queue Numbers (hidden by default)
                                 <div id="queue-numbers-section" class="row g-3 mt-3 d-none">
                                     <div class="col-md-4">
                                         <label for="zankoline_num" class="form-label">زانکۆلاین</label>
@@ -260,7 +260,7 @@
                                         <input type="number" class="form-control" id="evening_num" name="evening_num"
                                             step="0.01" min="0">
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 

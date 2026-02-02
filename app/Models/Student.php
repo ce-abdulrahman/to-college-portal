@@ -47,36 +47,46 @@ class Student extends Model
         return $this->hasMany(MbtiAnswer::class);
     }
 
+    public function aiAnswers()
+    {
+        return $this->hasMany(AIAnswer::class);
+    }
+
+    public function aiRankings()
+    {
+        return $this->hasMany(AIRanking::class);
+    }
+
     // ئەمە بۆ MBTI
     public function calculateMbtiResult()
     {
         $answers = $this->mbtiAnswers()->with('question')->get();
-        
+
         if ($answers->isEmpty()) {
             return null;
         }
-        
+
         $scores = [
             'E' => 0, 'I' => 0,
             'S' => 0, 'N' => 0,
             'T' => 0, 'F' => 0,
             'J' => 0, 'P' => 0,
         ];
-        
+
         foreach ($answers as $answer) {
             $side = $answer->question->side;
             $scores[$side] += $answer->score;
         }
-        
+
         $mbtiType = '';
         $mbtiType .= ($scores['E'] > $scores['I']) ? 'E' : 'I';
         $mbtiType .= ($scores['S'] > $scores['N']) ? 'S' : 'N';
         $mbtiType .= ($scores['T'] > $scores['F']) ? 'T' : 'F';
         $mbtiType .= ($scores['J'] > $scores['P']) ? 'J' : 'P';
-        
+
         return $mbtiType;
     }
-    
+
     public function getMbtiFullNameAttribute()
     {
         $types = [
@@ -97,10 +107,10 @@ class Student extends Model
             'ENFJ' => 'Extraverted Intuitive Feeler Judger',
             'ENTJ' => 'Extraverted Intuitive Thinker Judger',
         ];
-        
+
         return $types[$this->mbti_type] ?? 'دیاری نەکراو';
     }
-    
+
     public function getMbtiKurdishDescriptionAttribute()
     {
         $descriptions = [
@@ -121,10 +131,10 @@ class Student extends Model
             'ENFJ' => 'کەسێکی مامۆستا و هاوسۆز',
             'ENTJ' => 'کەسێکی فەرماندە و ستراتیژیست',
         ];
-        
+
         return $descriptions[$this->mbti_type] ?? 'هیچ زانیاریەک بوونی نییە';
     }
-    
+
     public function hasCompletedMbtiTest()
     {
         return !empty($this->mbti_type) || $this->mbtiAnswers()->exists();

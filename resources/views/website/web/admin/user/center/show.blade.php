@@ -90,7 +90,7 @@
                                                 class="badge {{ $user->center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
                                                 <i
                                                     class="fa-solid {{ $user->center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                                AI Rank
+                                                ڕیزبەندی کرد بە زیرەکی دەستکرد
                                             </span>
                                             <span class="badge {{ $user->center->gis ? 'bg-success' : 'bg-secondary' }}">
                                                 <i

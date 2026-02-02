@@ -33,13 +33,7 @@ class TeacherDashboardController extends Controller
 
     public function departments()
     {
-        $systems = System::where('status', 1)->get();
-        $provinces = Province::where('status', 1)->get();
-        $universities = University::where('status', 1)->get();
-        $colleges = College::where('status', 1)->get();
-        $departments = Department::where('status', 1)->get();
-
-        return view('website.web.teacher.departments.index', compact('departments', 'systems', 'provinces', 'universities', 'colleges'));
+        return view('website.web.teacher.departments.index');
     }
 
     public function show(string $id)

@@ -73,7 +73,7 @@
                                                     <span class="badge bg-warning text-dark">هەموو بەشەکان</span>
                                                 @endif
                                                 @if ($request->request_ai_rank)
-                                                    <span class="badge bg-success">AI Rank</span>
+                                                    <span class="badge bg-success">ڕیزبەندی کرد بە زیرەکی دەستکرد</span>
                                                 @endif
                                                 @if ($request->request_gis)
                                                     <span class="badge bg-info">GIS Map</span>
@@ -173,7 +173,7 @@
                                                                 name="approve_types[]" value="ai_rank" id="checkAI"
                                                                 checked>
                                                             <label class="form-check-label" for="checkAI">
-                                                                AI Rank
+                                                                ڕیزبەندی کرد بە زیرەکی دەستکرد
                                                             </label>
                                                         </div>
                                                     @endif

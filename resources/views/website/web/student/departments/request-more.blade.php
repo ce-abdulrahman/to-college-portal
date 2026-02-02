@@ -4,7 +4,24 @@
 @section('title', 'داواکردنی بەشی زیاتر')
 
 @section('content')
-    <div class="container py-4">
+    <div class="container-fluid py-4">
+        <!-- Page Title & Breadcrumb -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}">داشبۆرد</a></li>
+                            <li class="breadcrumb-item active">داواکردنی بەشی زیاتر</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">
+                        <i class="fas fa-building-columns me-1"></i>
+                        داواکردنی بەشی زیاتر
+                    </h4>
+                </div>
+            </div>
+        </div>
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card border-warning shadow-lg">
@@ -55,7 +72,8 @@
                                     سیستەمیت.</p>
                                 <div class="d-flex justify-content-center gap-3 mt-4">
                                     <span class="badge bg-success p-2"><i class="fas fa-check me-1"></i> ٥٠ بەش</span>
-                                    <span class="badge bg-success p-2"><i class="fas fa-check me-1"></i> AI Ranking</span>
+                                    <span class="badge bg-success p-2"><i class="fas fa-check me-1"></i> ڕیزبەندی کرد بە
+                                        زیرەکی دەستکردing</span>
                                     <span class="badge bg-success p-2"><i class="fas fa-check me-1"></i> GIS Map</span>
                                 </div>
                                 <div class="mt-5">
@@ -67,13 +85,35 @@
                             </div>
                         @elseif($anyMissing)
                             @if (!$hasPending)
-                                <div class="alert alert-warning border-warning shadow-sm">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-info-circle fa-2x me-3 text-warning"></i>
-                                        <div>
-                                            <h5 class="alert-heading fw-bold">ناردنی داواکاری نوێ</h5>
-                                            <p class="mb-0 text-dark">ئەو تایبەتمەندییانەی کە تا ئێستا بۆت چالاک نەکراون،
-                                                لێرەدا دەتوانیت داوایان بکەیت.</p>
+                                <div class="card bg-soft-info border-info-soft border-dashed mb-4 shadow-none text-start">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="avatar-xs flex-shrink-0 me-2">
+                                                <span class="avatar-title bg-info rounded-circle fs-13">
+                                                    <i class="fa-solid fa-credit-card text-white"></i>
+                                                </span>
+                                            </div>
+                                            <h6 class="mb-0 text-info fw-bold">ڕێنمایی و جۆری چالاککردن</h6>
+                                        </div>
+                                        <div class="ms-1">
+                                            <p class="mb-2 small text-muted lh-lg">
+                                                ئەو تایبەتمەندییانەی کە تا ئێستا بۆت چالاک نەکراون، لێرەدا دەتوانیت داوایان
+                                                بکەیت. بۆ چالاککردنی هەر کامێکیان، پێویستە بڕی
+                                                <span
+                                                    class="badge bg-soft-info text-info border border-info-soft fw-bold">3,000</span>
+                                                دینار بۆ ژمارەی
+                                                <span
+                                                    class="badge bg-soft-primary text-primary border border-primary-soft fw-bold">07504342452</span>
+                                                بنێریت لە ڕێگای <b>FastPay</b> یان <b>FIB</b>.
+                                            </p>
+                                            <div class="alert alert-light border-0 mb-0 py-2 px-3 small text-muted">
+                                                <i class="fa-solid fa-camera me-1 text-primary"></i>
+                                                وێنەی سەرەتا (Receipt) بۆ <b><a
+                                                        href="https://t.me/AGHA_ACE">Telegram</a></b> یان <b><a
+                                                        href="https://wa.me/9647504342452">WhatsApp</a></b> یان <b><a
+                                                        href="viber://chat?number=9647504342452">Viber</a></b> ی هەمان ژمارە
+                                                بنێرە بۆ چالاککردنی خێرا.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -147,7 +187,7 @@
                                                         <label class="form-check-label fw-bold d-block" for="gisSys">
                                                             <i
                                                                 class="fas fa-map-marked-alt mb-2 d-block fa-2x text-info"></i>
-                                                            سیستەمی GIS
+                                                            سیستەمی نەخشە
                                                         </label>
                                                     </div>
                                                     @if ($student->gis == 1)

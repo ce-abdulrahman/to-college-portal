@@ -16,6 +16,7 @@ class ResultDep extends Model
         'user_id',
         'student_id',
         'department_id',
+        'system_id',
         'status',
         'rank',
     ];

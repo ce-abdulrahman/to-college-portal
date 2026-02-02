@@ -18,22 +18,22 @@ class DepartmentTable extends Component
 
     // Filters
     public $search = '';
-    public $system_id = '';
-    public $province_id = '';
-    public $university_id = '';
-    public $college_id = '';
+    public $system_id = null;
+    public $province_id = null;
+    public $university_id = null;
+    public $college_id = null;
     public $limit = 25;
 
     // Reset pagination when filters update
     public function updatedSearch() { $this->resetPage(); }
     public function updatedSystemId() { $this->resetPage(); }
     public function updatedProvinceId() { 
-        $this->university_id = ''; 
-        $this->college_id = '';
+        $this->university_id = null; 
+        $this->college_id = null;
         $this->resetPage(); 
     }
     public function updatedUniversityId() { 
-        $this->college_id = '';
+        $this->college_id = null;
         $this->resetPage(); 
     }
     public function updatedCollegeId() { $this->resetPage(); }
@@ -42,25 +42,29 @@ class DepartmentTable extends Component
     public function resetFilters()
     {
         $this->reset(['search', 'system_id', 'province_id', 'university_id', 'college_id', 'limit']);
+        $this->system_id = null;
+        $this->province_id = null;
+        $this->university_id = null;
+        $this->college_id = null;
     }
 
     public function render()
     {
         $query = Department::with(['system', 'province', 'university', 'college']);
 
-        $query->when($this->system_id, function ($q) {
+        $query->when($this->system_id && $this->system_id != '', function ($q) {
             $q->where('system_id', $this->system_id);
         });
-
-        $query->when($this->province_id, function ($q) {
+        
+        $query->when($this->province_id && $this->province_id != '', function ($q) {
             $q->where('province_id', $this->province_id);
         });
 
-        $query->when($this->university_id, function ($q) {
+        $query->when($this->university_id && $this->university_id != '', function ($q) {
             $q->where('university_id', $this->university_id);
         });
 
-        $query->when($this->college_id, function ($q) {
+        $query->when($this->college_id && $this->college_id != '', function ($q) {
             $q->where('college_id', $this->college_id);
         });
 
@@ -81,19 +85,31 @@ class DepartmentTable extends Component
         $departments = $query->latest()->paginate($this->limit);
 
         // Fetch Dropdown Data
-        // Optimization: Filter Universities based on selected Province, Colleges on University
-        // This makes the dropdowns dynamic and smarter.
+        $systems = System::all();
         
-        $systems = System::all(); // usually small list
-        $provinces = Province::all(); 
+        $provinces = Province::when($this->system_id, function($q) {
+                $q->whereIn('id', function($sub) {
+                    $sub->select('province_id')->from('departments')->where('system_id', $this->system_id);
+                });
+            })->get();
         
         $universities = University::when($this->province_id, function($q) {
-            $q->where('province_id', $this->province_id);
-        })->get();
+                $q->where('province_id', $this->province_id);
+            })
+            ->when($this->system_id, function($q) {
+                $q->whereIn('id', function($sub) {
+                    $sub->select('university_id')->from('departments')->where('system_id', $this->system_id);
+                });
+            })->get();
 
         $colleges = College::when($this->university_id, function($q) {
-            $q->where('university_id', $this->university_id);
-        })->get();
+                $q->where('university_id', $this->university_id);
+            })
+            ->when($this->system_id, function($q) {
+                $q->whereIn('id', function($sub) {
+                    $sub->select('college_id')->from('departments')->where('system_id', $this->system_id);
+                });
+            })->get();
 
         return view('livewire.admin.department-table', [
             'departments' => $departments,

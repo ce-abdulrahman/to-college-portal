@@ -1,9 +1,29 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <a href="{{ route('center.teachers.index') }}" class="btn btn-outline mb-4">
-        <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
-    </a>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('center.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('center.teachers.index') }}">مامۆستایەکان</a></li>
+                        <li class="breadcrumb-item active">دەستکاریکردن</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-user-pen me-1"></i>
+                    نوێکردنەوەی مامۆستا
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <a href="{{ route('center.teachers.index') }}" class="btn btn-outline">
+            <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
+        </a>
+    </div>
 
     <div class="row">
         <div class="col-12 col-xl-8 mx-auto">
@@ -60,7 +80,8 @@
 
                             {{-- Code --}}
                             <div class="col-12 col-md-6">
-                               <abbr title="{!! $info !!}"> <label for="code" class="form-label">کۆد چوونەژوورەوە</label> </abbr>
+                                <abbr title="{!! $info !!}"> <label for="code" class="form-label">کۆد
+                                        چوونەژوورەوە</label> </abbr>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
                                     <input type="text" class="form-control @error('code') is-invalid @enderror"
@@ -74,7 +95,8 @@
 
                             <div class="col-12 col-md-6">
 
-                               <abbr title="{{ $info }}"> <label for="rand_code" class="form-label">کۆد بانگێشت کردن</label> </abbr>
+                                <abbr title="{{ $info }}"> <label for="rand_code" class="form-label">کۆد بانگێشت
+                                        کردن</label> </abbr>
 
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
@@ -91,7 +113,8 @@
 
                             <div class="col-12 col-md-6">
 
-                               <abbr title="{{ $info }}"> <label for="role" class="form-label">پیشە</label> </abbr>
+                                <abbr title="{{ $info }}"> <label for="role" class="form-label">پیشە</label>
+                                </abbr>
 
                                 <select class="form-select @error('role') is-invalid @enderror" id="role"
                                     name="role" readonly>

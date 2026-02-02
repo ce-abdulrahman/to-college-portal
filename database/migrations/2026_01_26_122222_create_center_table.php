@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // if role is center
             $table->text('address')->nullable();
             $table->text('description')->nullable();            
-            $table->boolean('ai_rank')->default(0)->after('status');
-            $table->boolean('gis')->default(0)->after('ai_rank');
-            $table->boolean('all_departments')->default(0)->after('gis');
+            $table->boolean('ai_rank')->default(0);
+            $table->boolean('gis')->default(0);
+            $table->boolean('all_departments')->default(0);
             $table->string('referral_code')->nullable()->comment('Get Relation in User Role Center column to rand_code');
             $table->timestamps();
         });

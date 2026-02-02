@@ -42,7 +42,7 @@
                             <span class="badge bg-warning text-dark" title="Request All Departments">All Dep</span>
                         @endif
                         @if ($request->request_ai_rank)
-                            <span class="badge bg-success" title="Request AI Ranking">AI</span>
+                            <span class="badge bg-success" title="Request ڕیزبەندی کرد بە زیرەکی دەستکردing">AI</span>
                         @endif
                         @if ($request->request_gis)
                             <span class="badge bg-info" title="Request GIS Map">GIS</span>

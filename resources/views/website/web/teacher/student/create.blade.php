@@ -1,6 +1,24 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('teacher.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('teacher.students.index') }}">قوتابیەکان</a></li>
+                        <li class="breadcrumb-item active">زیادکردن</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-user-plus me-1"></i>
+                    زیادکردنی قوتابی نوێ
+                </h4>
+            </div>
+        </div>
+    </div>
+
     <a href="{{ route('teacher.students.index') }}" class="btn btn-outline mb-4">
         <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
     </a>
@@ -95,7 +113,7 @@
                                 <div class="d-flex gap-3 flex-wrap">
                                     <span class="badge {{ $teacher->ai_rank ? 'bg-success' : 'bg-secondary' }}">
                                         <i class="fa-solid {{ $teacher->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        AI Rank {{ $teacher->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
+                                        ڕیزبەندی کرد بە زیرەکی دەستکرد {{ $teacher->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
                                     </span>
                                     <span class="badge {{ $teacher->gis ? 'bg-success' : 'bg-secondary' }}">
                                         <i class="fa-solid {{ $teacher->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
@@ -108,14 +126,40 @@
                                     </span>
                                 </div>
                                 @if (!$teacher->ai_rank || !$teacher->gis || !$teacher->all_departments)
-                                    <p class="mb-0 mt-2 small text-muted">
-                                        <i class="fa-solid fa-lightbulb me-1"></i>
-                                        ئەگەر پێویستت بە تایبەتمەندی زیاتر هەیە،
-                                        <a href="{{ route('teacher.features.request') }}"
-                                            class="text-decoration-none fw-bold">
-                                            داواکاری بۆ ئەدمین بنێرە
-                                        </a>.
-                                    </p>
+                                    <div class="card bg-soft-info border-info-soft border-dashed mt-3 shadow-none">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <div class="avatar-xs flex-shrink-0 me-2">
+                                                    <span class="avatar-title bg-info rounded-circle fs-13">
+                                                        <i class="fa-solid fa-lightbulb text-white"></i>
+                                                    </span>
+                                                </div>
+                                                <h6 class="mb-0 text-info fw-bold"> ڕێنمایی چالاککردنی تایبەتمەندی </h6>
+                                            </div>
+                                            <div class="ms-1">
+                                                <p class="mb-2 small text-muted lh-lg">
+                                                    بۆ هەر تایبەتمەندیەک پێویستە بڕی
+                                                    <span
+                                                        class="badge bg-soft-info text-info border border-info-soft fw-bold">3,000</span>
+                                                    دینار بۆ ئەم ژمارەیە
+                                                    <span
+                                                        class="badge bg-soft-primary text-primary border border-primary-soft fw-bold">07504342452</span>
+                                                    بنێریت لە ڕێگای <b>FastPay</b> یان <b>FIB</b>.
+                                                </p>
+                                                <div class="alert alert-light border-0 mb-0 py-2 px-3 small text-muted">
+                                                    <i class="fa-solid fa-camera me-1 text-primary"></i>
+                                                    وێنەی پارەدانەکەت بۆ <b><a href="https://t.me/AGHA_ACE">Telegram</a></b> یان <b><a href="https://wa.me/9647504342452">WhatsApp</a></b> یان <b><a href="viber://chat?number=9647504342452">Viber</a></b> ی هەمان ژمارە
+                                                    بنێرە.
+                                                </div>
+                                                <div class="mt-2 text-center">
+                                                    <a href="{{ route('teacher.features.request') }}"
+                                                        class="text-decoration-none fw-bold small">
+                                                        <i class="fas fa-paper-plane me-1"></i>ناردنی داواکاری بۆ ئەدمین
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endif
                             </div>
                         @endif

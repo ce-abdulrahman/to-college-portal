@@ -31,39 +31,21 @@ class DepartmentSelectionController extends Controller
                 ->with('error', 'زانیاریەکانی قوتابی تۆمار نەکراوە.');
         }
 
-        // بەشە هەڵبژێردراوەکانی ئێستا
+        $maxSelections = $student->all_departments === 1 ? 50 : 20;
+        $systems = System::where('status', 1)->get();
+        $provinces = \App\Models\Province::where('status', 1)->get();
+        
         $selectedDepartments = ResultDep::where('student_id', $student->id)
-            ->with(['department' => function($query) {
-                $query->with('university');
-            }])
-            ->orderBy('created_at', 'desc')
+            ->with(['department.university', 'department.system', 'department.province', 'department.college'])
+            ->orderBy('rank', 'asc')
             ->get();
-
-        // هەموو بەشەکانی گونجاو بۆ قوتابی (بەپێی تیپ و نمرە و جێندەر)
-        $availableDepartments = Department::where('status', 1)
-            ->where(function($query) use ($student) {
-                $query->where('type', $student->type)
-                      ->orWhere('type', 'زانستی و وێژەیی');
-            })
-            ->where(function($query) use ($student) {
-                $query->where('sex', $student->gender)
-                      ->orWhere('sex', 'هەردووکیان');
-            })
-            ->where('local_score', '<=', $student->mark)
-            ->with('university')
-            ->orderBy('local_score', 'desc')
-            ->paginate(20);
-
-        // سنووری هەڵبژاردن
-        $maxSelections = $student->all_departments == 1 ? 50 : 20;
-        $currentCount = $selectedDepartments->count();
 
         return view('website.web.student.departments.selection', compact(
             'student',
-            'selectedDepartments',
-            'availableDepartments',
             'maxSelections',
-            'currentCount'
+            'systems',
+            'provinces',
+            'selectedDepartments'
         ));
     }
 
@@ -350,5 +332,122 @@ class DepartmentSelectionController extends Controller
             ->get();
         
         return view('website.web.student.departments.request-history', compact('student', 'requests'));
+    }
+    /**
+     * API بۆ لیستی بەشە بەردەستەکان (DataTables)
+     */
+    public function availableApi(Request $request)
+    {
+        $student = Auth::user()->student;
+        
+        $query = Department::where('status', 1)
+            ->where(function($q) use ($student) {
+                $q->where('type', $student->type)
+                  ->orWhere('type', 'زانستی و وێژەیی');
+            })
+            ->where(function($q) use ($student) {
+                $q->where('sex', $student->gender)
+                  ->orWhere('sex', 'هەردووکیان');
+            })
+            ->where('local_score', '<=', $student->mark);
+
+        // فلتەرەکان
+        if ($request->system_id) {
+            $query->where('system_id', $request->system_id);
+        }
+        if ($request->province_id) {
+            $query->where('province_id', $request->province_id);
+        }
+        if ($request->university_id) {
+            $query->where('university_id', $request->university_id);
+        }
+        if ($request->college_id) {
+            $query->where('college_id', $request->college_id);
+        }
+        if ($request->search_val) {
+            $query->where('name', 'like', '%' . $request->search_val . '%');
+        }
+
+        $totalCount = $query->count();
+        
+        $departments = $query->with(['university', 'system', 'province', 'college'])
+            ->orderBy('local_score', 'desc')
+            ->skip($request->start ?? 0)
+            ->take($request->length ?? 10)
+            ->get();
+
+        $selectedIds = ResultDep::where('student_id', $student->id)->pluck('department_id')->toArray();
+
+        $data = $departments->map(function($dept) use ($selectedIds) {
+            $isSelected = in_array($dept->id, $selectedIds);
+            return [
+                'id' => $dept->id,
+                'name' => $dept->name,
+                'province' => $dept->province->name,
+                'university' => $dept->university->name,
+                'college' => $dept->college->name,
+                'local_score' => $dept->local_score,
+                'system_name' => $dept->system->name,
+                'system_id' => $dept->system->id,
+                'is_selected' => $isSelected
+            ];
+        });
+
+        return response()->json([
+            'draw' => intval($request->draw),
+            'recordsTotal' => $totalCount,
+            'recordsFiltered' => $totalCount,
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * پاشەکەوتکردنی ڕێزبەندی
+     */
+    public function saveRanking(Request $request)
+    {
+        $request->validate([
+            'department_ids' => 'required|array',
+            'department_ids.*' => 'exists:departments,id'
+        ]);
+
+        $user = Auth::user();
+        $student = $user->student;
+
+        DB::beginTransaction();
+        try {
+            // سڕینەوەی کۆنەکان
+            ResultDep::where('student_id', $student->id)->delete();
+
+            foreach ($request->department_ids as $index => $departmentId) {
+                ResultDep::create([
+                    'user_id' => $user->id,
+                    'student_id' => $student->id,
+                    'department_id' => $departmentId,
+                    'rank' => $index + 1,
+                    'status' => 1,
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'ڕێزبەندییەکە بە سەرکەوتوویی پاشەکەوت کرا.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'هەڵەیەک ڕوویدا: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function getUniversities($province_id)
+    {
+        $universities = \App\Models\University::where('province_id', $province_id)
+            ->where('status', 1)->get();
+        return response()->json($universities);
+    }
+
+    public function getColleges($university_id)
+    {
+        $colleges = \App\Models\College::where('university_id', $university_id)
+            ->where('status', 1)->get();
+        return response()->json($colleges);
     }
 }

@@ -1,13 +1,29 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.departments.index') }}" class="btn btn-outline-success">
-            <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
-        </a>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('teacher.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('teacher.departments.index') }}">بەشەکان</a></li>
+                        <li class="breadcrumb-item active">زانیاری</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-building-columns me-1"></i>
+                    زانیاری بەش
+                </h4>
+            </div>
+        </div>
+    </div>
 
-        <div class=" d-lg-block text-center flex-grow-1">
-            <div class="navbar-page-title">زانیاری بەش</div>
+    <div class="row mb-3">
+        <div class="col-12">
+            <a href="{{ route('teacher.departments.index') }}" class="btn btn-soft-success">
+                <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
+            </a>
         </div>
     </div>
 
@@ -126,7 +142,8 @@
 
         @if ($department->lat && $department->lng)
             const m = L.marker([{{ $department->lat }}, {{ $department->lng }}]).addTo(map)
-                .bindPopup(`<strong>{{ addslashes($department->image) }}<br />{{ addslashes($department->name) }}</strong>`);
+                .bindPopup(
+                    `<strong>{{ addslashes($department->image) }}<br />{{ addslashes($department->name) }}</strong>`);
             map.setView([{{ $department->lat }}, {{ $department->lng }}], 15);
             any = true;
         @endif

@@ -43,13 +43,31 @@
         <li class="nav-item dropdown">
             <a class="nav-link custom-nav-link dropdown-toggle {{ $isMBTIActive ? 'active' : '' }}" href="#"
                 id="navbarDropdownMBTI" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-bar-chart me-1"></i> داتا سەرەکییەکان
+                <i class="bi bi-bar-chart me-1"></i> MBTI
             </a>
             <ul class="dropdown-menu text-center shadow-lg border-0 rounded-4 animate slideIn" aria-labelledby="navbarDropdownMBTI">
                 <li><a class="dropdown-item rounded-2 {{ navActive('admin.mbti.questions.index') }}"
                         href="{{ route('admin.mbti.questions.index') }}">پرسیاری MBTI</a></li>
                 <li><a class="dropdown-item rounded-2 {{ navActive('admin.mbti.results.index') }}"
                         href="{{ route('admin.mbti.results.index') }}">ئەنجامی MBTI</a></li>
+            </ul>
+        </li>
+
+        {{-- AI Ranking --}}
+        @php
+            $isAIActive =
+                request()->routeIs('admin.ai.questions.index') || request()->routeIs('admin.ai.results');
+        @endphp
+        <li class="nav-item dropdown">
+            <a class="nav-link custom-nav-link dropdown-toggle {{ $isAIActive ? 'active' : '' }}" href="#"
+                id="navbarDropdownAI" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa-solid fa-brain me-1"></i> AI
+            </a>
+            <ul class="dropdown-menu text-center shadow-lg border-0 rounded-4 animate slideIn" aria-labelledby="navbarDropdownAI">
+                <li><a class="dropdown-item rounded-2 {{ navActive('admin.ai.questions.index') }}"
+                        href="{{ route('admin.ai.questions.index') }}">پرسیارەکان</a></li>
+                <li><a class="dropdown-item rounded-2 {{ navActive('admin.ai.results') }}"
+                        href="{{ route('admin.ai.results') }}">وەڵامەکانی قوتابیان</a></li>
             </ul>
         </li>
 
@@ -146,25 +164,38 @@
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('student.dashboard') }}"
                 href="{{ route('student.dashboard') }}">
-                <i class="bi bi-house-door me-1"></i> ماڵەوە
+                <i class="bi bi-house-door me-1 text-success"></i> ماڵەوە
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('student.mbti.index') }}"
                 href="{{ route('student.mbti.index') }}">
-                <i class="bi bi-puzzle me-1"></i> MBTI
+                <i class="bi bi-puzzle me-1 text-success"></i> MBTI
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('student.departments.selection') }}"
                 href="{{ route('student.departments.selection') }}">
-                <i class="fas fa-university me-1"></i> هەڵبژاردنی بەش
+                <i class="fas fa-university me-1 text-primary"></i> هەڵبژاردنی بەش
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('student.ai-ranking.questionnaire') }}"
+                href="{{ route('student.ai-ranking.questionnaire') }}">
+                <i class="fas fa-robot text-success"></i> سیستەمی AI
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('student.final-report') }}"
+                href="{{ route('student.final-report') }}">
+                <i class="fa-solid fa-file-invoice text-dark"></i> لیستی کۆتایی
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('student.departments.request-more') }}"
                 href="{{ route('student.departments.request-more') }}">
-                <i class="fas fa-history me-1"></i> مێژووی داواکاری
+                <i class="fas fa-history me-1 text-success"></i> مێژووی داواکاری
             </a>
         </li>
     @endif

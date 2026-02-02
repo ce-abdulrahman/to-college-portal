@@ -27,9 +27,9 @@ class FeatureRequestController extends Controller
                 ->with('error', 'زانیاریەکانی سەنتەر تۆمار نەکراوە.');
         }
         
-        // Check for existing request
+        // Check for existing pending request
         $existingRequest = RequestMoreDepartments::where('center_id', $center->id)
-            ->whereIn('status', ['pending', 'approved'])
+            ->where('status', 'pending')
             ->first();
         
         return view('website.web.center.features.request', compact('center', 'existingRequest'));

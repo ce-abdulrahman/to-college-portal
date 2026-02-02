@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'NizarNastaliqKurdish';
-    src: url('../../../fonts/ku/3_NRT-Bd.ttf') format('truetype');
+    src: url('/fonts/ku/3_NRT-Bd.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -8,7 +8,7 @@
 /* فۆنتی عەرەبی */
 @font-face {
     font-family: 'Wafeq';
-    src: url('../fonts/ar/Wafeq-Regular.otf') format('opentype');
+    src: url('/fonts/ar/Wafeq-Regular.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
 }
@@ -16,7 +16,7 @@
 /* فۆنتی ئینگلیزی */
 @font-face {
     font-family: 'PatuaOne';
-    src: url('../fonts/en/PatuaOne-Regular.ttf') format('truetype');
+    src: url('/fonts/en/PatuaOne-Regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }

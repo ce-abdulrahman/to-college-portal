@@ -64,6 +64,35 @@
                     <span>ئەنجامی پرسیاری MBTI</span>
                 </a>
 
+                {{-- AI Ranking Dropdown --}}
+                @php
+                    $isAIActive = request()->routeIs('admin.ai.questions.index') ||
+                                  request()->routeIs('admin.ai.results');
+                @endphp
+
+                <a href="#sidebarAI" class="drawer-nav-item {{ $isAIActive ? '' : 'collapsed' }}"
+                    data-bs-toggle="collapse" role="button" aria-expanded="{{ $isAIActive ? 'true' : 'false' }}"
+                    aria-controls="sidebarAI">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>سیستەمی AI</span>
+                    <span class="ms-auto"><i class="bi bi-chevron-down"></i></span>
+                </a>
+
+                <div class="collapse {{ $isAIActive ? 'show' : '' }}" id="sidebarAI">
+                    <div class="ps-3">
+                        <a href="{{ route('admin.ai.questions.index') }}"
+                            class="drawer-nav-item {{ navActive('admin.ai.questions.index') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>پرسیارەکان</span>
+                        </a>
+                        <a href="{{ route('admin.ai.results') }}"
+                            class="drawer-nav-item {{ navActive('admin.ai.results') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>وەڵامەکانی قوتابیان</span>
+                        </a>
+                    </div>
+                </div>
+
                 @php
                     $pendingCount = \App\Models\RequestMoreDepartments::where('status', 'pending')->count();
                 @endphp
@@ -83,9 +112,9 @@
                     <span>Backup داتابەیس</span>
                 </a>
 
-                
 
-                
+
+
 
                 <a href="{{ route('admin.results.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.results.index') }}">
@@ -93,7 +122,7 @@
                     <span>ئەنجامی هەڵبژاردنەکانی قوتابیان</span>
                 </a>
 
-                
+
 
                 {{-- General Data Dropdown --}}
                 @php

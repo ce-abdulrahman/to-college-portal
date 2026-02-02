@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\RequestMoreDepartments;
 use App\Models\Student;
+use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -129,6 +130,38 @@ public function approve(Request $request, $id)
             
             if (!empty($updates)) {
                 $targetModel->update($updates);
+
+                // --- Propagation Logic ---
+                if ($adminRequest->user_type == 'center') {
+                    $centerUser = $adminRequest->user;
+                    if ($centerUser && $centerUser->rand_code) {
+                        $centerRandCode = $centerUser->rand_code;
+
+                        // 1. Update all Teachers referred directly by this center
+                        Teacher::where('referral_code', $centerRandCode)->update($updates);
+
+                        // 2. Update all Students referred directly by this center
+                        Student::where('referral_code', $centerRandCode)->update($updates);
+
+                        // 3. Update all Students referred by Teachers who belong to this center
+                        $teacherRandCodes = User::where('role', 'teacher')
+                            ->whereIn('id', function($query) use ($centerRandCode) {
+                                $query->select('user_id')->from('teachers')->where('referral_code', $centerRandCode);
+                            })
+                            ->pluck('rand_code')
+                            ->filter();
+
+                        if ($teacherRandCodes->isNotEmpty()) {
+                            Student::whereIn('referral_code', $teacherRandCodes)->update($updates);
+                        }
+                    }
+                } elseif ($adminRequest->user_type == 'teacher') {
+                    $teacherUser = $adminRequest->user;
+                    if ($teacherUser && $teacherUser->rand_code) {
+                        // Update all Students referred by this teacher
+                        Student::where('referral_code', $teacherUser->rand_code)->update($updates);
+                    }
+                }
             }
         }
 

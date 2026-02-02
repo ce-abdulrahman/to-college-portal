@@ -64,10 +64,10 @@ class UserProfileController extends Controller
                 'referral_code' => ['nullable', 'string', 'max:255'],
 
                 // تەنیا کاتێک queue = yes → پێویست، هەروەها بە numeric/min:0
-                'queue' => ['nullable', 'in:yes,no'],
-                'zankoline_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
-                'parallel_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
-                'evening_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
+                // 'queue' => ['nullable', 'in:yes,no'],
+                // 'zankoline_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
+                // 'parallel_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
+                // 'evening_num' => ['required_if:queue,yes', 'nullable', 'numeric', 'min:0'],
             ]);
         }
 

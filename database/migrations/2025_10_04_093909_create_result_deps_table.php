@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
             $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
+            $table->integer('rank')->after('department_id')->nullable(); // 1 → 50
             $table->boolean('status')->default(1);
             $table->timestamps();
         });

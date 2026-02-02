@@ -1,9 +1,29 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <a href="{{ route('center.students.index') }}" class="btn btn-outline mb-4">
-        <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
-    </a>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-title-box d-flex align-items-center justify-content-between">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ route('center.dashboard') }}">داشبۆرد</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('center.teachers.index') }}">مامۆستایەکان</a></li>
+                        <li class="breadcrumb-item active">زیادکردن</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">
+                    <i class="fas fa-user-plus me-1"></i>
+                    زیادکردنی مامۆستا
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <a href="{{ route('center.teachers.index') }}" class="btn btn-outline">
+            <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
+        </a>
+    </div>
 
     <div class="row">
         <div class="col-12 col-xl-10 mx-auto">
@@ -110,7 +130,7 @@
                                 <div class="d-flex gap-3 flex-wrap">
                                     <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
                                         <i class="fa-solid {{ $center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        AI Rank {{ $center->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
+                                        ڕیزبەندی کرد بە زیرەکی دەستکرد {{ $center->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
                                     </span>
                                     <span class="badge {{ $center->gis ? 'bg-success' : 'bg-secondary' }}">
                                         <i class="fa-solid {{ $center->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
