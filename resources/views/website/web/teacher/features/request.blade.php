@@ -122,14 +122,24 @@
                                                         <h6 class="mb-0 text-info fw-bold">ڕێنمایی و جۆری چالاککردن</h6>
                                                     </div>
                                                     @php
-                                                        $featurePrices = json_decode(
-                                                            $appSettings['feature_prices'] ?? '',
-                                                            true,
-                                                        ) ?? [
+                                                        $defaultFeaturePrices = [
                                                             '1' => 3000,
                                                             '2' => 5000,
                                                             '3' => 6000,
                                                         ];
+                                                        $baseFeaturePrices = json_decode(
+                                                            $appSettings['feature_prices'] ?? '',
+                                                            true,
+                                                        );
+                                                        if (!is_array($baseFeaturePrices)) {
+                                                            $baseFeaturePrices = $defaultFeaturePrices;
+                                                        }
+
+                                                        $featureMultiplier = 3; // teacher
+                                                        $featurePrices = [];
+                                                        foreach ($defaultFeaturePrices as $tier => $defaultPrice) {
+                                                            $featurePrices[$tier] = (int) ($baseFeaturePrices[$tier] ?? $defaultPrice) * $featureMultiplier;
+                                                        }
                                                     @endphp
                                                     <div class="ms-1">
                                                         <p class="mb-2 small text-muted lh-lg">
