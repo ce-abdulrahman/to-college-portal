@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Auth\Events\Registered;
+use App\Models\Student;
+use App\Models\Province;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
@@ -21,7 +21,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $provinces = Province::where('status', 1)->orderBy('name')->get(['name']);
+        return view('auth.register', compact('provinces'));
     }
 
     /**
@@ -31,47 +32,54 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
             'code' => ['required', 'integer', 'unique:users,code'],
             'phone' => ['nullable', 'string', 'max:11'],
             'password' => ['required', Rules\Password::defaults()],
-            'rand_code' => ['required', 'integer', 'unique:users,rand_code'],
-            'role' => ['nullable', Rule::in(['admin', 'center', 'teacher', 'student'])], // or remove to force default
+            'mark' => ['required', 'numeric', 'min:0', 'max:100'],
+            'province' => ['required', 'string', 'max:255', Rule::exists('provinces', 'name')->where('status', 1)],
+            'type' => ['required', Rule::in(['زانستی', 'وێژەیی'])],
+            'gender' => ['required', Rule::in(['نێر', 'مێ'])],
+            'year' => ['required', 'integer', 'min:1', 'max:12'],
+            'referral_code' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'code' => (int) $request->code,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'rand_code' => (int) $request->rand_code,
-            'role' => $request->filled('role') ? $request->role : 'student', // default student
-        ]);
+        DB::transaction(function () use ($data) {
+            $user = User::create([
+                'name' => $data['name'],
+                'code' => (int) $data['code'],
+                'phone' => $data['phone'] ?? null,
+                'password' => Hash::make($data['password']),
+                'rand_code' => $this->generateRandCode(),
+                'role' => 'student',
+                'status' => 0,
+            ]);
 
-        //ئەگەر نەتەوێت بەکاربهێنیت
-        // ئەگەر پەیجەکەت verification بە email پێویست نییە، دەتوانیت بە ئاسانی لە کۆدەکەت بسڕیتەوە:
-        //event(new Registered($user));
+            Student::create([
+                'user_id' => $user->id,
+                'mark' => $data['mark'],
+                'province' => $data['province'],
+                'type' => $data['type'],
+                'gender' => $data['gender'],
+                'year' => $data['year'],
+                'referral_code' => $data['referral_code'] ?? null,
+                'status' => 0,
+                'ai_rank' => 0,
+                'gis' => 0,
+                'all_departments' => 0,
+            ]);
+        });
 
-        //Auth::login($user);
+        return view('auth.register-waiting');
+    }
 
-        // check role and redirect accordingly
-        if (Auth::user()->role === 'super_admin') {
-            return redirect(RouteServiceProvider::SUPER_ADMIN_DASHBOARD);
-        }
+    private function generateRandCode(): int
+    {
+        do {
+            $code = random_int(100000, 999999);
+        } while (User::where('rand_code', $code)->exists());
 
-        if (Auth::user()->role === 'admin') {
-            return redirect(RouteServiceProvider::ADMIN_DASHBOARD);
-        }
-
-        if (Auth::user()->role === 'teacher') {
-            return redirect(RouteServiceProvider::TEACHER_DASHBOARD);
-        }
-
-        if (Auth::user()->role === 'student') {
-            return redirect(RouteServiceProvider::STUDENT_DASHBOARD);
-        }
-
-        return redirect()->route('login')->with('success', 'قوتابی نوێ بە سەرکەوتووی دروست کرا.');
+        return $code;
     }
 }

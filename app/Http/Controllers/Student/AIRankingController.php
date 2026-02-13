@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\AIQuestion;
 use App\Models\AIAnswer;
 use App\Models\AIRanking;
+use App\Models\AIRankingPreference;
 use App\Models\Department;
+use App\Models\Province;
+use App\Models\System;
 use App\Services\AIRankingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +19,106 @@ class AIRankingController extends Controller
     public function __construct()
     {
         $this->middleware(['auth', 'student']);
+    }
+
+    /**
+     * نمایشی پرسیارە فیلتەرەکان پێشتر لە پرسیارەکانی AI
+     */
+    public function preferencesForm()
+    {
+        $user = Auth::user();
+        $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('student.dashboard')
+                ->with('error', 'توشێت مۆڵەتی ئەم کاره نیە.');
+        }
+
+        $aiRestricted = $student->ai_rank == 0;
+        $preference = null;
+        $provinces = collect();
+        $systems = collect();
+
+        if (!$aiRestricted) {
+            // پشکنین ئەگەر پێشتر preference هیچ نیە، بسازە بە دیفۆڵت
+            $preference = AIRankingPreference::where('student_id', $student->id)->first();
+
+            if (!$preference) {
+                // بە دیفۆڵت هەموو تایبەتمەندیەکان بکو
+                $preference = AIRankingPreference::create([
+                    'student_id' => $student->id,
+                    'consider_personality' => true,
+                    'include_specific_questions' => true,
+                    'prefer_nearby_departments' => true,
+                    'use_mark_bonus' => true,
+                    'mark_bonus_enabled' => true,
+                    'preferred_systems' => [1, 2, 3],
+                    'gender_filter' => [$student->gender],
+                    'field_type_filter' => [$student->type],
+                    'province_filter' => $student->province_id,
+                ]);
+            }
+
+            // وەرگرتنی پارێزگاکان
+            $provinces = Province::all();
+
+            // وەرگرتنی سیستەمەکان
+            $systems = System::all();
+        }
+
+        return view('website.web.student.ai.preferences', compact(
+            'student',
+            'preference',
+            'provinces',
+            'systems',
+            'aiRestricted'
+        ));
+    }
+
+    /**
+     * پاشەکشانی فیلتەرەکان
+     */
+    public function savePreferences(Request $request)
+    {
+        $user = Auth::user();
+        $student = $user->student;
+
+        if (!$student || $student->ai_rank == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'مۆڵەتی ئەم کاره نیە.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'consider_personality' => 'boolean',
+            'include_specific_questions' => 'boolean',
+            'prefer_nearby_departments' => 'boolean',
+            'use_mark_bonus' => 'boolean',
+            'mark_bonus_enabled' => 'boolean',
+            'preferred_systems' => 'array',
+            'preferred_systems.*' => 'integer|exists:systems,id',
+            'province_filter' => 'nullable|integer|exists:provinces,id',
+        ]);
+
+        $payload = $validated;
+        $payload['gender_filter'] = [$student->gender];
+        $payload['field_type_filter'] = [$student->type];
+
+        if (empty($payload['prefer_nearby_departments'])) {
+            $payload['province_filter'] = null;
+        }
+
+        AIRankingPreference::updateOrCreate(
+            ['student_id' => $student->id],
+            $payload
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تایبەتمەندیەکانت پاشەکش کرا!',
+            'redirect' => route('student.ai-ranking.questionnaire')
+        ]);
     }
 
     /**
@@ -29,6 +132,12 @@ class AIRankingController extends Controller
         if (!$student) {
             return redirect()->route('student.dashboard')
                 ->with('error', 'توشێت پێویست نیە.');
+        }
+
+        // ئەگەر پێش ئەو پرسیاریە فیلتەرەکان هاتنی، بڕۆ بۆ preferences
+        $preference = AIRankingPreference::where('student_id', $student->id)->first();
+        if (!$preference) {
+            return redirect()->route('student.ai-ranking.preferences');
         }
 
         // ئەگەر ai_rank == 0 ئەوا نیشان بدە warning
@@ -132,7 +241,9 @@ class AIRankingController extends Controller
         // ئامارەکان
         $stats = $this->getRankingStats($rankings);
 
-        return view('website.web.student.ai.results', compact('student', 'rankings', 'stats'));
+        $studentProvinceId = $student->province_id;
+
+        return view('website.web.student.ai.results', compact('student', 'rankings', 'stats', 'studentProvinceId'));
     }
 
     /**

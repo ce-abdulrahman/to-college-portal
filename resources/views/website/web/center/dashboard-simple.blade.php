@@ -111,18 +111,18 @@
                                     $center = auth()->user()->center;
                                 @endphp
                                 <div class="d-flex gap-2 flex-wrap">
-                                    <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                    <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-danger' }}">
                                         <i class="fa-solid {{ $center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
                                         ڕیزبەندی کرد بە زیرەکی دەستکرد
                                     </span>
-                                    <span class="badge {{ $center->gis ? 'bg-success' : 'bg-secondary' }}">
+                                    <span class="badge {{ $center->gis ? 'bg-success' : 'bg-danger' }}">
                                         <i class="fa-solid {{ $center->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        GIS
+                                        سەیرکردن بە نەخشە
                                     </span>
-                                    <span class="badge {{ $center->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                    <span class="badge {{ $center->all_departments ? 'bg-success' : 'bg-danger' }}">
                                         <i
                                             class="fa-solid {{ $center->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        All Departments
+                                        زیادکردنی ڕیزبەندی کردن بۆ 50 بەش
                                     </span>
                                 </div>
                                 @if (!$center->ai_rank || !$center->gis || !$center->all_departments)

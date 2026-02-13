@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">پیشاندانی</label>
+                    <label class="form-label">نیشاندانی</label>
                     <select id="filter-length" class="form-select">
                         <option value="10">10</option>
                         <option value="25">25</option>
@@ -130,7 +130,7 @@
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a href="{{ route('admin.colleges.show', $college->id) }}"
-                                           class="btn btn-outline-info" title="پیشاندان">
+                                           class="btn btn-outline-info" title="نیشاندان">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
                                         <a href="{{ route('admin.colleges.edit', $college->id) }}"
@@ -188,7 +188,7 @@
 
             table.column(2).search(provinceVal || '', false, false);
             table.column(3).search(universityVal || '', false, false);
-            
+
             table.draw();
 
             table.rows().every(function() {
@@ -196,14 +196,14 @@
                 const rowStatus = row.data('status');
                 const rowProvince = row.data('province');
                 const rowUniversity = row.data('university');
-                
+
                 let show = true;
-                
+
                 if (statusVal && rowStatus != statusVal) show = false;
                 if (provinceVal && rowProvince != provinceVal) show = false;
                 if (universityVal && rowUniversity != universityVal) show = false;
                 if (searchVal && !row.text().toLowerCase().includes(searchVal.toLowerCase())) show = false;
-                
+
                 if (show) {
                     row.show();
                 } else {
@@ -215,7 +215,7 @@
         provinceFilter.on('change', function() {
             const provinceId = $(this).val();
             universityFilter.find('option').show();
-            
+
             if (provinceId) {
                 universityFilter.find('option:not([data-province="' + provinceId + '"]):not(:first)').hide();
             }

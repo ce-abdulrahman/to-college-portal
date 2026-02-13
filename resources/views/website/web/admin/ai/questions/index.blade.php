@@ -115,6 +115,9 @@
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ route('admin.ai.questions.show', $question) }}" class="btn btn-outline-info" title="بینین">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     <a href="{{ route('admin.ai.questions.edit', $question) }}" class="btn btn-outline-primary" title="دەستکاری">
                                         <i class="fas fa-edit"></i>
                                     </a>

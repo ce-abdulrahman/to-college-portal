@@ -1,4 +1,3 @@
-// public/assets/admin/js/pages/universities/show.js
 (function() {
     const ID = 'map-university';
     const el = document.getElementById(ID);

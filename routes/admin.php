@@ -15,12 +15,16 @@ use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\MbtiAdminController;
 use App\Http\Controllers\Admin\AIQuestionController;
+use App\Http\Controllers\Admin\SettingController;
 
 Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
     ->prefix('sadm')
     ->as('admin.')
     ->group(function () {
         Route::get('/dshbd', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
 
         Route::resource('systems', SystemController::class);
 
@@ -53,7 +57,7 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
         Route::get('/students/{id}/department', [StudentController::class, 'show'])->name('student.show');
 
 
-        Route::resource('results', ResultController::class)->names('results');
+        Route::resource('results', ResultController::class)->only(['index', 'show', 'destroy'])->names('results');
 
         Route::prefix('mbti')->name('mbti.')->group(function () {
             // پرسیارەکان
@@ -95,17 +99,17 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
 
 Route::middleware(['auth', 'admin'])->prefix('dashboard')->group(function () {
     // Provinces GeoJSON for the basemap
-    Route::get('/provinces/geojson', [DashboardController::class, 'provincesGeoJSON'])
+    Route::get('/provinces/geojson', [DashboardController::class, 'getProvincesGeoJSON'])
         ->name('provinces.geojson');
 
     // Drilldown APIs (DB → JSON → JS)
-    Route::get('/provinces/{province}/universities', [DashboardController::class, 'universitiesByProvince'])
+    Route::get('/provinces/{province}/universities', [DashboardController::class, 'getUniversitiesByProvince'])
         ->name('provinces.universities');
 
-    Route::get('/universities/{university}/colleges', [DashboardController::class, 'collegesByUniversity'])
+    Route::get('/universities/{university}/colleges', [DashboardController::class, 'getCollegesByUniversity'])
         ->name('universities.colleges');
 
-    Route::get('/colleges/{college}/departments', [DashboardController::class, 'departmentsByCollege'])
+    Route::get('/colleges/{college}/departments', [DashboardController::class, 'getDepartmentsByCollege'])
         ->name('colleges.departments');
 });
 

@@ -48,29 +48,29 @@
       }).setView(this.config.initialView.center, this.config.initialView.zoom);
 
       this.baseLayers = {
-        "🗺️ Street (OSM)": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        "🗺️ سەرەکی (OSM)": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
           attribution: '© OpenStreetMap contributors'
         }),
-        "🛰️ Satellite (Esri)": L.tileLayer(
+        "🛰️ ساتەلایت (Esri)": L.tileLayer(
           'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
           { maxZoom: 19, attribution: 'Tiles © Esri' }
         ),
-        "🛰️ Hybrid (Google)": L.tileLayer(
+        "🛰️ هایبرید (Google)": L.tileLayer(
           'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
           { maxZoom: 20, attribution: '© Google' }
         ),
-        "🌑 Dark (Carto)": L.tileLayer(
+        "🌑 تاریک (Carto)": L.tileLayer(
           'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
           { maxZoom: 19, attribution: '© OpenStreetMap, © CARTO' }
         ),
-        "⛰️ Terrain (OpenTopoMap)": L.tileLayer(
+        "⛰️ زەمین (OpenTopoMap)": L.tileLayer(
           'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
           { maxZoom: 17, attribution: '© OpenTopoMap (CC-BY-SA)' }
         ),
       };
 
-      this.baseLayers["🗺️ Street (OSM)"].addTo(this.map);
+      this.baseLayers["🗺️ سەرەکی (OSM)"].addTo(this.map);
       L.control.zoom({ position: 'topright' }).addTo(this.map);
     }
 
@@ -95,7 +95,7 @@
         "✨ هایلایت": this.layers.highlight,
       };
 
-      L.control.layers(this.baseLayers, overlays, { position: 'topleft', collapsed: true }).addTo(this.map);
+      L.control.layers(this.baseLayers, overlays, { position: 'topleft', collapsed: false }).addTo(this.map);
     }
 
     initControls() {
@@ -114,6 +114,28 @@
         }
       });
       this.map.addControl(new Control3D({ position: 'topright' }));
+
+      const resetBtn = document.getElementById('resetView');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          this.map.setView(this.config.initialView.center, this.config.initialView.zoom);
+        });
+      }
+
+      const zoomInBtn = document.getElementById('zoomIn');
+      if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => this.map.zoomIn());
+      }
+
+      const zoomOutBtn = document.getElementById('zoomOut');
+      if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => this.map.zoomOut());
+      }
+
+      const locateBtn = document.getElementById('locateUser');
+      if (locateBtn) {
+        locateBtn.addEventListener('click', () => this.locateUserOnce());
+      }
     }
 
     setupEventListeners() {
@@ -127,6 +149,109 @@
       if (!list.length) return;
       const hasSpinner = list.find('.spinner-border').length > 0 || /بارکردن/.test(list.text());
       if (hasSpinner) list.empty();
+    }
+
+    useTableView() {
+      const list = $('#institutionsList');
+      if (!list.length) return false;
+      const mode = (list.data('view') || '').toString().toLowerCase();
+      return mode === 'table';
+    }
+
+    buildActionButtons(item, type) {
+      const actions = [];
+      const lat = parseFloat(item.lat);
+      const lng = parseFloat(item.lng);
+      const hasCoords = Number.isFinite(lat) && Number.isFinite(lng);
+
+      if (hasCoords) {
+        actions.push(`
+          <button class="icon-btn btn-focus"
+                  data-type="${type}" data-id="${item.id}"
+                  data-lat="${lat}" data-lng="${lng}"
+                  title="نیشان بدە">
+            <i class="bi bi-geo-alt"></i>
+          </button>
+        `);
+        actions.push(`
+          <button class="icon-btn btn-route"
+                  data-lat="${lat}" data-lng="${lng}"
+                  title="ڕێگا">
+            <i class="bi bi-signpost"></i>
+          </button>
+        `);
+      }
+
+      if (type === 'uni') {
+        actions.push(`
+          <button class="icon-btn"
+                  data-open-colleges="${item.id}"
+                  title="کۆلێژەکان">
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        `);
+      } else if (type === 'col') {
+        actions.push(`
+          <button class="icon-btn"
+                  data-open-departments="${item.id}"
+                  title="بەشەکان">
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        `);
+      }
+
+      if (!actions.length) {
+        return '<span class="text-muted small">—</span>';
+      }
+
+      return `<div class="d-flex gap-1 justify-content-end">${actions.join('')}</div>`;
+    }
+
+    renderInstitutionsTable(items, type, title, emptyText, emptyIcon) {
+      const listElement = $('#institutionsList');
+      if (!listElement.length) return;
+
+      if (!items.length) {
+        listElement.html(`
+          <div class="empty-state">
+            <i class="${emptyIcon}"></i>
+            <p>${emptyText}</p>
+          </div>
+        `);
+        return;
+      }
+
+      const icon = type === 'uni' ? 'bi-building' : type === 'col' ? 'bi-house' : 'bi-diagram-3';
+      let rows = '';
+
+      items.forEach((item) => {
+        rows += `
+          <tr>
+            <td>
+              <div class="fw-semibold"><i class="bi ${icon} me-2"></i>${item.name || '—'}</div>
+              ${item.name_en ? `<div class="text-muted small">${item.name_en}</div>` : ''}
+            </td>
+            <td class="text-end">
+              ${this.buildActionButtons(item, type)}
+            </td>
+          </tr>
+        `;
+      });
+
+      listElement.html(`
+        ${title ? `<h3 class="mb-3" style="font-size:16px;font-weight:600;">${title}</h3>` : ''}
+        <div class="table-responsive">
+          <table class="table table-sm table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>ناو</th>
+                <th class="text-end" style="width:140px">کردار</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `);
     }
 
     async loadProvinces() {
@@ -225,7 +350,22 @@
     renderUniversitiesList(universities) {
       const listElement = $('#institutionsList');
       const resultCount = $('#result-count');
+      const listTitle = $('#list-title');
       if (resultCount.length) resultCount.text(`${universities.length} دۆزرایەوە`);
+
+      const title = `🎓 زانکۆکانی ${this.currentData.province?.name || ''}`;
+      if (listTitle.length) listTitle.text(title);
+
+      if (this.useTableView()) {
+        this.renderInstitutionsTable(
+          universities,
+          'uni',
+          title,
+          'هیچ زانکۆیەک نەدۆزرایەوە',
+          'bi bi-building'
+        );
+        return;
+      }
 
       if (!universities.length) {
         listElement.html(`
@@ -236,7 +376,7 @@
         return;
       }
 
-      let html = `<h3 style="margin-bottom:16px;font-size:16px;font-weight:600;">🎓 زانکۆکانی ${this.currentData.province?.name || ''}</h3>`;
+      let html = `<h3 style="margin-bottom:16px;font-size:16px;font-weight:600;">${title}</h3>`;
       universities.forEach(uni => {
         html += `
           <div class="institution-item" data-id="${uni.id}" data-type="uni" style="margin-bottom:12px;padding:12px;background:white;border-radius:8px;border:1px solid #e2e8f0;cursor:pointer;">
@@ -313,6 +453,24 @@
 
     renderCollegesList(colleges) {
       const listElement = $('#institutionsList');
+      const resultCount = $('#result-count');
+      const listTitle = $('#list-title');
+      if (resultCount.length) resultCount.text(`${colleges.length} دۆزرایەوە`);
+
+      const title = `🏢 کۆلێژەکانی ${this.currentData.university?.name || ''}`;
+      if (listTitle.length) listTitle.text(title);
+
+      if (this.useTableView()) {
+        this.renderInstitutionsTable(
+          colleges,
+          'col',
+          title,
+          'هیچ کۆلێژێک نەدۆزرایەوە',
+          'bi bi-house'
+        );
+        return;
+      }
+
       if (!colleges.length) {
         listElement.html(`
           <div class="empty-state" style="text-align:center;padding:40px 20px;">
@@ -322,7 +480,7 @@
         return;
       }
 
-      let html = `<h3 style="margin-bottom:16px;font-size:16px;font-weight:600;">🏢 کۆلێژەکانی ${this.currentData.university?.name}</h3>`;
+      let html = `<h3 style="margin-bottom:16px;font-size:16px;font-weight:600;">${title}</h3>`;
       colleges.forEach(col => {
         html += `
           <div class="institution-item" data-id="${col.id}" data-type="col" style="margin-bottom:12px;padding:12px;background:white;border-radius:8px;border:1px solid #e2e8f0;cursor:pointer;">
@@ -398,6 +556,24 @@
 
     renderDepartmentsList(departments) {
       const listElement = $('#institutionsList');
+      const resultCount = $('#result-count');
+      const listTitle = $('#list-title');
+      if (resultCount.length) resultCount.text(`${departments.length} دۆزرایەوە`);
+
+      const title = `📚 بەشەکانی ${this.currentData.college?.name || ''}`;
+      if (listTitle.length) listTitle.text(title);
+
+      if (this.useTableView()) {
+        this.renderInstitutionsTable(
+          departments,
+          'dep',
+          title,
+          'هیچ بەشێک نەدۆزرایەوە',
+          'bi bi-diagram-3'
+        );
+        return;
+      }
+
       if (!departments.length) {
         listElement.html(`
           <div class="empty-state" style="text-align:center;padding:40px 20px;">
@@ -407,7 +583,7 @@
         return;
       }
 
-      let html = `<h3 style="margin-bottom:16px;font-size:16px;font-weight:600;">📚 بەشەکانی ${this.currentData.college?.name}</h3>`;
+      let html = `<h3 style="margin-bottom:16px;font-size:16px;font-weight:600;">${title}</h3>`;
       departments.forEach(dept => {
         html += `
           <div class="institution-item" data-id="${dept.id}" data-type="dep" style="margin-bottom:12px;padding:12px;background:white;border-radius:8px;border:1px solid #e2e8f0;">
@@ -719,6 +895,31 @@
       );
     }
 
+    locateUserOnce() {
+      if (!('geolocation' in navigator)) {
+        this.showNotification('پێگەیشتن بە GPS نییە', 'error');
+        return;
+      }
+
+      if (this.userLocation) {
+        this.map.setView([this.userLocation.lat, this.userLocation.lng], 14);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          this.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          this.updateUserLocationMarker();
+          this.map.setView([this.userLocation.lat, this.userLocation.lng], 14);
+        },
+        (err) => {
+          console.error('Geolocation error:', err);
+          this.showNotification('ناتوانرێ شوێن بدۆزرێت', 'error');
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    }
+
     updateUserLocationMarker() {
       if (!this.userLocation) return;
       this.layers.user.clearLayers();
@@ -774,18 +975,18 @@
     });
 
     $(document).on('click', '[data-open-colleges]', function () {
-      const id = parseInt(this.dataset.openColleges);
+      const id = this.dataset.openColleges;
       app.loadColleges(id);
     });
 
     $(document).on('click', '[data-open-departments]', function () {
-      const id = parseInt(this.dataset.openDepartments);
+      const id = this.dataset.openDepartments;
       app.loadDepartments(id);
     });
 
     $(document).on('click', '.btn-focus', function () {
       const { type, id, lat, lng } = this.dataset;
-      app.focusOnItem(type, Number(id), parseFloat(lat), parseFloat(lng));
+      app.focusOnItem(type, id, parseFloat(lat), parseFloat(lng));
     });
 
     $(document).on('click', '.btn-route', function () {

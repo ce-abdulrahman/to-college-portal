@@ -11,7 +11,13 @@ class CenterProfileController extends Controller
     public function edit(string $id)
     {
         $user = User::where('role', 'center')->findOrfail($id);
-        return view('website.web.center.profile.edit', compact('user'));
+        if (auth()->user()->id !== $user->id) {
+            abort(403);
+        }
+        return view('website.web.center.profile.edit', [
+            'user' => $user,
+            'center' => $user->center,
+        ]);
     }
 
     /**
@@ -19,36 +25,31 @@ class CenterProfileController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = User::findOrfail($id);
-
-        // checked password old then two input for password new and confirm password
-        if ($request->old_password) {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'code' => 'required|string|max:255|unique:users,code,' . $user->id,
-                'old_password' => 'required|string|min:8',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
-            if (!\Hash::check($request->old_password, $user->password)) {
-                return back()->withErrors(['old_password' => 'وشەی نهێنی دابینکراو لەگەڵ وشەی نهێنی ئێستاتدا ناگونجێت.']);
-            }
-            $user->update([
-                'name' => $request->name,
-                'code' => $request->code,
-                'password' => bcrypt($request->password),
-            ]);
-        } else {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'code' => 'required|string|max:255|unique:users,code,' . $user->id,
-                'phone' => 'nullable',
-            ]);
-            $user->update([
-                'name' => $request->name,
-                'code' => $request->code,
-                'phone' => $request->phone,
-            ]);
+        $user = User::where('role', 'center')->findOrfail($id);
+        if ($request->user()->id !== $user->id) {
+            abort(403);
         }
-        return redirect()->route('center.students.index')->with('success', 'ئەدمینی نوێکردنەوە بەسەرکەوتوویی تەواو بوو.');
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:11',
+            'address' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $user->update([
+            'name' => $data['name'],
+            'phone' => $data['phone'] ?? null,
+        ]);
+
+        $user->center()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'address' => $data['address'] ?? null,
+                'description' => $data['description'] ?? null,
+            ]
+        );
+
+        return back()->with('status', 'profile-updated');
     }
 }

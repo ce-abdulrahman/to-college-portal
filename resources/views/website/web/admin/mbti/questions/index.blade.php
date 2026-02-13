@@ -69,7 +69,7 @@
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="btn btn-outline-danger delete-question"
-                                                data-id="{{ $question->id }}" 
+                                                data-id="{{ $question->id }}"
                                                 data-title="{{ Str::limit($question->question_ku, 30) }}"
                                                 title="سڕینەوە">
                                             <i class="fas fa-trash"></i>
@@ -139,10 +139,10 @@ $(document).ready(function() {
     // Kurdish translation for DataTables
     const kurdishLanguage = {
         "processing": "چالاکیەکە لە جێبەجێکردن دایە...",
-        "lengthMenu": "پیشاندانی _MENU_ تۆمار",
+        "lengthMenu": "نیشاندانی _MENU_ تۆمار",
         "zeroRecords": "هیچ تۆمارێک نەدۆزرایەوە",
-        "info": "پیشاندانی _START_ بۆ _END_ لە _TOTAL_ تۆمار",
-        "infoEmpty": "پیشاندانی 0 بۆ 0 لە 0 تۆمار",
+        "info": "نیشاندانی _START_ بۆ _END_ لە _TOTAL_ تۆمار",
+        "infoEmpty": "نیشاندانی 0 بۆ 0 لە 0 تۆمار",
         "infoFiltered": "(پاڵاوتە بۆ _MAX_ کۆی تۆمار)",
         "search": "گەڕان:",
         "paginate": {
@@ -173,11 +173,11 @@ $(document).ready(function() {
         const questionId = $(this).data('id');
         const questionTitle = $(this).data('title');
         const deleteUrl = "{{ route('admin.mbti.questions.destroy', ':id') }}".replace(':id', questionId);
-        
+
         // Set modal content
         $('#questionTitle').text(questionTitle);
         $('#deleteForm').attr('action', deleteUrl);
-        
+
         // Show modal
         $('#deleteModal').modal('show');
     });

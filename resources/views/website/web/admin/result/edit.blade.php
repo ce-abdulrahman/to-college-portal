@@ -121,10 +121,10 @@
               </div>
 
               <div class="col-md-3">
-                <label for="internal_score" class="form-label">
+                <label for="external_score" class="form-label">
                   <i class="fa-solid fa-percent me-1 text-muted"></i> نمرەی دەرەوەی پارێزگا
                 </label>
-                <input type="number" step="0.01" class="form-control" id="internal_score" name="internal_score" value="{{ $department->internal_score }}" placeholder="بۆ نموونە 78">
+                <input type="number" step="0.01" class="form-control" id="external_score" name="external_score" value="{{ $department->external_score }}" placeholder="بۆ نموونە 78">
               </div>
 
               {{-- Type --}}

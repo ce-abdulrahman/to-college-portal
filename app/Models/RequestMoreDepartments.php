@@ -21,6 +21,7 @@ class RequestMoreDepartments extends Model
         'request_ai_rank',
         'request_gis',
         'reason',
+        'receipt_image',
         'status',
         'admin_notes',
         'admin_id',

@@ -96,6 +96,20 @@
             </a>
         </li>
 
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('admin.results.index') }}"
+                href="{{ route('admin.results.index') }}">
+                <i class="fa-solid fa-receipt me-1"></i> ئەنجامی هەڵبژاردنەکانی قوتابیان
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('admin.settings.index') }}"
+                href="{{ route('admin.settings.index') }}">
+                <i class="fa-solid fa-gear me-1"></i> ڕێکخستنەکان
+            </a>
+        </li>
+
         {{-- Users Dropdown --}}
         @php
             $isUsersActive =
@@ -127,19 +141,27 @@
     @if (auth()->check() && auth()->user()->role === 'center')
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('center.dashboard') }}"
-                href="{{ route('center.dashboard') }}">ماڵەوە</a>
+                href="{{ route('center.dashboard') }}">
+                <i class="bi bi-house me-1"></i> ماڵەوە
+            </a>
         </li>
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('center.departments.index') }}"
-                href="{{ route('center.departments.index') }}">بەشەکانی</a>
+                href="{{ route('center.departments.index') }}">
+                <i class="fa-solid fa-building me-1"></i> بەشەکانی
+            </a>
         </li>
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('center.teachers.index') }}"
-                href="{{ route('center.teachers.index') }}">مامۆستاکانم</a>
+                href="{{ route('center.teachers.index') }}">
+                <i class="fa-solid fa-chalkboard-user me-1"></i> مامۆستاکانم
+            </a>
         </li>
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('center.students.index') }}"
-                href="{{ route('center.students.index') }}">قوتابیەکانم</a>
+                href="{{ route('center.students.index') }}">
+                <i class="fa-solid fa-user-graduate me-1"></i> قوتابیەکانم
+            </a>
         </li>
     @endif
 
@@ -147,15 +169,21 @@
     @if (auth()->check() && auth()->user()->role === 'teacher')
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('teacher.dashboard') }}"
-                href="{{ route('teacher.dashboard') }}">ماڵەوە</a>
+                href="{{ route('teacher.dashboard') }}">
+                <i class="bi bi-house me-1"></i> ماڵەوە
+            </a>
         </li>
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('teacher.departments.index') }}"
-                href="{{ route('teacher.departments.index') }}">بەشەکانی</a>
+                href="{{ route('teacher.departments.index') }}">
+                <i class="fa-solid fa-building me-1"></i> بەشەکانی
+            </a>
         </li>
         <li class="nav-item">
             <a class="nav-link custom-nav-link {{ navActive('teacher.students.index') }}"
-                href="{{ route('teacher.students.index') }}">قوتابیەکانم</a>
+                href="{{ route('teacher.students.index') }}">
+                <i class="fa-solid fa-user-graduate me-1"></i> قوتابیەکانم
+            </a>
         </li>
     @endif
 
@@ -280,7 +308,12 @@
 <script>
     // Sync desktop theme icon with current theme
     (function() {
-        const theme = localStorage.getItem('theme') || 'light';
+        let theme = 'light';
+        try {
+            theme = localStorage.getItem('theme') || 'light';
+        } catch (e) {
+            // Ignore storage access errors
+        }
         const icon = document.getElementById('themeIconDesktop');
         if (icon) {
             updateIcon(icon, theme === 'dark');

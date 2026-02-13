@@ -20,7 +20,7 @@ use App\Http\Controllers\Student\MbtiController;
 
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
 });
 
 
@@ -52,29 +52,29 @@ Route::prefix('s')->name('student.')
             Route::get('/result', [MbtiController::class, 'result'])->name('result');
             Route::post('/retake', [MbtiController::class, 'retake'])->name('retake');
         });
-        
+
         Route::get('/departments/selection', [DepartmentSelectionController::class, 'index'])
             ->name('departments.selection');
-        
+
         Route::post('/departments/add', [DepartmentSelectionController::class, 'addDepartment'])
             ->name('departments.add');
-        
+
         Route::delete('/departments/remove/{id}', [DepartmentSelectionController::class, 'removeDepartment'])
             ->name('departments.remove');
-        
+
         Route::get('/departments/selected', [DepartmentSelectionController::class, 'getSelectedDepartments'])
             ->name('departments.selected');
-        
-            
+
+
         Route::get('/departments/request-more', [DepartmentSelectionController::class, 'showRequestForm'])
             ->name('departments.request-more');
-    
+
         Route::post('/departments/submit-request', [DepartmentSelectionController::class, 'submitRequest'])
             ->name('departments.submit-request');
-    
+
         Route::delete('/departments/cancel-request/{id}', [DepartmentSelectionController::class, 'cancelRequest'])
             ->name('departments.cancel-request');
-        
+
         Route::get('/departments/request-history', [DepartmentSelectionController::class, 'requestHistory'])
             ->name('departments.request-history');
 
@@ -83,6 +83,8 @@ Route::prefix('s')->name('student.')
             ->name('departments.available-api');
         Route::post('/departments/save-ranking', [DepartmentSelectionController::class, 'saveRanking'])
             ->name('departments.save-ranking');
+        Route::post('/departments/select-final', [DepartmentSelectionController::class, 'selectFinal'])
+            ->name('departments.select-final');
         Route::get('/universities-by-province/{province_id}', [DepartmentSelectionController::class, 'getUniversities'])
             ->name('universities-by-province');
         Route::get('/colleges-by-university/{university_id}', [DepartmentSelectionController::class, 'getColleges'])
@@ -91,55 +93,62 @@ Route::prefix('s')->name('student.')
         Route::prefix('gis')->group(function () {
             Route::get('/', [GISController::class, 'index'])
                 ->name('gis.index');
-            
+
             Route::get('/province/{id}', [GISController::class, 'getProvinceData'])
                 ->name('gis.province');
-            
+
             Route::post('/search', [GISController::class, 'search'])
                 ->name('gis.search');
-            
+
             Route::post('/add', [GISController::class, 'addDepartment'])
                 ->name('gis.add');
-            
+
             Route::delete('/remove/{id}', [GISController::class, 'removeDepartment'])
                 ->name('gis.remove');
         });
 
         // AI Ranking
         Route::prefix('ai-ranking')->group(function () {
+            // پێشتر: بەڕێزی هەڵبژاردنی فیلتەرەکان
+            Route::get('/preferences', [AIRankingController::class, 'preferencesForm'])
+                ->name('ai-ranking.preferences');
+
+            Route::post('/save-preferences', [AIRankingController::class, 'savePreferences'])
+                ->name('ai-ranking.save-preferences');
+
             Route::get('/questionnaire', [AIRankingController::class, 'questionnaire'])
                 ->name('ai-ranking.questionnaire');
-            
+
             Route::post('/submit', [AIRankingController::class, 'submitQuestionnaire'])
                 ->name('ai-ranking.submit');
-            
+
             Route::get('/results', [AIRankingController::class, 'results'])
                 ->name('ai-ranking.results');
-            
+
             Route::post('/retake', [AIRankingController::class, 'retake'])
                 ->name('ai-ranking.retake');
-            
+
             Route::post('/add-to-selection', [AIRankingController::class, 'addToSelection'])
                 ->name('ai-ranking.add');
 
             // نوێ Routes
             Route::get('/check-status', [AIRankingController::class, 'checkAIStatus'])
-                ->name('check-status');
-            
+                ->name('ai-ranking.check-status');
+
             Route::get('/export/excel', [AIRankingController::class, 'exportExcel'])
                 ->name('export-excel');
-            
+
             Route::get('/export/pdf', [AIRankingController::class, 'exportPDF'])
                 ->name('export-pdf');
-            
+
             Route::get('/department/{id}/details', [AIRankingController::class, 'departmentDetails'])
-                ->name('department-details');
-            
+                ->name('ai-ranking.department-details');
+
             Route::post('/reorder', [AIRankingController::class, 'reorderByFactor'])
                 ->name('reorder');
 
             Route::get('/compare', [AIRankingController::class, 'compareRankings'])
-                ->name('compare');
+                ->name('ai-ranking.compare');
         });
     });
 
@@ -154,7 +163,7 @@ Route::prefix('center')->name('center.')->middleware(['auth','center'])
         Route::resource('students', StudentInCenterController::class);
         Route::get('/profile/edit/{id}', [CenterProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/{id}', [CenterProfileController::class, 'update'])->name('profile.update');
-        
+
         // Feature Requests
         Route::get('/features/request', [\App\Http\Controllers\Center\FeatureRequestController::class, 'showRequestForm'])->name('features.request');
         Route::post('/features/submit-request', [\App\Http\Controllers\Center\FeatureRequestController::class, 'submitRequest'])->name('features.submit-request');
@@ -177,7 +186,7 @@ Route::middleware(['auth', 'teacher'])
 
         Route::get('/profile/edit/{id}', [TeacherProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/{id}', [TeacherProfileController::class, 'update'])->name('profile.update');
-        
+
         // Feature Requests
         Route::get('/features/request', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'showRequestForm'])->name('features.request');
         Route::post('/features/submit-request', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'submitRequest'])->name('features.submit-request');

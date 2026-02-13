@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Models\Department;
 use App\Models\AIRanking;
 use App\Models\AIAnswer;
+use App\Models\AIRankingPreference;
 use App\Models\System;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 class AIRankingService
 {
     private $student;
+    private $preference;
+    private $studentProvinceId;
     private $weights = [
         'academic' => 0.30,      // 30% نمرە (گرینگترین)
         'interest' => 0.25,      // 25% حەز
@@ -24,6 +27,11 @@ class AIRankingService
     public function __construct(Student $student)
     {
         $this->student = $student;
+        $this->preference = AIRankingPreference::where('student_id', $student->id)->first();
+        // وەرگرتنی پاریزگای قوتابی لە DB
+        // ئەگەر 'province' فیلدی قوتابی ئەنجام بێ، ئێمە بە province_id لێ دەگێڕین
+        $province = \App\Models\Province::where('name', $student->province)->first();
+        $this->studentProvinceId = $province ? $province->id : null;
     }
 
     /**
@@ -45,11 +53,12 @@ class AIRankingService
 
             foreach ($eligibleDepartments as $department) {
                 $score = $this->calculateDepartmentScore($department);
+                $matchFactors = $this->getMatchFactors($department);
                 $rankings[] = [
                     'student_id' => $this->student->id,
                     'department_id' => $department->id,
                     'score' => $score,
-                    'match_factors' => $this->getMatchFactors($department),
+                    'match_factors' => $matchFactors,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -63,7 +72,11 @@ class AIRankingService
             // زیادکردنی ڕیز
             foreach ($rankings as $index => &$ranking) {
                 $ranking['rank'] = $index + 1;
-                $ranking['reason'] = $this->generateReason($ranking['match_factors']);
+                $ranking['reason'] = $this->generateReason($ranking['match_factors'] ?? []);
+                $ranking['match_factors'] = json_encode(
+                    $ranking['match_factors'] ?? [],
+                    JSON_UNESCAPED_UNICODE
+                ) ?: '[]';
             }
 
             // سڕینەوەی ڕیزبەندیە کۆنەکان
@@ -83,32 +96,53 @@ class AIRankingService
     }
 
     /**
-     * وەرگرتنی هەموو بەشە گونجاوەکان
+     * وەرگرتنی هەموو بەشە گونجاوەکان - بە پاسەخ بە فیلتەرەکان
      */
     private function getEligibleDepartments()
     {
         $query = Department::where('status', 1)
-            ->where(function($q) {
-                $q->where('type', $this->student->type)
-                  ->orWhere('type', 'زانستی و وێژەیی');
-            })
-            ->where(function($q) {
-                $q->where('sex', $this->student->gender)
-                  ->orWhere('sex', 'هەردووکیان');
-            })
             ->with(['university', 'province', 'college', 'system']);
 
-        // فیلتەری نمرە بەپێی پاریزگا
+        // ١. فیلتەری جۆر (زانستی / وێژەیی) - لە زانیاری قوتابی
         $query->where(function($q) {
-            $q->where('province_id', $this->student->province_id)
-              ->where('local_score', '<=', $this->getAdjustedMark('local'))
-              ->orWhere('province_id', '!=', $this->student->province_id)
-              ->where('external_score', '<=', $this->getAdjustedMark('external'));
+            $q->where('type', $this->student->type)
+              ->orWhere('type', 'زانستی و وێژەیی');
         });
 
-        // ئەگەر ساڵ = 1، سیستەمەکانی هەر ٣ جۆرەکە
+        // ٢. فیلتەری ڕەگەز - لە زانیاری قوتابی
+        $query->where(function($q) {
+            $q->where('sex', $this->student->gender)
+              ->orWhere('sex', 'هەردووکیان');
+        });
+
+        // ٣. فیلتەری نمرە بەپێی پاریزگا و تایبەتمەندی
+        $query->where(function($q) {
+            $preferNearby = $this->preference && $this->preference->prefer_nearby_departments ? true : false;
+
+            if ($preferNearby && $this->preference && $this->preference->province_filter) {
+                // ئەگەر پاریزگای دیاریکراو هەبێت، تەنها ئەو پاریزگاکە
+                $provinceId = $this->preference->province_filter;
+                $q->where('province_id', $provinceId)
+                  ->where('local_score', '<=', $this->getAdjustedMark('local'));
+            } elseif ($this->studentProvinceId) {
+                // نۆرمال: ناو پاریزگا یا دەرەوەی پاریزگا
+                $q->where('province_id', $this->studentProvinceId)
+                  ->where('local_score', '<=', $this->getAdjustedMark('local'))
+                  ->orWhere('province_id', '!=', $this->studentProvinceId)
+                  ->where('external_score', '<=', $this->getAdjustedMark('external'));
+            } else {
+                // ئەگەر پاریزگای قوتابی ناسراو نەبوو، تەنها بەپێی دەرەوە نمرە هەڵبژێرە
+                $q->where('external_score', '<=', $this->getAdjustedMark('external'));
+            }
+        });
+
+        // ٤. فیلتەری سیستەم (ئەگەر ساڵ = 1)
         if ($this->student->year == 1) {
-            $systemIds = System::whereIn('name', [1, 2, 3])->pluck('id');
+            if ($this->preference && $this->preference->preferred_systems && !empty($this->preference->preferred_systems)) {
+                $systemIds = $this->preference->preferred_systems;
+            } else {
+                $systemIds = System::whereIn('name', [1, 2, 3])->pluck('id')->toArray();
+            }
             $query->whereIn('system_id', $systemIds);
         }
 
@@ -116,25 +150,29 @@ class AIRankingService
     }
 
     /**
-     * هەژمارکردنی نمرەی گشتی بۆ بەشێک
+     * هەژمارکردنی نمرەی گشتی بۆ بەشێک - بە پاسەخ بە فیلتەرەکان
      */
     private function calculateDepartmentScore(Department $department)
     {
         $scores = [];
 
-        // ١. نمرەی خوێندن (٢٥٪)
+        // ١. نمرەی خوێندن (٣٠٪)
         $scores['academic'] = $this->calculateAcademicScore($department);
 
-        // ٢. جۆری کەسی (٢٠٪)
-        $scores['personality'] = $this->calculatePersonalityScore($department);
+        // ٢. جۆری کەسی (٢٠٪) - ئەگەر فعاڵ بوو
+        $scores['personality'] = ($this->preference && $this->preference->consider_personality)
+            ? $this->calculatePersonalityScore($department)
+            : 50;
 
         // ٣. حەز و ئارەزوو (٢٥٪)
         $scores['interest'] = $this->calculateInterestScore($department);
 
-        // ٤. شوێن (١٥٪)
-        $scores['location'] = $this->calculateLocationScore($department);
+        // ٤. شوێن (١٥٪) - ئەگەر فعاڵ بوو
+        $scores['location'] = ($this->preference && $this->preference->prefer_nearby_departments)
+            ? $this->calculateLocationScore($department)
+            : 50;
 
-        // ٥. دیمۆگرافی (١٥٪)
+        // ٥. دیمۆگرافی (١٠٪)
         $scores['demographic'] = $this->calculateDemographicScore($department);
 
         // هەژمارکردنی کۆی گشتی
@@ -147,14 +185,14 @@ class AIRankingService
     }
 
     /**
-     * نمرەی خوێندن
+     * نمرەی خوێندن - بە بۆنەسی نمرە قوتابی
      */
     private function calculateAcademicScore(Department $department)
     {
         $baseScore = 70;
 
         // دیاریکردنی نمرەی پێویست
-        $requiredScore = $department->province_id == $this->student->province_id
+        $requiredScore = $department->province_id == $this->studentProvinceId
             ? $department->local_score
             : $department->external_score;
 
@@ -188,19 +226,27 @@ class AIRankingService
 
     private function getMarkBonus($mark)
     {
-        if ($mark >= 95) return 10;
-        if ($mark >= 90) return 8;
-        if ($mark >= 85) return 6;
-        if ($mark >= 80) return 5;
-        if ($mark >= 75) return 4;
-        if ($mark >= 70) return 3;
-        if ($mark >= 65) return 2;
-        if ($mark >= 60) return 1;
+        // بۆنەسی نمرەی ئالی قوتابی
+        // بەپێی قسەی قوتابی:
+        // 90+ = 2 نمرە
+        // 80+ = 3 نمرە
+        // 70+ = 3.5 نمرە
+        // 60+ = 4 نمرە
+
+        if (!$this->preference || !$this->preference->use_mark_bonus) {
+            return 0;
+        }
+
+        if ($mark >= 90) return 2;
+        if ($mark >= 80) return 3;
+        if ($mark >= 70) return 3.5;
+        if ($mark >= 60) return 4;
+
         return 0;
     }
 
     /**
-     * زیادکردنی نمرە بەپێی ئاستی قوتابی
+     * زیادکردنی نمرە بەپێی ئاستی قوتابی (پێشین میتۆد)
      */
     private function getMarkAdjustment()
     {
@@ -333,7 +379,7 @@ class AIRankingService
 
         if ($prefersLocal) {
             // ئەگەر هەردووکیان لە هەمان پارێزگان
-            if ($department->province_id == $this->student->province_id) {
+            if ($this->studentProvinceId && $department->province_id == $this->studentProvinceId) {
                 $score += 30;
             } else {
                 $score -= 20;
@@ -409,10 +455,10 @@ class AIRankingService
             'interest_match' => $this->calculateInterestScore($department),
             'location_match' => $this->calculateLocationScore($department),
             'demographic_match' => $this->calculateDemographicScore($department),
-            'mark_difference' => $this->student->mark - ($department->province_id == $this->student->province_id
+            'mark_difference' => $this->student->mark - ($department->province_id == $this->studentProvinceId
                 ? $department->local_score
                 : $department->external_score),
-            'is_same_province' => $department->province_id == $this->student->province_id,
+            'is_same_province' => $department->province_id == $this->studentProvinceId,
             'distance_km' => $this->calculateDistance(
                 $this->student->lat ?? 0,
                 $this->student->lng ?? 0,
@@ -429,25 +475,25 @@ class AIRankingService
     {
         $reasons = [];
 
-        if ($factors['academic_match'] >= 80) {
+        if (($factors['academic_match'] ?? 0) >= 80) {
             $reasons[] = 'نمرەکەت زۆر گونجاوە بۆ ئەم بەشە';
         }
 
-        if ($factors['personality_match'] >= 75) {
+        if (($factors['personality_match'] ?? 0) >= 75) {
             $reasons[] = 'جۆری کەسیەکەت گونجاوە بۆ ئەم بەشە';
         }
 
-        if ($factors['interest_match'] >= 70) {
+        if (($factors['interest_match'] ?? 0) >= 70) {
             $reasons[] = 'حەز و ئارەزووەکانت گونجاون بۆ ئەم بەشە';
         }
 
-        if ($factors['location_match'] >= 80) {
+        if (($factors['location_match'] ?? 0) >= 80) {
             $reasons[] = 'شوێنەکەی گونجاوە بۆ تۆ';
         }
 
-        if ($factors['is_same_province']) {
+        if (!empty($factors['is_same_province'])) {
             $reasons[] = 'لە هەمان پارێزگای تۆدایە';
-        } elseif ($factors['distance_km'] < 100) {
+        } elseif (($factors['distance_km'] ?? 999999) < 100) {
             $reasons[] = 'زۆر نزیکە لە تۆ';
         }
 

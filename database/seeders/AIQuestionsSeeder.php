@@ -97,6 +97,86 @@ class AIQuestionsSeeder extends Seeder
                 'order' => 5,
                 'status' => true,
             ],
+            [
+                'question_ku' => 'کاتێک کارێکی درێژخایەن هەیە (وەک پڕۆژەی کۆتایی)، ئایا پلانێکی هەفتانە دابەش دەکەیت و بە پێی ئەوە کار دەکەیت؟',
+                'question_en' => 'When you have a long-term task (like a final project), do you make a weekly plan and follow it?',
+                'category' => 'personality',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، هەمیشە', 'score' => 100],
+                    ['text' => 'زۆربەی کات', 'score' => 75],
+                    ['text' => 'جارجار', 'score' => 50],
+                    ['text' => 'کەمجار', 'score' => 25],
+                    ['text' => 'هەرگیز', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForPlanning($departments)),
+                'order' => 6,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'لە کارێکی گرووپی دا، ئایا حەز دەکەیت ڕۆڵی ڕێکخستن و ڕێنمایی هەبێت (دابەشکردنی کار و چاودێری پێشکەوتن)؟',
+                'question_en' => 'In group work, do you like taking a coordinating or lead role (assigning tasks and tracking progress)?',
+                'category' => 'personality',
+                'options' => json_encode([
+                    ['text' => 'زۆر حەزم پێیە', 'score' => 100],
+                    ['text' => 'حەزم پێیە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم حەزم پێیە', 'score' => 25],
+                    ['text' => 'حەزم پێی نییە', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForSocial($departments)),
+                'order' => 7,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'کاتێک کێشەیەکی ژمێریاری یان تەکنیکی هەیە، ئایا هەنگاو بە هەنگاو دەنووسیت و بە بڕیارێکی لۆژیکی دەگەیت؟',
+                'question_en' => 'When you face a math or technical problem, do you write steps and reach a logical decision?',
+                'category' => 'personality',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، زۆر', 'score' => 100],
+                    ['text' => 'بەڵێ', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم', 'score' => 25],
+                    ['text' => 'هیچ', 'score' => 0]
+                ]),
+                'weight' => 3,
+                'department_weights' => json_encode($this->getDepartmentWeightsForLogical($departments)),
+                'order' => 8,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا حەز دەکەیت بیرۆکەی داهێنەر پێشکەش بکەیت و شێوازێکی نوێ تاقی بکەیتەوە، تەنانەت ئەگەر ڕێگای ئاسایی ئاسانتر بێت؟',
+                'question_en' => 'Do you like proposing creative ideas and trying new approaches, even if the usual way is easier?',
+                'category' => 'personality',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، زۆر', 'score' => 100],
+                    ['text' => 'بەڵێ', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم', 'score' => 25],
+                    ['text' => 'هیچ', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForCreative($departments)),
+                'order' => 9,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا لە چاوپێکردنی وردکاری و هەڵەی بچووکدا خۆت بەدەق دەبینیت (وەک پشکنینی ڕاپۆرتێک یان حسابی دقیق)؟',
+                'question_en' => 'Are you meticulous about details and small errors (like proofreading a report or checking calculations)?',
+                'category' => 'personality',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، زۆر', 'score' => 100],
+                    ['text' => 'بەڵێ', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم', 'score' => 25],
+                    ['text' => 'هیچ', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForDetail($departments)),
+                'order' => 10,
+                'status' => true,
+            ],
 
             // ========== پرسیارەکانی حەز و ئارەزوو (Interest) ==========
             [
@@ -259,6 +339,86 @@ class AIQuestionsSeeder extends Seeder
                 'order' => 10,
                 'status' => true,
             ],
+            [
+                'question_ku' => 'ئایا دەتەوێت لە کارێکی پزیشکی یا پەرستاری دا ڕۆژانە لەگەڵ مریض کار بکەیت و یارمەتیان بدەیت (وەک نەخۆشخانە یان کلینیک)؟',
+                'question_en' => 'Would you like to work in medicine or nursing, helping patients daily (e.g., hospital or clinic)?',
+                'category' => 'interest',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، زۆر حەزێکی پێیە', 'score' => 100],
+                    ['text' => 'بەڵێ، حەزێکی پێیە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم حەزێکی پێیە', 'score' => 25],
+                    ['text' => 'هیچ حەزێکی پێی نییە', 'score' => 0]
+                ]),
+                'weight' => 3,
+                'department_weights' => json_encode($this->getDepartmentWeightsForMedical($departments)),
+                'order' => 11,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا حەز دەکەیت لە دیزاین و دروستکردنی سیستەمە تەکنیکییەکان کار بکەیت، وەک دیزاینی بینا، پل، یان کۆنترۆڵی ئامێرە برقییەکان؟',
+                'question_en' => 'Do you like designing and building technical systems, like buildings, bridges, or electrical control systems?',
+                'category' => 'interest',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، زۆر حەزێکی پێیە', 'score' => 100],
+                    ['text' => 'بەڵێ، حەزێکی پێیە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم حەزێکی پێیە', 'score' => 25],
+                    ['text' => 'هیچ حەزێکی پێی نییە', 'score' => 0]
+                ]),
+                'weight' => 3,
+                'department_weights' => json_encode($this->getDepartmentWeightsForEngineering($departments)),
+                'order' => 12,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا حەز دەکەیت کاروباری خۆت دامەزرێنیت یان لە بازاڕدا پلانی فرۆشتن و بازاریابی و ڕاپۆرتی دارایی بکەیت؟',
+                'question_en' => 'Are you interested in starting your own business or working on sales and marketing plans and financial reports?',
+                'category' => 'interest',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، زۆر حەزێکی پێیە', 'score' => 100],
+                    ['text' => 'بەڵێ، حەزێکی پێیە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم حەزێکی پێیە', 'score' => 25],
+                    ['text' => 'هیچ حەزێکی پێی نییە', 'score' => 0]
+                ]),
+                'weight' => 3,
+                'department_weights' => json_encode($this->getDepartmentWeightsForBusiness($departments)),
+                'order' => 13,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا حەز دەکەیت لە تاقیگەدا تاقیکردنەوە بکەیت و لەسەر داتای زانستی کار بکەیت (کیمیا، فیزیا، ژینناسی)؟',
+                'question_en' => 'Do you enjoy lab experiments and working with scientific data (chemistry, physics, biology)?',
+                'category' => 'interest',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، زۆر حەزێکی پێیە', 'score' => 100],
+                    ['text' => 'بەڵێ، حەزێکی پێیە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم حەزێکی پێیە', 'score' => 25],
+                    ['text' => 'هیچ حەزێکی پێی نییە', 'score' => 0]
+                ]),
+                'weight' => 3,
+                'department_weights' => json_encode($this->getDepartmentWeightsForScience($departments)),
+                'order' => 14,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا دەتەوێت وەک مامۆستا کار بکەیت و لەگەڵ خوێندکاراندا فێرکاری و پەروەردەی ڕۆژانە پێش ببەیت؟',
+                'question_en' => 'Would you like to work as a teacher and guide students in daily learning and education?',
+                'category' => 'interest',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، زۆر حەزێکی پێیە', 'score' => 100],
+                    ['text' => 'بەڵێ، حەزێکی پێیە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم حەزێکی پێیە', 'score' => 25],
+                    ['text' => 'هیچ حەزێکی پێی نییە', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForTeaching($departments)),
+                'order' => 15,
+                'status' => true,
+            ],
 
             // ========== پرسیارەکانی شوێن (Location) ==========
             [
@@ -307,6 +467,86 @@ class AIQuestionsSeeder extends Seeder
                 'weight' => 2,
                 'department_weights' => json_encode([]),
                 'order' => 3,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا توانای ئەوەت هەیە بۆ خوێندن لە خوابەری زانکۆ یان خانەی کرێیی نیشتەجێ بیت؟',
+                'question_en' => 'Are you able to live in a dorm or rented housing for study?',
+                'category' => 'location',
+                'options' => json_encode([
+                    ['text' => 'بەڵێ، دڵنیام', 'score' => 100],
+                    ['text' => 'بەڵێ، بەڵام بە مەرج', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'زۆر دشوارە', 'score' => 25],
+                    ['text' => 'ناتوانم', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode([]),
+                'order' => 4,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا نزیکی زانکۆ بۆ هاتووچۆی ڕۆژانە گرنگە بۆت (وەک 30-60 خولەک گەشت)؟',
+                'question_en' => 'Is proximity for daily commuting important to you (e.g., 30-60 minutes travel)?',
+                'category' => 'location',
+                'options' => json_encode([
+                    ['text' => 'زۆر گرنگە', 'score' => 100],
+                    ['text' => 'گرنگە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم گرنگە', 'score' => 25],
+                    ['text' => 'هیچ گرنگیەکی نییە', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForLocalPreference($departments)),
+                'order' => 5,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا پێت خۆشە لە شارێکی گەورە و شلوغ بخوێنیت یان شارێکی بچووک و ئارام؟',
+                'question_en' => 'Do you prefer studying in a large busy city or a small calm city?',
+                'category' => 'location',
+                'options' => json_encode([
+                    ['text' => 'شارێکی گەورە زۆر پێم خۆشە', 'score' => 100],
+                    ['text' => 'شارێکی گەورە پێم خۆشە', 'score' => 75],
+                    ['text' => 'مامناوەند یا جیاوازی نییە', 'score' => 50],
+                    ['text' => 'شارێکی بچووک پێم خۆشە', 'score' => 25],
+                    ['text' => 'شارێکی بچووک زۆر پێم خۆشە', 'score' => 0]
+                ]),
+                'weight' => 1,
+                'department_weights' => json_encode([]),
+                'order' => 6,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا دۆخی ئەمنی و هەست بە ئارامی لە شارەکە گرنگە بۆت بۆ هەڵبژاردنی شوێنی خوێندن؟',
+                'question_en' => 'Is safety and feeling secure in the city important for choosing where to study?',
+                'category' => 'location',
+                'options' => json_encode([
+                    ['text' => 'زۆر گرنگە', 'score' => 100],
+                    ['text' => 'گرنگە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم گرنگە', 'score' => 25],
+                    ['text' => 'هیچ گرنگیەکی نییە', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode([]),
+                'order' => 7,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'ئایا پێویستیت بەوە هەیە لە نزیک خێزان بمێنیت بۆ پشتیوانی یان بەرپرسیارێتی خانووادی؟',
+                'question_en' => 'Do you need to stay near family for support or family responsibilities?',
+                'category' => 'location',
+                'options' => json_encode([
+                    ['text' => 'زۆر پێویستە', 'score' => 100],
+                    ['text' => 'پێویستە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم پێویستە', 'score' => 25],
+                    ['text' => 'هیچ پێویستی نییە', 'score' => 0]
+                ]),
+                'weight' => 3,
+                'department_weights' => json_encode($this->getDepartmentWeightsForLocalPreference($departments)),
+                'order' => 8,
                 'status' => true,
             ],
 
@@ -407,13 +647,93 @@ class AIQuestionsSeeder extends Seeder
                 'order' => 6,
                 'status' => true,
             ],
+            [
+                'question_ku' => 'چەندێک گرینگە بۆت هەبوونی مەشقی کار و ستوودیانە (Internship) لە چوارچێوەی بەشەکە؟',
+                'question_en' => 'How important is having internships and practical training within the department?',
+                'category' => 'priority',
+                'options' => json_encode([
+                    ['text' => 'زۆر گرینگە', 'score' => 100],
+                    ['text' => 'گرینگە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم گرینگە', 'score' => 25],
+                    ['text' => 'هیچ گرنگیەکم پێ نادەم', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForFacilities($departments)),
+                'order' => 7,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'چەندێک گرینگە بۆت هەبوونی بورس یان یارمەتی دارایی بۆ خوێندن؟',
+                'question_en' => 'How important is having scholarships or financial aid for studying?',
+                'category' => 'priority',
+                'options' => json_encode([
+                    ['text' => 'زۆر گرینگە', 'score' => 100],
+                    ['text' => 'گرینگە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم گرینگە', 'score' => 25],
+                    ['text' => 'هیچ گرنگیەکم پێ نادەم', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForCost($departments)),
+                'order' => 8,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'چەندێک گرینگە بۆت توانای توێژینەوە و مامۆستایانی بەهێز لە بەشەکەدا؟',
+                'question_en' => 'How important are strong research opportunities and faculty in the department?',
+                'category' => 'priority',
+                'options' => json_encode([
+                    ['text' => 'زۆر گرینگە', 'score' => 100],
+                    ['text' => 'گرینگە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم گرینگە', 'score' => 25],
+                    ['text' => 'هیچ گرنگیەکم پێ نادەم', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForHigherEducation($departments)),
+                'order' => 9,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'چەندێک گرینگە بۆت ئەوەی بەشەکە لە بازاڕی کاردا داواکاریی بەرز هەبێت لە ناو هەرێم؟',
+                'question_en' => 'How important is high job-market demand for this major in the region?',
+                'category' => 'priority',
+                'options' => json_encode([
+                    ['text' => 'زۆر گرینگە', 'score' => 100],
+                    ['text' => 'گرینگە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم گرینگە', 'score' => 25],
+                    ['text' => 'هیچ گرنگیەکم پێ نادەم', 'score' => 0]
+                ]),
+                'weight' => 3,
+                'department_weights' => json_encode($this->getDepartmentWeightsForJobOpportunities($departments)),
+                'order' => 10,
+                'status' => true,
+            ],
+            [
+                'question_ku' => 'چەندێک گرینگە بۆت ئازادیی کات و گۆڕانکاریی کڵاسەکان (وەک ئێواران یان سیستەمی گۆڕاو)؟',
+                'question_en' => 'How important is schedule flexibility (e.g., evening or flexible system)?',
+                'category' => 'priority',
+                'options' => json_encode([
+                    ['text' => 'زۆر گرینگە', 'score' => 100],
+                    ['text' => 'گرینگە', 'score' => 75],
+                    ['text' => 'مامناوەند', 'score' => 50],
+                    ['text' => 'کەم گرینگە', 'score' => 25],
+                    ['text' => 'هیچ گرنگیەکم پێ نادەم', 'score' => 0]
+                ]),
+                'weight' => 2,
+                'department_weights' => json_encode($this->getDepartmentWeightsForStudySystem($departments)),
+                'order' => 11,
+                'status' => true,
+            ],
         ];
 
         foreach ($questions as $question) {
             DB::table('ai_questions')->insert($question);
         }
 
-        $this->command->info('✅ 24 AI Questions seeded successfully with department_weights!');
+        $this->command->info('✅ 44 AI Questions seeded successfully with department_weights!');
     }
 
     // ========== Helper Methods for department_weights ==========

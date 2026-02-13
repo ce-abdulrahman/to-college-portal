@@ -4,7 +4,7 @@
 @section('view_name', 'index')
 
 @section('content')
-    
+
     <div class="row mb-4">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between">
@@ -20,21 +20,22 @@
                 </h4>
             </div>
         </div>
-    </div>    
+    </div>
 
     {{-- Filters Toolbar --}}
     <div class="card glass mb-3">
         <div class="card-body">
             <div class="row g-2 align-items-end">
-                <form action="{{ route('admin.results.index') }}" method="post">
-                    @csrf
+                <form action="{{ route('admin.results.index') }}" method="get" class="row g-2 align-items-end">
                     {{-- Student --}}
                     <div class="col-12 col-md-3">
                         <label class="form-label"><i class="fa-solid fa-cube me-1 text-muted"></i> قوتابیەکان</label>
-                        <select name="search" class="form-select">
+                        <select name="student_id" class="form-select">
                             <option value="">ناوی هەموو قوتابیەکان</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->name }}">{{ $user->name }}</option>
+                            @foreach ($students as $student)
+                                <option value="{{ $student->id }}" @selected(request('student_id') == $student->id)>
+                                    {{ $student->user->name ?? '—' }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -44,11 +45,13 @@
                         <label class="form-label"><i class="fa-solid fa-magnifying-glass me-1 text-muted"></i> گەڕانی
                             گشتی</label>
                         <input type="text" name="search" class="form-control"
-                            placeholder="ناوی بەش/سیستەم/پارێزگا/زانکۆ/کۆلێژ ...">
+                            value="{{ request('search') }}"
+                            placeholder="ناوی بەش/سیستەم/پارێزگا/زانکۆ/کۆلێژ/قوتابی ...">
                     </div>
-                    <button class="btn btn-dark">گەڕانە</button>
+                    <div class="col-12 col-md-3 mt-2">
+                        <button class="btn btn-dark w-100">گەڕانە</button>
+                    </div>
                 </form>
-
             </div>
         </div>
     </div>
@@ -57,7 +60,7 @@
 
         <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
             <div class="d-flex align-items-center gap-2">
-                <label class="small text-muted mb-0">پیشاندانی</label>
+                <label class="small text-muted mb-0">نیشاندانی</label>
                 <select id="page-length" class="form-select form-select-sm" style="width:auto">
                     <option value="10" selected>10</option>
                     <option value="25">25</option>
@@ -88,7 +91,7 @@
                                 <th>ناوی قوتابی</th>
                                 <th>ناوی بەش</th>
                                 <th>نمرەی ناوەندی</th>
-                                <th>نمرەی ناوخۆی</th>
+                                <th>نمرەی دەرەوە</th>
                                 {{--  <th>جۆر</th>
                                 <th>ڕەگەز</th>  --}}
                                 <th>دۆخ</th>
@@ -113,7 +116,9 @@
                                     data-college="{{ $result->department->college->name }}">
                                     <td>{{ $i + 1 }}</td>
                                     <td data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                                        data-bs-title="{{ $result->user->mark }}">{{ $result->user->name }}</td>
+                                        data-bs-title="{{ data_get($result, 'student.mark') ?? '—' }}">
+                                        {{ data_get($result, 'student.user.name') ?? '—' }}
+                                    </td>
                                     <td>
                                         <div class="d-flex flex-column">
                                             <div class="fw-semibold">{{ $result->department->name }}</div>
@@ -128,7 +133,7 @@
                                         </div>
                                     </td>
                                     <td>{{ $result->department->local_score ?? '—' }}</td>
-                                    <td>{{ $result->department->internal_score ?? '—' }}</td>
+                                    <td>{{ $result->department->external_score ?? '—' }}</td>
                                     {{--  <td><span class="chip"><i class="fa-solid fa-layer-group"></i>
                                             {{ $department->type }}</span></td>
                                     <td>{{ $department->sex ?? '—' }}</td>  --}}
@@ -140,19 +145,14 @@
                                         @endif
                                     </td>
                                     <td class="actions">
-                                        <a href="{{ route('admin.departments.show', $result->department->id) }}"
+                                        <a href="{{ route('admin.results.show', $result->id) }}"
                                             class="btn btn-sm btn-outline" data-bs-toggle="tooltip"
-                                            data-bs-title="پیشاندان">
+                                            data-bs-title="وردەکاری">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.departments.edit', $result->department->id) }}"
-                                            class="btn btn-sm btn-primary" data-bs-toggle="tooltip"
-                                            data-bs-title="دەستکاری">
-                                            <i class="fa-solid fa-pen-to-square"></i>
-                                        </a>
-                                        <form action="{{ route('admin.departments.destroy', $result->department->id) }}"
+                                        <form action="{{ route('admin.results.destroy', $result->id) }}"
                                             method="POST" class="d-inline"
-                                            onsubmit="return confirm('ئایە دڵنیایت لە سڕینەوەی ئەم بەشە؟');">
+                                            onsubmit="return confirm('ئایە دڵنیایت لە سڕینەوەی ئەم هەڵبژاردنە؟');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip"
                                                 data-bs-title="سڕینەوە">
@@ -175,4 +175,3 @@
         </div>
     </div>
 @endsection
- 

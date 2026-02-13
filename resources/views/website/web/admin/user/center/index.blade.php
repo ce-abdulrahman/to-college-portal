@@ -21,12 +21,12 @@
 
     <div class="card glass fade-in">
         <div class="card-body">
-            
+
 
             {{-- Top toolbar (length + search) --}}
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <label class="small text-muted mb-0">{{ __('پیشاندانی') }}</label>
+                    <label class="small text-muted mb-0">{{ __('نیشاندانی') }}</label>
                     <select id="page-length" class="form-select form-select-sm" style="width:auto">
                         <option value="10" selected>10</option>
                         <option value="25">25</option>

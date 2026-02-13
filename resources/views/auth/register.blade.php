@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ asset('assets/student/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 
 </head>
 
@@ -65,6 +65,102 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="student_phone"><i class="fas fa-phone"></i> ژمارەی مۆبایل</label>
+                    <div class="input-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="text" name="phone" value="{{ old('phone') }}" class="form-control"
+                            placeholder="ژمارەی مۆبایل (ئارەزوومەندە)" >
+                    </div>
+                    @error('phone')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="province"><i class="fas fa-map-marker-alt"></i> پارێزگا</label>
+                    <div class="input-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <select name="province" class="form-control" required>
+                            <option value="">پارێزگا هەڵبژێرە</option>
+                            @foreach ($provinces as $province)
+                                <option value="{{ $province->name }}" @selected(old('province') === $province->name)>
+                                    {{ $province->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @error('province')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="type"><i class="fas fa-book"></i> جۆری خوێندن</label>
+                    <div class="input-icon">
+                        <i class="fas fa-book"></i>
+                        <select name="type" class="form-control" required>
+                            <option value="">جۆر هەڵبژێرە</option>
+                            <option value="زانستی" @selected(old('type') === 'زانستی')>زانستی</option>
+                            <option value="وێژەیی" @selected(old('type') === 'وێژەیی')>وێژەیی</option>
+                        </select>
+                    </div>
+                    @error('type')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="gender"><i class="fas fa-venus-mars"></i> ڕەگەز</label>
+                    <div class="input-icon">
+                        <i class="fas fa-venus-mars"></i>
+                        <select name="gender" class="form-control" required>
+                            <option value="">ڕەگەز هەڵبژێرە</option>
+                            <option value="نێر" @selected(old('gender') === 'نێر')>نێر</option>
+                            <option value="مێ" @selected(old('gender') === 'مێ')>مێ</option>
+                        </select>
+                    </div>
+                    @error('gender')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="year"><i class="fas fa-calendar"></i> چەند سال فۆرمی زانکۆلاین پێشکەش کردووە</label>
+                    <div class="input-icon">
+                        <i class="fas fa-calendar"></i>
+                        <input type="number" name="year" value="{{ old('year') }}" class="form-control"
+                            placeholder="ساڵ بنووسە" required>
+                    </div>
+                    @error('year')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
+                    <label for="mark"><i class="fas fa-pen"></i> نمرە</label>
+                    <div class="input-icon">
+                        <i class="fas fa-pen"></i>
+                        <input type="number" step="0.001" name="mark" value="{{ old('mark') }}" class="form-control"
+                            placeholder="نمرە بنووسە" required>
+                    </div>
+                    @error('mark')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3 d-none">
+                    <label for="referral_code"><i class="fas fa-link"></i> کۆدی پێشنیار</label>
+                    <div class="input-icon">
+                        <i class="fas fa-link"></i>
+                        <input type="text" name="referral_code" value="0" class="form-control"
+                            placeholder="کۆدی پێشنیار (ئارەزوومەندە)">
+                    </div>
+                    @error('referral_code')
+                        <div class="alert alert-danger mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="mb-3">
                     <label for="password"><i class="fas fa-lock"></i> وشەی نهێنی</label>
                     <div class="input-icon">
                         <i class="fas fa-lock"></i>
@@ -74,6 +170,10 @@
                     @error('password')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>
                     @enderror
+                </div>
+
+                <div class="alert alert-info small mb-3">
+                    هەژمارەکەت پاش پەسەندکردنی ئەدمین چالاک دەبێت.
                 </div>
 
                 <button type="submit" class="btn btn-primary">

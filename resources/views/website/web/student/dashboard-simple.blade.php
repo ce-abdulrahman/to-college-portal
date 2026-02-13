@@ -99,24 +99,23 @@
                                     $student = auth()->user()->student;
                                 @endphp
                                 <div class="d-flex gap-2 flex-wrap">
-                                    <span class="badge {{ $student->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                    <span class="badge {{ $student->ai_rank ? 'bg-success' : 'bg-danger' }}">
                                         <i class="fa-solid {{ $student->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
                                         ڕیزبەندی کرد بە زیرەکی دەستکرد
                                     </span>
-                                    <span class="badge {{ $student->gis ? 'bg-success' : 'bg-secondary' }}">
+                                    <span class="badge {{ $student->gis ? 'bg-success' : 'bg-danger' }}">
                                         <i class="fa-solid {{ $student->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        GIS
+                                        سەیرکردن بە نەخشە
                                     </span>
-                                    <span class="badge {{ $student->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                    <span class="badge {{ $student->all_departments ? 'bg-success' : 'bg-danger' }}">
                                         <i
                                             class="fa-solid {{ $student->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        50 Departments
+                                        زیادکردنی ڕیزبەندی کردن بۆ 50 بەش
                                     </span>
                                 </div>
                                 @if (!$student->ai_rank || !$student->gis || !$student->all_departments)
                                     <div class="mt-3">
-                                        <a href="{{ route('student.departments.request-more') }}"
-                                            class="btn btn-sm btn-warning">
+                                        <a href="{{ route('student.features.request') }}" class="btn btn-sm btn-warning">
                                             <i class="fas fa-paper-plane me-1"></i>
                                             داواکردنی تایبەتمەندی
                                         </a>

@@ -23,14 +23,23 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $this->call([SystemSeeder::class, ProvinceSeeder::class, UniversitySeeder::class, CollegeSeeder::class, MbtiQuestionsSeeder::class, AIQuestionsSeeder::class]);
+        $this->call([
+            SystemSeeder::class,
+            ProvinceSeeder::class,
+            UniversitySeeder::class,
+            CollegeSeeder::class,
+            DepartmentsSeeder::class,
+            MbtiQuestionsSeeder::class,
+            AIQuestionsSeeder::class,
+            SettingsSeeder::class,
+        ]);
 
         User::create([
-            'name' => 'Admin User',
+            'name' => 'ئەندازیار عبدالرحمن',
             'code' => '100',
             'password' => Hash::make('password'),
             'role' => 'admin',
-            'rand_code' => Random::generate(6),
+            'rand_code' => 0,
         ]);
 
         $this->updateDepartmentWeights();

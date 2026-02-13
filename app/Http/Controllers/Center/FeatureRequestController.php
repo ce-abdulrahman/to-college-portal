@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\RequestMoreDepartments;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class FeatureRequestController extends Controller
 {
@@ -44,6 +45,7 @@ class FeatureRequestController extends Controller
             'reason' => 'required|string|min:10|max:500',
             'request_types' => 'required|array|min:1',
             'request_types.*' => 'in:all_departments,ai_rank,gis',
+            'receipt_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
         
         $user = Auth::user();
@@ -61,6 +63,18 @@ class FeatureRequestController extends Controller
         if ($existingRequest) {
             return redirect()->back()->with('error', 'تۆ پێشتر داواکاریت ناردووە و چاوەڕوانی پەسەندکردنێ.');
         }
+
+        $receiptPath = null;
+        if ($request->hasFile('receipt_image')) {
+            $file = $request->file('receipt_image');
+            $uploadDir = public_path('uploads/request');
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $fileName = 'request_' . $user->id . '_' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $fileName);
+            $receiptPath = 'uploads/request/' . $fileName;
+        }
         
         // Create new request
         RequestMoreDepartments::create([
@@ -71,6 +85,7 @@ class FeatureRequestController extends Controller
             'request_ai_rank' => in_array('ai_rank', $request->request_types),
             'request_gis' => in_array('gis', $request->request_types),
             'reason' => $request->reason,
+            'receipt_image' => $receiptPath,
             'status' => 'pending',
         ]);
         

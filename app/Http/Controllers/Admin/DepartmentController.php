@@ -20,6 +20,8 @@ use App\Exports\DepartmentsTemplateExport;
 use App\Imports\DepartmentsImport;
 use App\Traits\FileUploadTrait;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class DepartmentController extends Controller
 {
@@ -30,6 +32,89 @@ class DepartmentController extends Controller
      */
     public function index(Request $request)
     {
+        // بۆ AJAX بوونەکە
+        if ($request->ajax()) {
+            // چ فلتەرەکانی dropdown بە AJAX
+            if ($request->get_filters) {
+                return response()->json([
+                    'systems' => Cache::remember('departments.systems', now()->addMinutes(10), function () {
+                        return System::where('status', 1)->get(['id', 'name']);
+                    }),
+                    'provinces' => Cache::remember('departments.provinces.system:all', now()->addMinutes(10), function () {
+                        return Province::where('status', 1)->get(['id', 'name']);
+                    }),
+                    'universities' => Cache::remember('departments.universities.system:all.province:all', now()->addMinutes(10), function () {
+                        return University::where('status', 1)->get(['id', 'name']);
+                    }),
+                    'colleges' => Cache::remember('departments.colleges.system:all.university:all', now()->addMinutes(10), function () {
+                        return College::where('status', 1)->get(['id', 'name']);
+                    }),
+                ]);
+            }
+
+            // جستجۆ و فلتەرکردن
+            $query = Department::with(['university', 'college', 'system', 'province']);
+
+            // جستجۆی ناوی بەش
+            if ($request->filled('search')) {
+                $search = trim((string) $request->search);
+                $driver = DB::getDriverName();
+                $boolean = collect(preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY))
+                    ->map(function ($term) {
+                        $term = preg_replace('/[^\p{L}\p{N}_]+/u', '', $term);
+                        return $term ? '+' . $term . '*' : null;
+                    })
+                    ->filter()
+                    ->implode(' ');
+
+                $query->where(function($q) use ($search, $driver, $boolean) {
+                    if (in_array($driver, ['mysql', 'mariadb'], true) && $boolean !== '') {
+                        $q->whereRaw('MATCH(name, name_en) AGAINST (? IN BOOLEAN MODE)', [$boolean]);
+                        $q->orWhere('name', 'like', "%{$search}%")
+                          ->orWhere('name_en', 'like', "%{$search}%");
+                    } else {
+                        $q->where('name', 'like', "%{$search}%")
+                          ->orWhere('name_en', 'like', "%{$search}%");
+                    }
+
+                    $q->orWhereHas('university', fn($u) => $u->where('name', 'like', "%{$search}%"))
+                      ->orWhereHas('college', fn($c) => $c->where('name', 'like', "%{$search}%"))
+                      ->orWhereHas('province', fn($p) => $p->where('name', 'like', "%{$search}%"))
+                      ->orWhereHas('system', fn($s) => $s->where('name', 'like', "%{$search}%"));
+                });
+            }
+
+            // فلتەرکردن بەپێی سیستەم
+            if ($request->filled('system_id')) {
+                $query->where('system_id', $request->system_id);
+            }
+
+            // فلتەرکردن بەپێی پارێزگا
+            if ($request->filled('province_id')) {
+                $query->where('province_id', $request->province_id);
+            }
+
+            // فلتەرکردن بەپێی زانکۆ
+            if ($request->filled('university_id')) {
+                $query->where('university_id', $request->university_id);
+            }
+
+            // فلتەرکردن بەپێی پۆل
+            if ($request->filled('college_id')) {
+                $query->where('college_id', $request->college_id);
+            }
+
+            $departments = $query->paginate(10);
+
+            return response()->json([
+                'data' => $departments->items(),
+                'total' => $departments->total(),
+                'per_page' => $departments->perPage(),
+                'current_page' => $departments->currentPage(),
+                'last_page' => $departments->lastPage(),
+            ]);
+        }
+
         return view('website.web.admin.department.index');
     }
 
@@ -165,15 +250,30 @@ class DepartmentController extends Controller
 
         $department->delete();
 
-        return redirect()->route('admin.departments.index')->with('success', 'بەشەک بەسەرکەوتووی سڕاوە.');
+        // بۆ AJAX بوونەکە
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'بەشەک سڕیبدرایتەوە']);
+        }
+
+        return redirect()->route('admin.departments.index')->with('success', 'بەشەک سڕیبدرایتەوە.');
     }
+
 
     public function getUniversities(Request $request)
     {
         $pid = (int) $request->query('province_id');
         abort_if($pid <= 0, 422, 'پاریزگا نەدۆزرایەوە!');
 
-        $universities = University::select('id', 'name')->where('province_id', $pid)->where('status', 1)->get();
+        $universities = Cache::remember(
+            'departments.universities.province:' . $pid,
+            now()->addMinutes(10),
+            function () use ($pid) {
+                return University::select('id', 'name')
+                    ->where('province_id', $pid)
+                    ->where('status', 1)
+                    ->get();
+            }
+        );
 
         return response()->json($universities)->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
     }
@@ -183,7 +283,16 @@ class DepartmentController extends Controller
         $uid = (int) $request->query('university_id');
         abort_if($uid <= 0, 422, 'زانکۆ نەدۆزرایەوە!');
 
-        $colleges = College::select('id', 'name')->where('university_id', $uid)->where('status', 1)->get();
+        $colleges = Cache::remember(
+            'departments.colleges.university:' . $uid,
+            now()->addMinutes(10),
+            function () use ($uid) {
+                return College::select('id', 'name')
+                    ->where('university_id', $uid)
+                    ->where('status', 1)
+                    ->get();
+            }
+        );
 
         return response()->json($colleges)->header('Cache-Control', 'no-store, max-age=0'); //لە Laravel ـدا دەتوانی no-cache لە وەڵامەکان زیاد بکەیت بۆ دڵنیابوون:
     }
@@ -209,10 +318,10 @@ class DepartmentController extends Controller
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls'
         ]);
-        
+
         try {
             Excel::import(new DepartmentsImport($request->update_existing), $request->file('file'));
-            
+
             return redirect()->route('admin.departments.index')
                 ->with('success', 'بەشەکان بە سەرکەوتوویی Import کراون!');
         } catch (\Exception $e) {

@@ -24,6 +24,7 @@ return new class extends Migration
             $table->boolean('request_ai_rank')->default(false);
             $table->boolean('request_gis')->default(false);
             $table->text('reason')->nullable();
+            $table->string('receipt_image')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('admin_notes')->nullable();
             $table->foreignId('admin_id')->nullable()->constrained('users')->onDelete('set null');

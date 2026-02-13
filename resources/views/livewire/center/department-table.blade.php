@@ -148,8 +148,8 @@
                                 </td>
                                 <td class="text-center">
                                     <a href="{{ route('center.departments.show', $department->id) }}"
-                                        class="btn btn-sm btn-outline-info" title="پیشاندان">
-                                        <i class="fa-solid fa-eye me-1"></i> پیشاندان
+                                        class="btn btn-sm btn-outline-info" title="نیشاندان">
+                                        <i class="fa-solid fa-eye me-1"></i> نیشاندان
                                     </a>
                                 </td>
                             </tr>

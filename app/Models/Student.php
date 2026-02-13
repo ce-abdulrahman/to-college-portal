@@ -9,6 +9,9 @@ class Student extends Model
 {
     use HasFactory;
 
+    protected $provinceIdCache = null;
+    protected $provinceIdCached = false;
+
     protected $fillable = [
         'user_id',
         'mark',
@@ -22,14 +25,19 @@ class Student extends Model
         'ai_rank',
         'gis',
         'all_departments',
+        'lat',
+        'lng',
     ];
 
     protected $casts = [
-        'mark' => 'integer',
+        'mark' => 'float',
         'year' => 'integer',
+        'status' => 'boolean',
         'ai_rank' => 'boolean',
         'gis' => 'boolean',
         'all_departments' => 'boolean',
+        'lat' => 'float',
+        'lng' => 'float',
     ];
 
     public function user()
@@ -55,6 +63,11 @@ class Student extends Model
     public function aiRankings()
     {
         return $this->hasMany(AIRanking::class);
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class, 'rand_code', 'referral_code');
     }
 
     // ئەمە بۆ MBTI
@@ -133,6 +146,24 @@ class Student extends Model
         ];
 
         return $descriptions[$this->mbti_type] ?? 'هیچ زانیاریەک بوونی نییە';
+    }
+
+    public function getProvinceIdAttribute()
+    {
+        if (array_key_exists('province_id', $this->attributes)) {
+            return $this->attributes['province_id'];
+        }
+
+        if ($this->provinceIdCached) {
+            return $this->provinceIdCache;
+        }
+
+        $this->provinceIdCache = $this->province
+            ? Province::where('name', $this->province)->value('id')
+            : null;
+        $this->provinceIdCached = true;
+
+        return $this->provinceIdCache;
     }
 
     public function hasCompletedMbtiTest()

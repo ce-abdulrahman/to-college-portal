@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{{ asset('assets/student/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
 
 </head>
 
@@ -24,7 +24,7 @@
 
     @include('layouts.toasts')
 
-    
+
     <div class="login-container">
         <div class="login-card">
             <div class="logo">
@@ -35,6 +35,9 @@
 
             @if (session('error'))
                 <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
             <form method="POST" action="{{ route('login') }}">

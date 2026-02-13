@@ -29,16 +29,29 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if (Auth::user()->role === 'center') {
+        $user = Auth::user();
+
+        if (!$user->status) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return back()->with('error', 'هەژمارەکەت هێشتا پەسەند نەکراوە.');
+        }
+
+        if ($user->role === 'center') {
             return redirect(RouteServiceProvider::CENTER_DASHBOARD);
         }
 
-        if (Auth::user()->role === 'admin') {
+        if ($user->role === 'admin') {
             return redirect(RouteServiceProvider::ADMIN_DASHBOARD);
         }
 
-        if (Auth::user()->role === 'teacher') {
+        if ($user->role === 'teacher') {
             return redirect(RouteServiceProvider::TEACHER_DASHBOARD);
+        }
+
+        if ($user->role === 'student') {
+            return redirect(RouteServiceProvider::STUDENT_DASHBOARD);
         }
 
         return redirect()->intended(RouteServiceProvider::HOME);

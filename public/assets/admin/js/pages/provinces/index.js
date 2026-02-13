@@ -2,7 +2,7 @@ $(document).ready(function() {
     // Initialize DataTable
     var table = $('#datatable').DataTable({
         language: {
-            url: '/assets/admin/js/datatables-ku.json'
+            url: '/js/datatables-ku.json'
         },
         pageLength: $('#page-length').val(),
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
@@ -38,11 +38,11 @@ $(document).ready(function() {
         var end = info.end;
         var total = info.recordsTotal;
         var filtered = info.recordsDisplay;
-        
-        var infoText = filtered === total 
+
+        var infoText = filtered === total
             ? `نیشاندان ${start} بۆ ${end} لە کۆی ${total}`
             : `نیشاندان ${start} بۆ ${end} لە کۆی ${filtered} (فیلتەرکراو لە ${total})`;
-        
+
         $('#dt-info').html(`<i class="fa-solid fa-table me-1"></i> ${infoText}`);
     }
 
@@ -50,7 +50,7 @@ $(document).ready(function() {
     $(document).on('submit', 'form[onsubmit="return confirm(\'دڵنیایت؟\');"]', function(e) {
         e.preventDefault();
         var form = this;
-        
+
         Swal.fire({
             title: 'دڵنیایت؟',
             text: 'ئەم کردارە گەڕانەوەی نیە!',

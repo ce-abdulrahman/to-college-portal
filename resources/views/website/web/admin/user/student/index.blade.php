@@ -31,7 +31,7 @@
             {{-- Top toolbar (length + search) --}}
             <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
                 <div class="d-flex align-items-center gap-2">
-                    <label class="small text-muted mb-0">پیشاندانی</label>
+                    <label class="small text-muted mb-0">نیشاندانی</label>
                     <select id="page-length" class="form-select form-select-sm" style="width:auto">
                         <option value="10" selected>10</option>
                         <option value="25">25</option>
@@ -54,37 +54,43 @@
                                 <th>ناو</th>
                                 <th>کۆد</th>
                                 <th>پیشە</th>
+                                <th style="width:140px">ژمارەی بەشەکان</th>
                                 <th style="width:120px">دۆخ</th>
                                 <th style="width:120px">بینین</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($users as $index => $user)
-                                @if (auth()->user()->id != $user->id)
+                            @foreach ($students as $index => $student)
+                                @if (auth()->user()->id != $student->user_id)
                                     <tr>
                                         <td>{{ ++$index }}</td>
                                         <td class="fw-semibold">
                                             <i class="fa-regular fa-user me-1 text-muted"></i>
-                                            {{ $user->name }}
+                                            {{ $student->user->name ?? '—' }}
                                         </td>
-                                        <td>{{ $user->code }}</td>
+                                        <td>{{ $student->user->code ?? '—' }}</td>
                                         <td>
-                                            @if ($user->role === 'admin')
-                                                <span class="badge bg-info">ئەدمین</span>
-                                            @else
+                                            @if (($student->user->role ?? null) === 'student')
                                                 <span class="badge bg-secondary">قوتابی</span>
+                                            @else
+                                                <span class="badge bg-info">{{ $student->user->role ?? '—' }}</span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if ($user->status)
+                                            <span class="badge bg-primary">
+                                                {{ $student->result_deps_count ?? 0 }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if ($student->user->status ?? false)
                                                 <span class="badge bg-success">چاڵاک</span>
                                             @else
                                                 <span class="badge bg-danger">ناچاڵاک</span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if ($user->student)
-                                                <a href="{{ route('admin.student.show', $user->student->id) }}"
+                                            @if ($student)
+                                                <a href="{{ route('admin.student.show', $student->id) }}"
                                                     class="text-decoration-none">
                                                     <i class="fa fa-eye me-1"></i>
                                                 </a>
@@ -95,9 +101,9 @@
                                     </tr>
                                 @endif
                             @endforeach
-                            @if (count($users) == 0)
+                            @if (count($students) == 0)
                                 <tr>
-                                    <td colspan="6" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
+                                    <td colspan="7" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
                                 </tr>
                             @endif
                         </tbody>

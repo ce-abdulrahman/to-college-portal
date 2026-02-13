@@ -24,7 +24,7 @@
 
         <!-- Student Info Header -->
         <div class="card glass border-0 shadow-sm mb-4 fade-in">
-            <div class="card-header bg-gradient-primary text-white border-0 py-3">
+            <div class="card-header bg-gradient-primary border-0 py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h4 class="mb-1"><i class="fas fa-user-graduate me-2"></i> پوختەی زانیارییەکان</h4>
@@ -52,17 +52,19 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
+                            <table class="table table-hover align-middle mb-0" data-select-url="{{ route('student.departments.select-final') }}">
                                 <thead class="bg-light text-muted smaller">
                                     <tr>
                                         <th class="ps-3" style="width: 50px;">ڕیز</th>
                                         <th>زانیاری بەش</th>
                                         <th class="text-center">سیستەم</th>
+                                        <th class="text-center" style="width: 120px;">هەڵبژاردن</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($chosenDepartments as $item)
-                                        <tr>
+                                        @php $isFinal = !is_null($item->result_rank); @endphp
+                                        <tr class="{{ $isFinal ? 'table-success final-selected' : '' }}">
                                             <td class="ps-3 fw-bold text-muted">{{ $item->rank }}</td>
                                             <td>
                                                 <div class="fw-bold text-dark small">{{ $item->department->name }}</div>
@@ -77,10 +79,19 @@
                                                     {{ $item->department->system->name }}
                                                 </span>
                                             </td>
+                                            <td class="text-center">
+                                                <div class="form-check d-inline-flex align-items-center gap-2">
+                                                    <input class="form-check-input final-select-input" type="radio"
+                                                        name="final_selection" data-id="{{ $item->id }}"
+                                                        data-current="{{ $isFinal ? '1' : '0' }}"
+                                                        {{ $isFinal ? 'checked' : '' }}>
+                                                    <span class="badge bg-success final-badge {{ $isFinal ? '' : 'd-none' }}">هەڵبژێردراو</span>
+                                                </div>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="3" class="p-5 text-center">
+                                            <td colspan="4" class="p-5 text-center">
                                                 <i class="fas fa-folder-open fa-3x text-muted opacity-25 mb-3 d-block"></i>
                                                 <p class="text-muted">هێشتا هیچ بەشێکت هەڵنەبژاردووە.</p>
                                                 <a href="{{ route('student.departments.selection') }}"
@@ -223,6 +234,10 @@
             animation: fadeIn 0.5s ease-in;
         }
 
+        .final-selected td {
+            font-weight: 600;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -254,4 +269,59 @@
             }
         }
     </style>
+@endpush
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            const table = $('table[data-select-url]');
+            if (!table.length) return;
+
+            const url = table.data('select-url');
+            const token = "{{ csrf_token() }}";
+
+            table.on('change', '.final-select-input', function() {
+                const input = $(this);
+                const prev = table.find('.final-select-input[data-current="1"]');
+                const resultDepId = input.data('id');
+
+                $.ajax({
+                    url,
+                    method: 'POST',
+                    data: {
+                        _token: token,
+                        result_dep_id: resultDepId
+                    },
+                    success: function(res) {
+                        table.find('tbody tr').removeClass('table-success final-selected');
+                        table.find('.final-badge').addClass('d-none');
+                        table.find('.final-select-input').attr('data-current', '0');
+
+                        const row = input.closest('tr');
+                        row.addClass('table-success final-selected');
+                        row.find('.final-badge').removeClass('d-none');
+                        input.attr('data-current', '1');
+
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(res.message || 'سەرکەوتوو');
+                        }
+                    },
+                    error: function(xhr) {
+                        const msg = xhr.responseJSON?.message || 'هەڵەیەک ڕوویدا';
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error(msg);
+                        } else {
+                            alert(msg);
+                        }
+
+                        if (prev.length) {
+                            prev.prop('checked', true);
+                        } else {
+                            input.prop('checked', false);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 @endpush

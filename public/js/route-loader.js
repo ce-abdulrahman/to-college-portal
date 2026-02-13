@@ -6,20 +6,20 @@
   // CSS
   var css = document.createElement("link");
   css.rel = "stylesheet";
-  css.href = "/assets/admin/css/" + page + ".css";
+  css.href = "/css/" + page + ".css";
   document.head.appendChild(css);
 
   // shared form
   var shared = document.createElement("script");
   shared.defer = true;
-  shared.src = "/assets/admin/js/pages/" + page + "/form.js";
+  shared.src = "/js/pages/" + page + "/form.js";
   document.head.appendChild(shared);
 
   // view-specific JS
   if (view) {
     var script = document.createElement("script");
     script.defer = true;
-    script.src = "/assets/admin/js/pages/" + page + "/" + view + ".js";
+    script.src = "/js/pages/" + page + "/" + view + ".js";
     document.head.appendChild(script);
   }
 })();

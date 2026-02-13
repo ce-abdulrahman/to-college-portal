@@ -258,8 +258,7 @@ class GISController extends Controller
             'user_id' => $user->id,
             'student_id' => $student->id,
             'department_id' => $request->department_id,
-            'status' => 'pending',
-            'system_id' => $department->system_id,
+            'result_rank' => null,
         ]);
 
         return response()->json([

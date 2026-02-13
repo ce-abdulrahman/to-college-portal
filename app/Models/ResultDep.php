@@ -16,9 +16,13 @@ class ResultDep extends Model
         'user_id',
         'student_id',
         'department_id',
-        'system_id',
-        'status',
         'rank',
+        'result_rank',
+    ];
+
+    protected $casts = [
+        'rank' => 'integer',
+        'result_rank' => 'integer',
     ];
 
     public function user()
@@ -34,10 +38,5 @@ class ResultDep extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
-    }
-
-    public function system()
-    {
-        return $this->belongsTo(System::class);
     }
 }

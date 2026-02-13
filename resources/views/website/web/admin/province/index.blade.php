@@ -104,7 +104,7 @@
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a href="{{ route('admin.provinces.show', $province->id) }}"
-                                           class="btn btn-outline-info" title="پیشاندان">
+                                           class="btn btn-outline-info" title="نیشاندان">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
                                         @if (auth()->user()->role === 'admin')
@@ -164,7 +164,7 @@
                 table.rows().every(function() {
                     const row = $(this.node());
                     const rowStatus = row.data('status');
-                    
+
                     if (statusVal && rowStatus != statusVal) {
                         row.hide();
                     } else {

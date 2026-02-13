@@ -1,7 +1,7 @@
 <nav class="drawer-nav">
 
                 <a href="{{ route('admin.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
-                    <i class="bi bi-house"></i><span>ماڵەوە</span>
+                    <i class="bi bi-grid-fill"></i><span>ماڵەوە</span>
                 </a>
 
 
@@ -54,13 +54,13 @@
 
                 <a href="{{ route('admin.mbti.questions.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.mbti.questions.index') }}">
-                    <i class="fa-solid fa-id-card"></i>
+                    <i class="bi bi-bar-chart"></i>
                     <span>پرسیاری MBTI</span>
                 </a>
 
                 <a href="{{ route('admin.mbti.results.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.mbti.results.index') }}">
-                    <i class="fa-solid fa-id-card"></i>
+                    <i class="bi bi-bar-chart"></i>
                     <span>ئەنجامی پرسیاری MBTI</span>
                 </a>
 
@@ -99,7 +99,7 @@
 
                 <a href="{{ route('admin.requests.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.requests.index') }}">
-                    <i class="fa-solid fa-building-user"></i>
+                    <i class="bi bi-bell"></i>
                     <span>پرسەکانی بەشەکانی</span>
                     @if($pendingCount > 0)
                 <span class="badge bg-danger ms-1">{{ $pendingCount }}</span>
@@ -108,7 +108,7 @@
 
                 <a href="{{ route('admin.backups.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.backups.index') }}">
-                    <i class="fa-solid fa-database"></i>
+                    <i class="bi bi-cloud-arrow-up"></i>
                     <span>Backup داتابەیس</span>
                 </a>
 
@@ -120,6 +120,12 @@
                     class="drawer-nav-item back-btn {{ navActive('admin.results.index') }}">
                     <i class="fa-solid fa-receipt"></i>
                     <span>ئەنجامی هەڵبژاردنەکانی قوتابیان</span>
+                </a>
+
+                <a href="{{ route('admin.settings.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.settings.index') }}">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>ڕێکخستنەکان</span>
                 </a>
 
 

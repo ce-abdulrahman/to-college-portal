@@ -106,7 +106,7 @@
                             <div class="col-12">
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="{{ route('admin.colleges.show', $college->id) }}" class="btn btn-outline-secondary">
-                                        <i class="fa-solid fa-eye me-1"></i> پیشاندان
+                                        <i class="fa-solid fa-eye me-1"></i> نیشاندان
                                     </a>
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
@@ -129,31 +129,31 @@
         let map, marker;
         const latInput = document.getElementById('lat');
         const lngInput = document.getElementById('lng');
-        
+
         const initialLat = parseFloat(latInput.value) || 33.3128;
         const initialLng = parseFloat(lngInput.value) || 44.3615;
-        
+
         map = L.map('location-map').setView([initialLat, initialLng], 13);
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
-        
+
         if (latInput.value && lngInput.value) {
             marker = L.marker([initialLat, initialLng]).addTo(map);
         }
-        
+
         map.on('click', function(e) {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
-            
+
             latInput.value = lat.toFixed(6);
             lngInput.value = lng.toFixed(6);
-            
+
             if (marker) {
                 map.removeLayer(marker);
             }
-            
+
             marker = L.marker([lat, lng]).addTo(map);
         });
     });

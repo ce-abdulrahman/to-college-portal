@@ -147,7 +147,7 @@ class MapDashboard {
         }).addTo(this.map);
 
         L.control.zoom({ position: 'topright' }).addTo(this.map);
-        
+
         // Add all layers to map
         Object.values(this.layers).forEach(layer => layer.addTo(this.map));
     }
@@ -164,16 +164,16 @@ class MapDashboard {
                 zeroRecords: 'No matching records found'
             },
             columns: [
-                { 
+                {
                     data: 'name',
                     render: function(data, type, row) {
-                        const icon = row.type === 'university' ? 'bi-building' : 
-                                   row.type === 'college' ? 'bi-house' : 
+                        const icon = row.type === 'university' ? 'bi-building' :
+                                   row.type === 'college' ? 'bi-house' :
                                    'bi-diagram-3';
                         return `<i class="bi ${icon} me-2"></i>${data || '—'}`;
                     }
                 },
-                { 
+                {
                     data: 'type',
                     render: function(data) {
                         return data ? data.charAt(0).toUpperCase() + data.slice(1) : '';
@@ -184,11 +184,11 @@ class MapDashboard {
                     orderable: false,
                     render: (data, type, row) => {
                         if (row.type === 'department') return '';
-                        
+
                         const nextType = row.type === 'university' ? 'colleges' : 'departments';
                         const buttonText = row.type === 'university' ? 'View Colleges' : 'View Departments';
-                        
-                        return `<button class="btn btn-sm btn-outline-primary btn-view" 
+
+                        return `<button class="btn btn-sm btn-outline-primary btn-view"
                                 data-id="${row.id}" data-type="${row.type}">
                                 ${buttonText}
                                 </button>`;
@@ -210,7 +210,7 @@ class MapDashboard {
         try {
             const response = await fetch(MAP_CONFIG.provincesUrl);
             if (!response.ok) throw new Error('Network response was not ok');
-            
+
             const geojson = await response.json();
             this.renderProvinces(geojson);
         } catch (error) {
@@ -221,7 +221,7 @@ class MapDashboard {
 
     renderProvinces(geojson) {
         this.layers.provinces.clearLayers();
-        
+
         L.geoJSON(geojson, {
             style: {
                 color: '#666',
@@ -231,22 +231,22 @@ class MapDashboard {
             },
             onEachFeature: (feature, layer) => {
                 const props = feature.properties || {};
-                layer.bindTooltip(props.name || 'Province', { 
+                layer.bindTooltip(props.name || 'Province', {
                     sticky: true,
                     direction: 'top'
                 });
-                
+
                 layer.on({
                     click: () => this.handleProvinceClick(feature, layer),
-                    mouseover: () => layer.setStyle({ 
-                        weight: 3, 
+                    mouseover: () => layer.setStyle({
+                        weight: 3,
                         fillOpacity: 0.2,
                         color: '#2563eb'
                     }),
                     mouseout: () => {
                         if (!layer._highlighted) {
-                            layer.setStyle({ 
-                                weight: 2, 
+                            layer.setStyle({
+                                weight: 2,
                                 fillOpacity: 0.1,
                                 color: '#666'
                             });
@@ -261,9 +261,9 @@ class MapDashboard {
 
     async handleProvinceClick(feature, layer) {
         this.clearHighlights();
-        layer.setStyle({ 
-            weight: 4, 
-            color: '#3b82f6', 
+        layer.setStyle({
+            weight: 4,
+            color: '#3b82f6',
             fillOpacity: 0.3,
             fillColor: '#3b82f6'
         });
@@ -286,12 +286,12 @@ class MapDashboard {
             const url = MAP_CONFIG.apiRoutes.universitiesByProvince(provinceId);
             const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
-            
+
             const data = await response.json();
-            
+
             this.renderInstitutions(data.items || [], 'university');
             this.renderMapMarkers(data.items || [], 'university');
-            
+
             this.updateBreadcrumb([
                 { name: 'Provinces', type: 'provinces' },
                 { name: this.currentSelection.name, type: 'province' }
@@ -310,12 +310,12 @@ class MapDashboard {
             const url = MAP_CONFIG.apiRoutes.collegesByUniversity(universityId);
             const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
-            
+
             const data = await response.json();
-            
+
             this.renderInstitutions(data.items || [], 'college');
             this.renderMapMarkers(data.items || [], 'college');
-            
+
             this.updateBreadcrumb([
                 { name: 'Provinces', type: 'provinces' },
                 { name: this.currentSelection.parent.name, type: 'province' },
@@ -335,12 +335,12 @@ class MapDashboard {
             const url = MAP_CONFIG.apiRoutes.departmentsByCollege(collegeId);
             const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
-            
+
             const data = await response.json();
-            
+
             this.renderInstitutions(data.items || [], 'department');
             this.renderMapMarkers(data.items || [], 'department');
-            
+
             this.updateBreadcrumb([
                 { name: 'Provinces', type: 'provinces' },
                 { name: this.currentSelection.parent.parent.name, type: 'province' },
@@ -399,7 +399,7 @@ class MapDashboard {
                         fillColor: this.getColorForType(type)
                     }
                 }).bindPopup(this.createPopup(item, type));
-                
+
                 layer.addLayer(polygon);
             }
         });
@@ -412,11 +412,11 @@ class MapDashboard {
     createPopup(item, type) {
         const typeName = type === 'university' ? 'University' :
                         type === 'college' ? 'College' : 'Department';
-        
+
         return `<div class="p-2">
             <h6 class="mb-1">${item.name || typeName}</h6>
             ${item.name_en ? `<p class="text-muted small mb-1">${item.name_en}</p>` : ''}
-            ${item.lat && item.lng ? 
+            ${item.lat && item.lng ?
               `<p class="text-muted small mb-0"><i class="bi bi-geo-alt"></i> ${item.lat.toFixed(4)}, ${item.lng.toFixed(4)}</p>` : ''}
         </div>`;
     }
@@ -456,11 +456,11 @@ class MapDashboard {
 
     updateBreadcrumb(items) {
         const $bc = $('#breadcrumb-list').empty();
-        
+
         items.forEach((item, index) => {
             const isLast = index === items.length - 1;
             const $li = $(`<li class="breadcrumb-item ${isLast ? 'active' : ''}"></li>`);
-            
+
             if (isLast) {
                 $li.text(item.name);
             } else {
@@ -471,7 +471,7 @@ class MapDashboard {
                 });
                 $li.append($a);
             }
-            
+
             $bc.append($li);
         });
     }
@@ -491,7 +491,7 @@ class MapDashboard {
         this.dataTable.clear().draw();
         $('#result-count').text('0 found');
         $('#list-title').text('Select a Province');
-        
+
         this.clearHighlights();
         this.clearAllMarkers();
         this.updateBreadcrumb([{ name: 'Provinces', type: 'provinces' }]);
@@ -500,8 +500,8 @@ class MapDashboard {
 
     clearHighlights() {
         this.layers.provinces.eachLayer(layer => {
-            layer.setStyle({ 
-                weight: 2, 
+            layer.setStyle({
+                weight: 2,
                 fillOpacity: 0.1,
                 color: '#666'
             });
@@ -522,11 +522,11 @@ class MapDashboard {
 
         $('#btn-fit').click(() => {
             const visibleLayers = [];
-            
+
             if (this.visibleLayers.universities) visibleLayers.push(this.layers.universities);
             if (this.visibleLayers.colleges) visibleLayers.push(this.layers.colleges);
             if (this.visibleLayers.departments) visibleLayers.push(this.layers.departments);
-            
+
             const bounds = L.featureGroup(visibleLayers).getBounds();
             if (bounds.isValid()) {
                 this.map.fitBounds(bounds.pad(0.1));
@@ -546,7 +546,7 @@ class MapDashboard {
                 (pos) => {
                     const { latitude, longitude, accuracy } = pos.coords;
                     this.layers.user.clearLayers();
-                    
+
                     L.circle([latitude, longitude], {
                         radius: accuracy,
                         color: '#ef4444',
@@ -554,7 +554,7 @@ class MapDashboard {
                         fillOpacity: 0.1,
                         weight: 1
                     }).addTo(this.layers.user);
-                    
+
                     L.marker([latitude, longitude], {
                         icon: L.divIcon({
                             className: 'user-location-marker',
@@ -563,7 +563,7 @@ class MapDashboard {
                         })
                     }).addTo(this.layers.user)
                       .bindTooltip('Your location', { direction: 'top' });
-                    
+
                     this.map.setView([latitude, longitude], 14);
                 },
                 (err) => {
@@ -581,10 +581,10 @@ class MapDashboard {
     toggleLayer(layerType) {
         const btn = $(`#btn-toggle-${layerType.slice(0, 3)}`);
         const isActive = !btn.hasClass('active');
-        
+
         btn.toggleClass('active', isActive);
         this.visibleLayers[layerType] = isActive;
-        
+
         if (isActive) {
             this.map.addLayer(this.layers[layerType]);
         } else {

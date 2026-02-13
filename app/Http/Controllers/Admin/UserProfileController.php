@@ -195,13 +195,20 @@ class UserProfileController extends Controller
                 'code' => 'required|string|max:255|unique:users,code,' . $user->id,
                 'phone' => 'nullable',
                 'role' => 'required',
+                'status' => 'required|in:0,1',
             ]);
             $user->update([
                 'name' => $request->name,
                 'code' => $request->code,
                 'phone' => $request->phone,
                 'role' => $request->role,
+                'status' => (int) $request->status,
             ]);
+
+            if ($request->role === 'student') {
+                Student::where('user_id', $user->id)
+                    ->update(['status' => (int) $request->status]);
+            }
         }
         return redirect()->route('admin.users.index')->with('success', 'ئەدمینی نوێکردنەوە بەسەرکەوتوویی تەواو بوو.');
     }

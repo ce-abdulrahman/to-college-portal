@@ -1,112 +1,117 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('center.dashboard') }}">داشبۆرد</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('center.departments.index') }}">بەشەکان</a></li>
-                        <li class="breadcrumb-item active">زانیاری بەش</li>
-                    </ol>
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('center.dashboard') }}">داشبۆرد</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('center.departments.index') }}">بەشەکان</a></li>
+                            <li class="breadcrumb-item active">زانیاری بەش</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">
+                        <i class="fas fa-building-columns me-1"></i>
+                        زانیاری بەش
+                    </h4>
                 </div>
-                <h4 class="page-title">
-                    <i class="fas fa-building-columns me-1"></i>
-                    زانیاری بەش
-                </h4>
             </div>
         </div>
-    </div>
 
-    <div class="mb-3">
-        <a href="{{ route('center.departments.index') }}" class="btn btn-outline-success">
-            <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
-        </a>
-    </div>
+        <div class="mb-3">
+            <a href="{{ route('center.departments.index') }}" class="btn btn-outline-success">
+                <i class="fa-solid fa-arrow-left me-1"></i> گەڕانەوە
+            </a>
+        </div>
 
-    <div class="row">
-        <div class="col-12 col-xl-10 mx-auto">
-            <div class="card glass fade-in">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">
-                        <i class="fa-solid fa-table-list me-2"></i> زانیاری تەواوی بەش
-                    </h4>
+        <div class="row">
+            <div class="col-12 col-xl-10 mx-auto">
+                <div class="card glass fade-in">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">
+                            <i class="fa-solid fa-table-list me-2"></i> زانیاری تەواوی بەش
+                        </h4>
 
-                    <div class="table-wrap">
-                        <div class="table-responsive table-scroll-x">
-                            <table class="table table-bordered align-middle">
-                                <tbody>
-                                    <tr>
-                                        <th style="width:260px"><i class="fa-solid fa-hashtag me-1 text-muted"></i> #</th>
-                                        <td>1</td>
-                                    </tr>
-                                    <tr>
-                                        <th style="width:260px"><i class="fa-solid fa-image me-1 text-muted"></i> وێنە</th>
-                                        <td>
-                                            <img src="{{ $department->image }}" alt="{{ $department->name }}"
-                                                style="height:80px;max-width:100%;border-radius:6px;object-fit:cover">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><i class="fa-solid fa-cube me-1 text-muted"></i> سیستەم</th>
-                                        <td>{{ $department->system->name }}</td>
-                                    </tr>
+                        <div class="table-wrap">
+                            <div class="table-responsive table-scroll-x">
+                                <table class="table table-bordered align-middle">
+                                    <tbody>
+                                        <tr>
+                                            <th style="width:260px"><i class="fa-solid fa-hashtag me-1 text-muted"></i> #
+                                            </th>
+                                            <td>1</td>
+                                        </tr>
+                                        <tr>
+                                            <th style="width:260px"><i class="fa-solid fa-image me-1 text-muted"></i> وێنە
+                                            </th>
+                                            <td>
+                                                <img src="{{ $department->image }}" alt="{{ $department->name }}"
+                                                    style="height:80px;max-width:100%;border-radius:6px;object-fit:cover">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-cube me-1 text-muted"></i> سیستەم</th>
+                                            <td>{{ $department->system->name }}</td>
+                                        </tr>
 
-                                    <tr>
-                                        <th><i class="fa-solid fa-map-pin me-1 text-muted"></i> پارێزگا</th>
-                                        <td>{{ $department->province->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><i class="fa-solid fa-school me-1 text-muted"></i> زانکۆ</th>
-                                        <td>{{ $department->university->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><i class="fa-solid fa-building-columns me-1 text-muted"></i> کۆلێژ/پەیمانگا</th>
-                                        <td>{{ $department->college->name }}</td>
-                                    </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-map-pin me-1 text-muted"></i> پارێزگا</th>
+                                            <td>{{ $department->province->name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-school me-1 text-muted"></i> زانکۆ</th>
+                                            <td>{{ $department->university->name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-building-columns me-1 text-muted"></i> کۆلێژ/پەیمانگا
+                                            </th>
+                                            <td>{{ $department->college->name }}</td>
+                                        </tr>
 
-                                    <tr>
-                                        <th><i class="fa-solid fa-tag me-1 text-muted"></i> ناو</th>
-                                        <td class="fw-semibold">{{ $department->name }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><i class="fa-solid fa-percent me-1 text-muted"></i> ن. ناوەندی</th>
-                                        <td>{{ $department->local_score ?? '—' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><i class="fa-solid fa-percent me-1 text-muted"></i> ن. ناوخۆی</th>
-                                        <td>{{ $department->external_score ?? '—' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><i class="fa-solid fa-layer-group me-1 text-muted"></i> جۆر</th>
-                                        <td>{{ $department->type }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><i class="fa-solid fa-venus-mars me-1 text-muted"></i> ڕەگەز</th>
-                                        <td>{{ $department->sex ?? '—' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th><i class="fa-solid fa-align-left me-1 text-muted"></i> وەسف</th>
-                                        <td>{!! nl2br(e($department->description)) !!}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                        <tr>
+                                            <th><i class="fa-solid fa-tag me-1 text-muted"></i> ناو</th>
+                                            <td class="fw-semibold">{{ $department->name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-percent me-1 text-muted"></i> ن. ناوەندی</th>
+                                            <td>{{ $department->local_score ?? '—' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-percent me-1 text-muted"></i> ن. ناوخۆی</th>
+                                            <td>{{ $department->external_score ?? '—' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-layer-group me-1 text-muted"></i> جۆر</th>
+                                            <td>{{ $department->type }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-venus-mars me-1 text-muted"></i> ڕەگەز</th>
+                                            <td>{{ $department->sex ?? '—' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th><i class="fa-solid fa-align-left me-1 text-muted"></i> وەسف</th>
+                                            <td>{!! nl2br(e($department->description)) !!}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
                         </div>
 
+
                     </div>
-
-
                 </div>
+                <div class="table-wrap">
+
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                    <div id="map-department" style="height: 440px; border-radius: 14px;" class="m-3"></div>
+                </div>
+
+
             </div>
-            <div class="table-wrap">
-
-                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                <div id="map-department" style="height: 440px; border-radius: 14px;" class="m-3"></div>
-            </div>
-
-
         </div>
     </div>
 @endsection

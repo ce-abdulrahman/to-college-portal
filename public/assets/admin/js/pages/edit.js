@@ -1,4 +1,3 @@
-// assets/admin/js/pages/edit.js
 document.addEventListener('DOMContentLoaded', function() {
     const currentPage = document.body.getAttribute('data-page');
     const currentView = document.body.getAttribute('data-view');

@@ -180,8 +180,8 @@
                                 </td>
                                 <td class="text-center pe-4">
                                     <a href="{{ route('teacher.departments.show', $department->id) }}"
-                                        class="btn btn-sm btn-soft-primary px-3" title="پیشاندان">
-                                        <i class="fa-solid fa-eye me-1"></i> پیشاندان
+                                        class="btn btn-sm btn-soft-primary px-3" title="نیشاندان">
+                                        <i class="fa-solid fa-eye me-1"></i> نیشاندان
                                     </a>
                                 </td>
                             </tr>

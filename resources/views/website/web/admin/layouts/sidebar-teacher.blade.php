@@ -1,6 +1,6 @@
 <nav class="drawer-nav">
 
-            <a href="{{ route('teacher.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
+            <a href="{{ route('teacher.dashboard') }}" class="drawer-nav-item {{ navActive('teacher.dashboard') }}">
                 <i class="bi bi-house"></i><span>ماڵەوە</span>
             </a>
             <a href="{{ route('teacher.departments.index') }}"

@@ -18,6 +18,25 @@ use InvalidArgumentException;
 
 class TeacherInCenterController extends Controller
 {
+    private function assertCenterOwnsTeacher(Teacher $teacher): void
+    {
+        $user = auth()->user();
+        $center = $user?->center;
+
+        if (!$user || $user->role !== 'center' || !$center) {
+            abort(404);
+        }
+
+        $teacher->loadMissing('user');
+
+        if (!$teacher->user || $teacher->user->role !== 'teacher') {
+            abort(404);
+        }
+
+        if ((string) $teacher->referral_code !== (string) $user->rand_code) {
+            abort(404);
+        }
+    }
     public function index()
     {
         $center = auth()->user();
@@ -50,7 +69,7 @@ class TeacherInCenterController extends Controller
             'phone' => ['nullable', 'string', 'max:11'],
             'password' => ['required', 'string', 'min:8'],
             'rand_code' => ['required', 'integer', 'unique:users,rand_code'],
-            'role' => ['required', Rule::in(['teacher', 'student'])],
+            'role' => ['required', Rule::in(['teacher'])],
             // 'referral_teacher_code' => ['required', 'string', 'max:255'], // Removed as it should be auto-assigned
             'status' => ['required', 'in:1,0'],
         ]);
@@ -59,7 +78,7 @@ class TeacherInCenterController extends Controller
             'name' => $data['name'],
             'code' => $data['code'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'],
+            'role' => 'teacher',
             'status' => (int) $data['status'],
             'phone' => $data['phone'] ?? null,
             'rand_code' => (int) $data['rand_code'] ?? 0,
@@ -67,7 +86,7 @@ class TeacherInCenterController extends Controller
 
         // Inherit features from the Center
         $center = auth()->user()->center;
-        
+
         Teacher::create([
             'user_id' => $user->id,
             'referral_code' => auth()->user()->rand_code,
@@ -81,6 +100,7 @@ class TeacherInCenterController extends Controller
 
     public function show(Teacher $teacher)
     {
+        $this->assertCenterOwnsTeacher($teacher);
         // مامۆستا + یوزەری پەیوەست کراو
         $teacher->load('user');
         $userTeacher = $teacher->user;
@@ -106,16 +126,17 @@ class TeacherInCenterController extends Controller
         return view('website.web.center.teacher.show', compact('userTeacher', 'students', 'studentsCount'));
     }
 
-    public function edit(string $id)
+    public function edit(Teacher $teacher)
     {
-        $teacher = Teacher::findOrFail($id);
+        $this->assertCenterOwnsTeacher($teacher);
 
         return view('website.web.center.teacher.edit', compact('teacher'));
     }
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, Teacher $teacher)
     {
-        $teacher = Teacher::with('user')->findOrFail($id);
+        $this->assertCenterOwnsTeacher($teacher);
+        $teacher->load('user');
         $user = User::findOrFail($teacher->user_id); // ✅ چاککرا
 
         $data = $request->validate([
@@ -141,13 +162,13 @@ class TeacherInCenterController extends Controller
             ->with('success', 'بەسەرکەوتوویی نوێکراوی مامۆستا');
     }
 
-    public function destroy(string $id)
+    public function destroy(Teacher $teacher)
     {
-        $user = User::findOrFail($id);
+        $this->assertCenterOwnsTeacher($teacher);
+        $teacher->load('user');
+        $teacher->user->delete();
 
-        $user->delete();
-
-        return redirect()->route('center.students.index')->with('success', 'زانکۆ بە سەرکەوتوویی سڕایەوە.');
+        return redirect()->route('center.teachers.index')->with('success', 'مامۆستا بە سەرکەوتوویی سڕایەوە.');
     }
 
 }

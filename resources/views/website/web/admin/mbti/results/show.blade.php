@@ -137,7 +137,7 @@
                     <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2"></i>دابەشبوونی نمرەکان</h5>
                 </div>
                 <div class="card-body">
-                    @foreach(['EI' => ['E' => 'Extraversion', 'I' => 'Introversion'], 
+                    @foreach(['EI' => ['E' => 'Extraversion', 'I' => 'Introversion'],
                             'SN' => ['S' => 'Sensing', 'N' => 'Intuition'],
                             'TF' => ['T' => 'Thinking', 'F' => 'Feeling'],
                             'JP' => ['J' => 'Judging', 'P' => 'Perceiving']] as $dim => $sides)
@@ -153,14 +153,14 @@
                                 {{ $label }}@if(!$loop->last) - @endif
                             @endforeach
                         </h6>
-                        
+
                         @php
                             $total = 0;
                             foreach($sides as $key => $label) {
                                 $total += $scores[$key] ?? 0;
                             }
                         @endphp
-                        
+
                         <div class="row align-items-center">
                             @foreach($sides as $key => $label)
                             <div class="col-2 text-center">
@@ -347,7 +347,7 @@
                     <a href="{{ route('admin.mbti.results.index') }}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-right me-1"></i>گەڕانەوە بۆ لیستی ئەنجامەکان
                     </a>
-                    
+
                     <div class="btn-group">
                         <button type="button" class="btn btn-primary" onclick="printResult()">
                             <i class="fas fa-print me-1"></i>چاپکردن
@@ -417,10 +417,10 @@ $(document).ready(function() {
     $('#answersTable').DataTable({
         language: {
             "processing": "چالاکیەکە لە جێبەجێکردن دایە...",
-            "lengthMenu": "پیشاندانی _MENU_ تۆمار",
+            "lengthMenu": "نیشاندانی _MENU_ تۆمار",
             "zeroRecords": "هیچ تۆمارێک نەدۆزرایەوە",
-            "info": "پیشاندانی _START_ بۆ _END_ لە _TOTAL_ تۆمار",
-            "infoEmpty": "پیشاندانی 0 بۆ 0 لە 0 تۆمار",
+            "info": "نیشاندانی _START_ بۆ _END_ لە _TOTAL_ تۆمار",
+            "infoEmpty": "نیشاندانی 0 بۆ 0 لە 0 تۆمار",
             "infoFiltered": "(پاڵاوتە بۆ _MAX_ کۆی تۆمار)",
             "search": "گەڕان:",
             "paginate": {
@@ -491,7 +491,7 @@ $(document).ready(function() {
 function printResult() {
     const printContent = document.querySelector('.container-fluid').innerHTML;
     const originalContent = document.body.innerHTML;
-    
+
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -526,7 +526,7 @@ function printResult() {
         </body>
         </html>
     `);
-    
+
     printWindow.document.close();
     setTimeout(() => {
         printWindow.print();

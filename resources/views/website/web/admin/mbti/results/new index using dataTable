@@ -36,7 +36,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6">
             <div class="card border-success">
                 <div class="card-body">
@@ -55,7 +55,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6">
             <div class="card border-warning">
                 <div class="card-body">
@@ -71,7 +71,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-xl-3 col-md-6">
             <div class="card border-info">
                 <div class="card-body">
@@ -210,10 +210,10 @@
 $(document).ready(function() {
     const kurdishLanguage = {
         "processing": "چالاکیەکە لە جێبەجێکردن دایە...",
-        "lengthMenu": "پیشاندانی _MENU_ تۆمار",
+        "lengthMenu": "نیشاندانی _MENU_ تۆمار",
         "zeroRecords": "هیچ تۆمارێک نەدۆزرایەوە",
-        "info": "پیشاندانی _START_ بۆ _END_ لە _TOTAL_ تۆمار",
-        "infoEmpty": "پیشاندانی 0 بۆ 0 لە 0 تۆمار",
+        "info": "نیشاندانی _START_ بۆ _END_ لە _TOTAL_ تۆمار",
+        "infoEmpty": "نیشاندانی 0 بۆ 0 لە 0 تۆمار",
         "infoFiltered": "(پاڵاوتە بۆ _MAX_ کۆی تۆمار)",
         "search": "گەڕان:",
         "paginate": {
@@ -235,7 +235,7 @@ $(document).ready(function() {
             }
         },
         columns: [
-            { 
+            {
                 data: 'user.name',
                 name: 'user.name',
                 render: function(data, type, row) {
@@ -256,7 +256,7 @@ $(document).ready(function() {
                 }
             },
             { data: 'user.code', name: 'user.code' },
-            { 
+            {
                 data: 'mbti_type',
                 name: 'mbti_type',
                 render: function(data) {
@@ -267,14 +267,14 @@ $(document).ready(function() {
                 }
             },
             { data: 'year', name: 'year', defaultContent: '-' },
-            { 
+            {
                 data: 'mbti_answers_count',
                 name: 'mbti_answers_count',
                 render: function(data) {
                     return `<span class="badge bg-info">${data}</span>`;
                 }
             },
-            { 
+            {
                 data: 'last_test_date',
                 name: 'last_test_date',
                 render: function(data) {
@@ -292,13 +292,13 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     const showUrl = "{{ route('admin.mbti.results.show', ':id') }}".replace(':id', row.id);
                     const deleteUrl = "{{ route('admin.mbti.results.delete', ':id') }}".replace(':id', row.id);
-                    
+
                     return `
                         <div class="btn-group btn-group-sm">
                             <a href="${showUrl}" class="btn btn-info" title="بینین">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <button type="button" class="btn btn-danger delete-result" 
+                            <button type="button" class="btn btn-danger delete-result"
                                     data-id="${row.id}" data-url="${deleteUrl}" title="سڕینەوە">
                                 <i class="fas fa-trash"></i>
                             </button>

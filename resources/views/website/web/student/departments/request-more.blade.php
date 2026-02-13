@@ -89,29 +89,50 @@
                                     <div class="card-body p-3">
                                         <div class="d-flex align-items-center mb-2">
                                             <div class="avatar-xs flex-shrink-0 me-2">
-                                                <span class="avatar-title bg-info rounded-circle fs-13">
+                                                <span class="avatar-title bg-info rounded-circle fs-13 p-2">
                                                     <i class="fa-solid fa-credit-card text-white"></i>
                                                 </span>
                                             </div>
-                                            <h6 class="mb-0 text-info fw-bold">ڕێنمایی و جۆری چالاککردن</h6>
+                                            <h6 class="mb-0 text-info fw-bold m-2">ڕێنمایی و جۆری چالاککردن</h6>
                                         </div>
+                                        @php
+                                            $featurePrices = json_decode($appSettings['feature_prices'] ?? '', true) ?? [
+                                                '1' => 3000,
+                                                '2' => 5000,
+                                                '3' => 6000,
+                                            ];
+                                        @endphp
                                         <div class="ms-1">
                                             <p class="mb-2 small text-muted lh-lg">
                                                 ئەو تایبەتمەندییانەی کە تا ئێستا بۆت چالاک نەکراون، لێرەدا دەتوانیت داوایان
-                                                بکەیت. بۆ چالاککردنی هەر کامێکیان، پێویستە بڕی
-                                                <span
-                                                    class="badge bg-soft-info text-info border border-info-soft fw-bold">3,000</span>
+                                                بکەیت. بۆ چالاککردن، پێویستە بڕی
+                                                <span id="featurePriceText"
+                                                    class="badge bg-soft-info text-info border border-info-soft fw-bold fx-text fx-gradient"
+                                                    style="font-size: 16px">{{ number_format($featurePrices['1'] ?? 3000) }}</span>
                                                 دینار بۆ ژمارەی
                                                 <span
-                                                    class="badge bg-soft-primary text-primary border border-primary-soft fw-bold">07504342452</span>
-                                                بنێریت لە ڕێگای <b>FastPay</b> یان <b>FIB</b>.
+                                                    class="badge bg-soft-primary text-primary border border-primary-soft fw-bold fx-text fx-wavy"
+                                                    style="font-size: 16px">2542 434 0750</span>
+                                                بنێریت لە ڕێگای
+                                                <span class="fx-text fx-glitch text-decoration-underline" data-text="FastPay"
+                                                    style="font-size: 16px; color: #ED3163;">FastPay</span>
+                                                یان
+                                                <span class="fx-text fx-extrude text-decoration-underline"
+                                                    style="font-size: 16px; color: #121212;">FIB</span>.
                                             </p>
+                                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                                <span class="badge bg-light text-dark border">1 => {{ number_format($featurePrices['1'] ?? 3000) }}</span>
+                                                <span class="badge bg-light text-dark border">2 => {{ number_format($featurePrices['2'] ?? 5000) }}</span>
+                                                <span class="badge bg-light text-dark border">3 => {{ number_format($featurePrices['3'] ?? 6000) }}</span>
+                                            </div>
                                             <div class="alert alert-light border-0 mb-0 py-2 px-3 small text-muted">
                                                 <i class="fa-solid fa-camera me-1 text-primary"></i>
-                                                وێنەی سەرەتا (Receipt) بۆ <b><a
-                                                        href="https://t.me/AGHA_ACE">Telegram</a></b> یان <b><a
-                                                        href="https://wa.me/9647504342452">WhatsApp</a></b> یان <b><a
-                                                        href="viber://chat?number=9647504342452">Viber</a></b> ی هەمان ژمارە
+                                                وێنەی پارە دانەکەت بۆ <b><a href="https://t.me/AGHA_ACE"
+                                                            class="fx-text fx-glitch" data-text="Telegram">Telegram</a></b>
+                                                یان <b><a href="https://wa.me/9647504342452" class="fx-text fx-glitch"
+                                                            data-text="WhatsApp">WhatsApp</a></b> یان <b><a
+                                                            href="viber://chat?number=9647504342452"
+                                                            class="fx-text fx-glitch" data-text="Viber">Viber</a></b> ی هەمان ژمارە
                                                 بنێرە بۆ چالاککردنی خێرا.
                                             </div>
                                         </div>
@@ -126,7 +147,7 @@
                             @endif
 
                             <form method="POST" action="{{ route('student.departments.submit-request') }}" id="requestForm"
-                                class="{{ $hasPending ? 'opacity-75' : '' }}">
+                                class="{{ $hasPending ? 'opacity-75' : '' }}" enctype="multipart/form-data">
                                 @csrf
 
                                 <div class="mb-4 text-start">
@@ -203,6 +224,23 @@
                                 </div>
 
                                 <div class="mb-4 text-start">
+                                    <label for="receipt_image" class="form-label fw-bold">
+                                        <i class="fas fa-image text-primary me-2"></i>وێنەی پارەدانەکەت (Receipt)
+                                    </label>
+                                    <input type="file" class="form-control @error('receipt_image') is-invalid @enderror"
+                                        id="receipt_image" name="receipt_image" accept="image/*"
+                                        {{ $hasPending ? 'disabled' : '' }}>
+                                    @error('receipt_image')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <div id="receiptPreview" class="mt-3 d-none">
+                                        <div class="small text-muted mb-2">پێشبینینی وێنە</div>
+                                        <img src="#" alt="Receipt Preview"
+                                            class="img-fluid rounded border shadow-sm">
+                                    </div>
+                                </div>
+
+                                <div class="mb-4 text-start">
                                     <label for="reason" class="form-label fw-bold">
                                         <i class="fas fa-comment-dots text-primary me-2"></i>هۆکاری داواکارییەکەت ڕوون
                                         بکەرەوە:
@@ -219,29 +257,38 @@
                                         <button type="submit" class="btn btn-warning btn-lg px-5 fw-bold shadow">
                                             <i class="fas fa-paper-plane me-2"></i>ناردنی داواکاری بۆ بەڕێوەبەر
                                         </button>
-                                    @else
-                                        <form method="POST"
-                                            action="{{ route('student.departments.cancel-request', $existingRequest->id) }}"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-lg px-5">
-                                                <i class="fas fa-times me-2"></i>هەڵوەشاندنەوەی داواکاریی پێشوو
-                                            </button>
-                                        </form>
+                                        <a href="{{ route('student.departments.selection') }}"
+                                            class="btn btn-outline-secondary btn-lg px-5 ms-2">
+                                            <i class="fas fa-arrow-left me-2"></i>گەڕانەوە
+                                        </a>
                                     @endif
+                                </div>
+                            </form>
+
+                            @if ($hasPending)
+                                <div class="text-center pt-3 border-top">
+                                    <form method="POST"
+                                        action="{{ route('student.departments.cancel-request', $existingRequest->id) }}"
+                                        class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-lg px-5">
+                                            <i class="fas fa-times me-2"></i>هەڵوەشاندنەوەی داواکاریی پێشوو
+                                        </button>
+                                    </form>
                                     <a href="{{ route('student.departments.selection') }}"
                                         class="btn btn-outline-secondary btn-lg px-5 ms-2">
                                         <i class="fas fa-arrow-left me-2"></i>گەڕانەوە
                                     </a>
                                 </div>
-                            </form>
+                            @endif
                         @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 @endsection
 
 @push('scripts')
@@ -254,6 +301,21 @@
 
             const checkboxes = form.querySelectorAll('input[name="request_types[]"]:not(:disabled)');
             const errorDiv = document.getElementById('requestTypesError');
+            const priceMap = @json($featurePrices ?? ['1' => 3000, '2' => 5000, '3' => 6000]);
+            const priceText = document.getElementById('featurePriceText');
+            const receiptInput = document.getElementById('receipt_image');
+            const receiptPreview = document.getElementById('receiptPreview');
+            const receiptPreviewImg = receiptPreview ? receiptPreview.querySelector('img') : null;
+
+            function updatePrice() {
+                if (!priceText) return;
+                let checkedCount = 0;
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) checkedCount++;
+                });
+                const price = priceMap[String(checkedCount)] ?? priceMap[checkedCount] ?? 0;
+                priceText.textContent = price ? Number(price).toLocaleString() : '0';
+            }
 
             form.addEventListener('submit', function(e) {
                 let checkedCount = 0;
@@ -267,7 +329,9 @@
                     errorDiv.scrollIntoView({
                         behavior: 'smooth'
                     });
+                    return;
                 }
+
             });
 
             // خۆکار ڕەفتارکردن
@@ -276,8 +340,28 @@
                     if (this.checked) {
                         errorDiv.classList.add('d-none');
                     }
+                    updatePrice();
                 });
             });
+
+            if (receiptInput && receiptPreview && receiptPreviewImg) {
+                receiptInput.addEventListener('change', function() {
+                    const file = this.files && this.files[0];
+                    if (!file) {
+                        receiptPreview.classList.add('d-none');
+                        receiptPreviewImg.src = '#';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        receiptPreviewImg.src = e.target.result;
+                        receiptPreview.classList.remove('d-none');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            updatePrice();
         });
     </script>
 @endpush

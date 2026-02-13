@@ -26,7 +26,7 @@ return new class extends Migration
                 try {
                     $table->index(['type', 'sex', 'local_score'], 'deps_filter_idx');
                 } catch (\Exception $e) {}
-                
+
                 try {
                     $table->index('name_en', 'deps_name_en_idx');
                 } catch (\Exception $e) {}
@@ -34,14 +34,14 @@ return new class extends Migration
         }
 
         // 2. Students Table
-        if (Schema::hasTable('students')) {
-            Schema::table('students', function (Blueprint $table) {
+        if (Schema::hasTable('users')) {
+            Schema::table('users', function (Blueprint $table) {
                 try {
                     $table->index('code', 'st_code_idx');
                 } catch (\Exception $e) {}
             });
         }
-        
+
         // 3. Universities & Colleges
         if (Schema::hasTable('universities')) {
              Schema::table('universities', function (Blueprint $table) {
@@ -79,13 +79,13 @@ return new class extends Migration
                 try { $table->dropIndex('st_code_idx'); } catch (\Exception $e) {}
             });
         }
-        
+
         if (Schema::hasTable('universities')) {
              Schema::table('universities', function (Blueprint $table) {
                 try { $table->dropIndex('uni_name_idx'); } catch (\Exception $e) {}
              });
         }
-        
+
         if (Schema::hasTable('colleges')) {
              Schema::table('colleges', function (Blueprint $table) {
                 try { $table->dropIndex('coll_name_idx'); } catch (\Exception $e) {}

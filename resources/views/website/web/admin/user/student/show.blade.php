@@ -129,7 +129,7 @@
                                     <th>#</th>
                                     <th>ناو</th>
                                     <th>ن. ناوەندی</th>
-                                    <th>ن. ناوخۆی</th>
+                                    <th>ن. دەرەوە</th>
                                     <th>جۆر</th>
                                     <th>ڕەگەز</th>
                                 </tr>
@@ -161,7 +161,7 @@
                                             </div>
                                         </td>
                                         <td>{{ $result_dep->department->local_score ?? '—' }}</td>
-                                        <td>{{ $result_dep->department->internal_score ?? '—' }}</td>
+                                        <td>{{ $result_dep->department->external_score ?? '—' }}</td>
                                         <td><span class="chip"><i class="fa-solid fa-layer-group me-1"></i>
                                                 {{ $result_dep->department->type }}</span>
                                         </td>

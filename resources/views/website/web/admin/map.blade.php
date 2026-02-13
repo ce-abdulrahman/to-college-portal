@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/nav.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/nav.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
@@ -27,28 +27,9 @@
                 <p> زانکۆ، کۆلێژ و بەشەکانی کوردستان</p>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">
-                        <span id="uniCount">0</span>
-                    </div>
-                    <div class="stat-label" style="font-size: 18px; color: #fff !important">زانکۆ</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">
-                        <span id="colCount">0</span>
-                    </div>
-                    <div class="stat-label" style="font-size: 18px; color: #fff !important">کۆلێژ</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">
-                        <span id="depCount">0</span>
-                    </div>
-                    <div class="stat-label" style="font-size: 18px; color: #fff !important">بەش</div>
-                </div>
-            </div>
 
-            <div class="action-buttons">
+
+            <div class="action-buttons ">
                 <button class="action-btn" id="locateUser" title="نیشان دانی شوێنی ئێستا">
                     <i class="bi bi-geo-alt"></i>
                     <span>شوێنم</span>
@@ -81,12 +62,12 @@
         </div>
 
         <!-- Map Container -->
-        <div class="map-container">
+        <div class="map-container d-none d-lg-block">
             <div id="map"></div>
 
             <div class="map-overlay">
 
-                <div class="map-control-card">
+                <div class="map-control-card ">
                     <button class="control-btn" id="resetView" title="ڕیسێت کردن">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
@@ -99,7 +80,7 @@
                 </div>
             </div>
 
-            <div class="map-legend">
+            <div class="map-legend d-none d-lg-block">
                 <div class="legend-title"><i class="bi bi-palette"></i> ڕێنوێنی نیشانەکان</div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"></div>

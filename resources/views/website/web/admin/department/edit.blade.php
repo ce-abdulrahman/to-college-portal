@@ -163,7 +163,7 @@
                                 @if($department->image)
                                     <div class="mt-2">
                                         <small class="text-muted">وێنەی ئێستا:</small>
-                                        <img src="{{ $department->image }}" alt="{{ $department->name }}" 
+                                        <img src="{{ $department->image }}" alt="{{ $department->name }}"
                                              class="mt-1 rounded" style="height: 60px;">
                                     </div>
                                 @endif
@@ -180,7 +180,7 @@
                             <div class="col-12">
                                 <div class="d-flex justify-content-end gap-2 mt-4">
                                     <a href="{{ route('admin.departments.show', $department->id) }}" class="btn btn-outline-info">
-                                        <i class="fa-solid fa-eye me-1"></i> پیشاندان
+                                        <i class="fa-solid fa-eye me-1"></i> نیشاندان
                                     </a>
                                     <a href="{{ route('admin.departments.index') }}" class="btn btn-outline-secondary">
                                         <i class="fa-solid fa-times me-1"></i> هەڵوەشاندنەوە
@@ -219,31 +219,31 @@
         const lngInput = document.getElementById('lng');
         const defaultLat = 33.3128;
         const defaultLng = 44.3615;
-        
+
         const initialLat = parseFloat(latInput.value) || defaultLat;
         const initialLng = parseFloat(lngInput.value) || defaultLng;
-        
+
         map = L.map('location-map').setView([initialLat, initialLng], 13);
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
-        
+
         if (latInput.value && lngInput.value) {
             marker = L.marker([initialLat, initialLng]).addTo(map);
         }
-        
+
         map.on('click', function(e) {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
-            
+
             latInput.value = lat.toFixed(6);
             lngInput.value = lng.toFixed(6);
-            
+
             if (marker) {
                 map.removeLayer(marker);
             }
-            
+
             marker = L.marker([lat, lng]).addTo(map);
         });
 
@@ -254,7 +254,7 @@
 
         provinceSelect.addEventListener('change', function() {
             const provinceId = this.value;
-            
+
             if (!provinceId) {
                 universitySelect.innerHTML = '<option value="">تکایە یەکەم پارێزگا هەڵبژێرە</option>';
                 collegeSelect.innerHTML = '<option value="">تکایە یەکەم زانکۆ هەڵبژێرە</option>';
@@ -274,7 +274,7 @@
 
         universitySelect.addEventListener('change', function() {
             const universityId = this.value;
-            
+
             if (!universityId) {
                 collegeSelect.innerHTML = '<option value="">تکایە یەکەم زانکۆ هەڵبژێرە</option>';
                 return;
@@ -313,7 +313,7 @@
                     }
                 }
             });
-            
+
             // دڵنیابوون لەوەی کە نرخی کۆن لەسەر دەمێنێتەوە
             $(descriptionTextarea).summernote('code', descriptionTextarea.value);
         }

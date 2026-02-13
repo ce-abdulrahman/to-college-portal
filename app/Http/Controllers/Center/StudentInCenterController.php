@@ -18,6 +18,25 @@ use InvalidArgumentException;
 
 class StudentInCenterController extends Controller
 {
+    private function assertCenterOwnsStudent(Student $student): void
+    {
+        $user = auth()->user();
+        $center = $user?->center;
+
+        if (!$user || $user->role !== 'center' || !$center) {
+            abort(404);
+        }
+
+        $student->loadMissing('user');
+
+        if (!$student->user || $student->user->role !== 'student') {
+            abort(404);
+        }
+
+        if ((string) $student->referral_code !== (string) $user->rand_code) {
+            abort(404);
+        }
+    }
     public function index()
     {
         $center = auth()->user();
@@ -120,11 +139,11 @@ class StudentInCenterController extends Controller
         return redirect()->route('center.students.index')->with('success', 'قوتابی دروستکرا بە سەرکەوتوویی.');
     }
 
-    public function show(string $id)
+    public function show(Student $student)
     {
-        // student_id لە ڕوتەکەدات
-        $user = User::where('id', $id)->findOrFail($id); // بە ئاسانی دەستی بە یوزەر دەگات
-        $student = Student::with('user')->where('user_id', $user->id)->firstOrFail();
+        $this->assertCenterOwnsStudent($student);
+        $student->load('user');
+        $user = $student->user;
 
         $result_deps = ResultDep::with('student')->where('student_id', $student->id)->get();
 
@@ -135,6 +154,7 @@ class StudentInCenterController extends Controller
 
     public function edit(Student $student)
     {
+        $this->assertCenterOwnsStudent($student);
         // Load related user for the form fields
         $student->load('user');
 
@@ -146,6 +166,7 @@ class StudentInCenterController extends Controller
     /** Persist the update */
     public function update(Request $request, Student $student)
     {
+        $this->assertCenterOwnsStudent($student);
         // We need user fields too
         $student->load('user');
 
@@ -181,13 +202,13 @@ class StudentInCenterController extends Controller
             ->with('success', 'زانیاری قوتابی بەسەرکەوتوویی نوێکرایەوە.');
     }
 
-    public function destroy(string $id)
+    public function destroy(Student $student)
     {
-        $user = User::findOrFail($id);
+        $this->assertCenterOwnsStudent($student);
+        $student->load('user');
+        $student->user->delete();
 
-        $user->delete();
-
-        return redirect()->route('center.students.index')->with('success', 'زانکۆ بە سەرکەوتوویی سڕایەوە.');
+        return redirect()->route('center.students.index')->with('success', 'قوتابی بە سەرکەوتوویی سڕایەوە.');
     }
 
 }

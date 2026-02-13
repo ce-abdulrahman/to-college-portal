@@ -1,4 +1,3 @@
-// assets/admin/js/pages/index.js
 document.addEventListener('DOMContentLoaded', function() {
     initBootstrapFeatures();
 

@@ -136,7 +136,7 @@ class DepartmentSelector
                         'student_id'    => $student->id,
                         'department_id' => $depId,
                     ],
-                    ['status' => 1]
+                    ['result_rank' => null]
                 );
                 $created[] = [
                     'user_id'       => $rd->user_id,

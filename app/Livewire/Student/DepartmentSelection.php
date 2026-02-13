@@ -123,6 +123,10 @@ class DepartmentSelection extends Component
 
         DB::beginTransaction();
         try {
+            $selectedDepartmentId = ResultDep::where('student_id', $student->id)
+                ->whereNotNull('result_rank')
+                ->value('department_id');
+
             ResultDep::where('student_id', $student->id)->delete();
 
             foreach ($this->sessionSelectedIds as $index => $departmentId) {
@@ -131,7 +135,7 @@ class DepartmentSelection extends Component
                     'student_id' => $student->id,
                     'department_id' => $departmentId,
                     'rank' => $index + 1,
-                    'status' => 1,
+                    'result_rank' => $selectedDepartmentId == $departmentId ? $index + 1 : null,
                 ]);
             }
 

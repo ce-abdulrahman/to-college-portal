@@ -130,6 +130,21 @@
                             </div>
                         </div>
 
+                        <!-- وێنەی پارەدان -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-image me-2"></i>وێنەی پارەدان
+                            </h6>
+                            @if ($request->receipt_image)
+                                <a href="{{ asset($request->receipt_image) }}" target="_blank">
+                                    <img src="{{ asset($request->receipt_image) }}" alt="Receipt"
+                                        class="img-fluid rounded border shadow-sm">
+                                </a>
+                            @else
+                                <div class="text-muted">هیچ وێنەیەک دانەنراوە.</div>
+                            @endif
+                        </div>
+
                         <!-- تێبینی بەڕێوەبەر -->
                         @if ($request->admin_notes)
                             <div class="mb-4">

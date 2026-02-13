@@ -1,6 +1,7 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
+    <div class="container-fluid py-4"></div>
     <div class="row mb-4">
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between">
@@ -182,4 +183,5 @@
             </div>
 
         </div>
-    @endsection
+    </div>
+@endsection

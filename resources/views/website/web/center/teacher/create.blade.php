@@ -1,178 +1,184 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('center.dashboard') }}">داشبۆرد</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('center.teachers.index') }}">مامۆستایەکان</a></li>
-                        <li class="breadcrumb-item active">زیادکردن</li>
-                    </ol>
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('center.dashboard') }}">داشبۆرد</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('center.teachers.index') }}">مامۆستایەکان</a></li>
+                            <li class="breadcrumb-item active">زیادکردن</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">
+                        <i class="fas fa-user-plus me-1"></i>
+                        زیادکردنی مامۆستا
+                    </h4>
                 </div>
-                <h4 class="page-title">
-                    <i class="fas fa-user-plus me-1"></i>
-                    زیادکردنی مامۆستا
-                </h4>
             </div>
         </div>
-    </div>
 
-    <div class="mb-4">
-        <a href="{{ route('center.teachers.index') }}" class="btn btn-outline">
-            <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
-        </a>
-    </div>
+        <div class="mb-4">
+            <a href="{{ route('center.teachers.index') }}" class="btn btn-outline">
+                <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
+            </a>
+        </div>
 
-    <div class="row">
-        <div class="col-12 col-xl-10 mx-auto">
-            <div class="card glass fade-in">
-                <div class="card-body">
-                    <h4 class="card-title mb-4">
-                        <i class="fa-solid fa-user-plus me-2"></i> زیادکردنی قوتابی
-                    </h4>
+        <div class="row">
+            <div class="col-12 col-xl-10 mx-auto">
+                <div class="card glass fade-in">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">
+                            <i class="fa-solid fa-user-plus me-2"></i> زیادکردنی قوتابی
+                        </h4>
 
-                    {{-- Validation Errors --}}
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <i class="fa-solid fa-circle-exclamation me-1"></i> هەڵە هەیە:
-                            <ul class="mb-0 mt-2 ps-3">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <form action="{{ route('center.teachers.store') }}" method="POST" class="needs-validation" novalidate>
-                        @csrf
-
-                        {{-- زانیاری سەرەکی --}}
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="code" class="form-label">کۆدی داخیل بوون</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
-                                    <input type="text" class="form-control @error('code') is-invalid @enderror"
-                                        id="code" name="code">
-                                    @error('code')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="name" class="form-label">ناو</label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                    id="name" name="name" value="{{ old('name') }}" required>
-                                @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="password" class="form-label">تێپەڕەوشە</label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                    id="password" name="password" required>
-                                @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-md-6">
-                                <label for="phone" class="form-label">ژمارەی مۆبایل</label>
-                                <input type="text" class="form-control @error('phone') is-invalid @enderror"
-                                    id="phone" name="phone" value="{{ old('phone') }}">
-                                @error('phone')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label for="role" class="form-label">قوتابی یان مامۆستا</label>
-                                <select class="form-select @error('role') is-invalid @enderror" id="role"
-                                    name="role" required>
-                                    <option value="teacher" @selected(old('role') === 'teacher')>مامۆستا</option>
-                                </select>
-                                @error('role')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @else
-                                    <div class="form-text">تەنها سەنتەرە دەتوانێت پیشە دیاری بکات.</div>
-                                @enderror
-                            </div>
-
-                            <div class="col-12 col-md-6">
-                                <label for="referral_teacher_code" class="form-label">کۆدی بانگێشت</label>
-                                <input type="number"
-                                    class="form-control @error('referral_teacher_code') is-invalid @enderror"
-                                    id="referral_teacher_code" name="referral_teacher_code"
-                                    value="{{ auth()->user()->rand_code }}" readonly>
-                                @error('referral_teacher_code')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <input type="hidden" id="rand_code" name="rand_code" value="{{ old('rand_code') }}" readonly>
-
-                        </div>
-
-                        {{-- Feature Inheritance Display --}}
-                        @php
-                            $center = auth()->user()->center;
-                        @endphp
-
-                        @if ($center)
-                            <div class="alert alert-info mt-4">
-                                <h6 class="mb-2"><i class="fa-solid fa-info-circle me-2"></i>تایبەتمەندییەکانی وەرگیراو
-                                </h6>
-                                <p class="mb-2 small">ئەم مامۆستایە ئەم تایبەتمەندیانە لە سەنتەرەکەت وەردەگرێت:</p>
-                                <div class="d-flex gap-3 flex-wrap">
-                                    <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
-                                        <i class="fa-solid {{ $center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        ڕیزبەندی کرد بە زیرەکی دەستکرد {{ $center->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
-                                    </span>
-                                    <span class="badge {{ $center->gis ? 'bg-success' : 'bg-secondary' }}">
-                                        <i class="fa-solid {{ $center->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        GIS {{ $center->gis ? '(چالاکە)' : '(ناچالاکە)' }}
-                                    </span>
-                                    <span class="badge {{ $center->all_departments ? 'bg-success' : 'bg-secondary' }}">
-                                        <i
-                                            class="fa-solid {{ $center->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                        All Departments (50) {{ $center->all_departments ? '(چالاکە)' : '(ناچالاکە)' }}
-                                    </span>
-                                </div>
-                                @if (!$center->ai_rank || !$center->gis || !$center->all_departments)
-                                    <p class="mb-0 mt-2 small text-muted">
-                                        <i class="fa-solid fa-lightbulb me-1"></i>
-                                        ئەگەر پێویستت بە تایبەتمەندی زیاتر هەیە،
-                                        <a href="{{ route('center.features.request') }}"
-                                            class="text-decoration-none fw-bold">
-                                            داواکاری بۆ ئەدمین بنێرە
-                                        </a>.
-                                    </p>
-                                @endif
+                        {{-- Validation Errors --}}
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <i class="fa-solid fa-circle-exclamation me-1"></i> هەڵە هەیە:
+                                <ul class="mb-0 mt-2 ps-3">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         @endif
 
-                        <hr class="my-4">
+                        <form action="{{ route('center.teachers.store') }}" method="POST" class="needs-validation"
+                            novalidate>
+                            @csrf
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="status" class="form-label">دۆخ</label>
-                                <select class="form-select" id="status" name="status" required>
-                                    <option value="1" @selected(old('status') === '1')>چاڵاک</option>
-                                    <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
-                                </select>
+                            {{-- زانیاری سەرەکی --}}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="code" class="form-label">کۆدی داخیل بوون</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
+                                        <input type="text" class="form-control @error('code') is-invalid @enderror"
+                                            id="code" name="code">
+                                        @error('code')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">ناو</label>
+                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
+                                        id="name" name="name" value="{{ old('name') }}" required>
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="password" class="form-label">تێپەڕەوشە</label>
+                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                        id="password" name="password" required>
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">ژمارەی مۆبایل</label>
+                                    <input type="text" class="form-control @error('phone') is-invalid @enderror"
+                                        id="phone" name="phone" value="{{ old('phone') }}">
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label for="role" class="form-label">قوتابی یان مامۆستا</label>
+                                    <select class="form-select @error('role') is-invalid @enderror" id="role"
+                                        name="role" required>
+                                        <option value="teacher" @selected(old('role') === 'teacher')>مامۆستا</option>
+                                    </select>
+                                    @error('role')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @else
+                                        <div class="form-text">تەنها سەنتەرە دەتوانێت پیشە دیاری بکات.</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label for="referral_teacher_code" class="form-label">کۆدی بانگێشت</label>
+                                    <input type="number"
+                                        class="form-control @error('referral_teacher_code') is-invalid @enderror"
+                                        id="referral_teacher_code" name="referral_teacher_code"
+                                        value="{{ auth()->user()->rand_code }}" readonly>
+                                    @error('referral_teacher_code')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <input type="hidden" id="rand_code" name="rand_code" value="{{ old('rand_code') }}"
+                                    readonly>
+
                             </div>
-                        </div>
 
-                        <div class="d-flex justify-content-end mt-4">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
-                            </button>
-                        </div>
-                    </form>
+                            {{-- Feature Inheritance Display --}}
+                            @php
+                                $center = auth()->user()->center;
+                            @endphp
+
+                            @if ($center)
+                                <div class="alert alert-info mt-4">
+                                    <h6 class="mb-2"><i class="fa-solid fa-info-circle me-2"></i>تایبەتمەندییەکانی
+                                        وەرگیراو
+                                    </h6>
+                                    <p class="mb-2 small">ئەم مامۆستایە ئەم تایبەتمەندیانە لە سەنتەرەکەت وەردەگرێت:</p>
+                                    <div class="d-flex gap-3 flex-wrap">
+                                        <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                            <i class="fa-solid {{ $center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                            ڕیزبەندی کرد بە زیرەکی دەستکرد
+                                            {{ $center->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
+                                        </span>
+                                        <span class="badge {{ $center->gis ? 'bg-success' : 'bg-secondary' }}">
+                                            <i class="fa-solid {{ $center->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                            GIS {{ $center->gis ? '(چالاکە)' : '(ناچالاکە)' }}
+                                        </span>
+                                        <span class="badge {{ $center->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                            <i
+                                                class="fa-solid {{ $center->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                            All Departments (50) {{ $center->all_departments ? '(چالاکە)' : '(ناچالاکە)' }}
+                                        </span>
+                                    </div>
+                                    @if (!$center->ai_rank || !$center->gis || !$center->all_departments)
+                                        <p class="mb-0 mt-2 small text-muted">
+                                            <i class="fa-solid fa-lightbulb me-1"></i>
+                                            ئەگەر پێویستت بە تایبەتمەندی زیاتر هەیە،
+                                            <a href="{{ route('center.features.request') }}"
+                                                class="text-decoration-none fw-bold">
+                                                داواکاری بۆ ئەدمین بنێرە
+                                            </a>.
+                                        </p>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <hr class="my-4">
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="status" class="form-label">دۆخ</label>
+                                    <select class="form-select" id="status" name="status" required>
+                                        <option value="1" @selected(old('status') === '1')>چاڵاک</option>
+                                        <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

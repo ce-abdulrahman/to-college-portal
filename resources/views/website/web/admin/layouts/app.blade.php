@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>زانکۆلاین</title>
+    <title>{{ $appSettings['site_name'] ?? 'زانکۆلاین' }}</title>
 
-    <link rel="icon" href="{{ asset('assets/admin/images/favicon.png') }}" type="image/x-icon" />
+    <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/x-icon" />
     {{-- CSRF --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -28,8 +28,42 @@
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css" rel="stylesheet">
 
     {{-- App CSS --}}
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/admin/css/nav.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/nav.css') }}">
+
+    @php
+        $fontKu = $appSettings['font_ku'] ?? null;
+        $fontAr = $appSettings['font_ar'] ?? null;
+        $fontEn = $appSettings['font_en'] ?? null;
+    @endphp
+    @if ($fontKu || $fontAr || $fontEn)
+        <style>
+            @if ($fontKu)
+                @font-face {
+                    font-family: 'CustomKu';
+                    src: url('{{ asset($fontKu) }}');
+                    font-display: swap;
+                }
+                html[lang="ku"] body { font-family: 'CustomKu', 'NizarNastaliqKurdish', sans-serif; }
+            @endif
+            @if ($fontAr)
+                @font-face {
+                    font-family: 'CustomAr';
+                    src: url('{{ asset($fontAr) }}');
+                    font-display: swap;
+                }
+                html[lang="ar"] body { font-family: 'CustomAr', 'Wafeq', sans-serif; }
+            @endif
+            @if ($fontEn)
+                @font-face {
+                    font-family: 'CustomEn';
+                    src: url('{{ asset($fontEn) }}');
+                    font-display: swap;
+                }
+                html[lang="en"] body { font-family: 'CustomEn', 'PatuaOne', sans-serif; }
+            @endif
+        </style>
+    @endif
 
     @livewireStyles
     @stack('head-scripts')

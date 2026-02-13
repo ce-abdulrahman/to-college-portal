@@ -4,9 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Student;
-use App\Models\Department;
 use App\Models\ResultDep;
 
 class StudentController extends Controller
@@ -16,8 +14,12 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $users = User::where('role', 'student')->get();
-        return view('website.web.admin.user.student.index', compact('users'));
+        $students = Student::with('user')
+            ->withCount('resultDeps')
+            ->whereHas('user', fn($q) => $q->where('role', 'student'))
+            ->get();
+
+        return view('website.web.admin.user.student.index', compact('students'));
     }
 
     /**
@@ -29,7 +31,7 @@ class StudentController extends Controller
         $student = Student::with('user')->findOrFail($id);
         $user = $student->user; // بە ئاسانی دەستی بە یوزەر دەگات
 
-        $result_deps = ResultDep::with('system')
+        $result_deps = ResultDep::with(['department.system', 'department.university', 'department.college', 'department.province'])
             ->where(function ($q) use ($user, $student) {
                 $q->where('user_id', $user->id)->orWhere('student_id', $student->id);
             })

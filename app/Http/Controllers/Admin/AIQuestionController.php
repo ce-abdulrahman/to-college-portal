@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class AIQuestionController extends Controller
 {
     /**
-     * پیشاندانی لیستی پرسیارەکانی AI
+     * نیشاندانی لیستی پرسیارەکانی AI
      */
     public function index()
     {
@@ -30,7 +30,7 @@ class AIQuestionController extends Controller
     }
 
     /**
-     * پیشاندانی فۆڕمی دروستکردنی پرسیاری نوێ
+     * نیشاندانی فۆڕمی دروستکردنی پرسیاری نوێ
      */
     public function create()
     {
@@ -60,7 +60,7 @@ class AIQuestionController extends Controller
         ]);
 
         $data = $request->all();
-        
+
         // ئاپشندەی options JSON بەگۆڕاندن
         if ($request->has('options') && !empty($request->options)) {
             $data['options'] = json_encode($request->options);
@@ -75,7 +75,7 @@ class AIQuestionController extends Controller
     }
 
     /**
-     * پیشاندانی پرسیارێکی دیاریکراو
+     * نیشاندانی پرسیارێکی دیاریکراو
      */
     public function show(AIQuestion $question)
     {
@@ -83,7 +83,7 @@ class AIQuestionController extends Controller
     }
 
     /**
-     * پیشاندانی فۆڕمی دەستکاری
+     * نیشاندانی فۆڕمی دەستکاری
      */
     public function edit(AIQuestion $question)
     {
@@ -113,7 +113,7 @@ class AIQuestionController extends Controller
         ]);
 
         $data = $request->all();
-        
+
         // ئاپشندەی options JSON بەگۆڕاندن
         if ($request->has('options') && !empty($request->options)) {
             $data['options'] = json_encode($request->options);
@@ -144,7 +144,7 @@ class AIQuestionController extends Controller
     }
 
     /**
-     * پیشاندانی وەڵامەکانی قوتابیان
+     * نیشاندانی وەڵامەکانی قوتابیان
      */
     public function results()
     {
@@ -158,12 +158,12 @@ class AIQuestionController extends Controller
     }
 
     /**
-     * پیشاندانی وەڵامەکانی قوتابیی دیاریکراو
+     * نیشاندانی وەڵامەکانی قوتابیی دیاریکراو
      */
     public function showStudentAnswers($studentId)
     {
         $student = Student::findOrFail($studentId);
-        
+
         $answers = AIAnswer::where('student_id', $studentId)
             ->with('question')
             ->orderBy('question_id')
@@ -186,9 +186,9 @@ class AIQuestionController extends Controller
     public function deleteStudentAnswers($studentId)
     {
         $student = Student::findOrFail($studentId);
-        
+
         AIAnswer::where('student_id', $studentId)->delete();
-        
+
         return redirect()->route('admin.ai.results')
             ->with('success', 'وەڵامەکانی ' . $student->user->name . ' بە سەرکەوتوویی سڕایەوە.');
     }

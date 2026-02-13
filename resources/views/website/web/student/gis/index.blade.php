@@ -1,5 +1,4 @@
-{{-- resources/views/student/gis/index.blade.php --}}
-@extends('website.web.student.layouts.app')
+@extends('website.web.admin.layouts.app')
 
 @section('title', 'نەخشەی بەشەکان')
 
@@ -667,7 +666,7 @@
 
                             // نوێکردنەوەی ژمارەکان
                             updateSelectionCounts(response.data.total_selected, response.data
-                            .remaining);
+                                .remaining);
 
                             // سڕینەوە لە لیست
                             removeFromSelectedList(departmentId);

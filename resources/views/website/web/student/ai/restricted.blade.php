@@ -1,4 +1,4 @@
-@extends('website.web.student.layouts.app')
+@extends('website.web.admin.layouts.app')
 
 @section('title', 'سیستەمی AI بند کراوە')
 
@@ -14,9 +14,9 @@
                             <li class="breadcrumb-item active">سیستەمی AI</li>
                         </ol>
                     </div>
-                    <h4 class="page-title fw-bold text-dark font-primary">
+                    <h4 class="page-title fw-bold font-primary">
                         <i class="fas fa-lock me-2 text-danger"></i>
-                        سیستەمی AI بند کراوە
+                        سیستەمی AI چاڵاک نەکراوە
                     </h4>
                 </div>
             </div>
@@ -28,11 +28,12 @@
                 <div class="card glass border-0 shadow-lg overflow-hidden fade-in-up">
                     <div class="card-header bg-gradient-danger p-5 position-relative">
                         <div class="z-index-1 position-relative text-center">
-                            <div class="avatar-lg bg-white-transparent rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4 shadow-sm">
-                                <i class="fas fa-lock-open fa-2x text-danger"></i>
+                            <div
+                                class="avatar-lg bg-white-transparent rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4 shadow-sm">
+                                <i class="fas fa-lock-open fa-2x text-danger p-4"></i>
                             </div>
-                            <h3 class="mb-2 fw-bold text-white">سیستەمی AI بند کراوە</h3>
-                            <p class="mb-0 text-white-50">ئێستا ئەم سیستەمە بۆت دەسپێنەچوو یا بند کراوە</p>
+                            <h3 class="mb-2 fw-bold ">سیستەمی AI بند کراوە</h3>
+                            <p class="mb-0 ">ئێستا ئەم سیستەمە بۆت دەسپێنەچوو یا بند کراوە</p>
                         </div>
                         <div class="ai-shapes">
                             <div class="ai-shape-1"></div>
@@ -49,7 +50,8 @@
                                 </div>
                                 <div>
                                     <h5 class="alert-heading mb-2">سیستەمی AI دەسپێنەچوو</h5>
-                                    <p class="mb-0">بۆ بەکارهێنانی ئەم سیستەمە، پێویستە مۆڵەت لە بەڕێوەبەری سیستەمە وەربگریت.</p>
+                                    <p class="mb-0">بۆ بەکارهێنانی ئەم سیستەمە، پێویستە مۆڵەت لە بەڕێوەبەری سیستەمە
+                                        وەربگریت.</p>
                                 </div>
                             </div>
                         </div>
@@ -63,7 +65,8 @@
                                     </div>
                                     <div>
                                         <h6 class="fw-bold mb-1">سیستەمی دستیاری هۆشمەند</h6>
-                                        <p class="text-muted small mb-0">سیستەمی AIمان بەسوود بەکاردێنێت بۆ دیاریکردنی باشترین بەشەکانی بۆت لە پێی کەسایەتی، حەز و نمرەکانت.</p>
+                                        <p class="text-muted small mb-0">سیستەمی AIمان بەسوود بەکاردێنێت بۆ دیاریکردنی
+                                            باشترین بەشەکانی بۆت لە پێی کەسایەتی، حەز و نمرەکانت.</p>
                                     </div>
                                 </div>
                             </div>
@@ -75,7 +78,8 @@
                                     </div>
                                     <div>
                                         <h6 class="fw-bold mb-1">وەربگرتنی مۆڵەت</h6>
-                                        <p class="text-muted small mb-0">بۆ وەربگرتنی دەسپێک بۆ بەکارهێنانی سیستەمی AIمان، تێکێ سر بکە لە بەڕێوەبەری سیستەمە یان ئیتریشە بە پاڵپشتی.</p>
+                                        <p class="text-muted small mb-0">بۆ وەربگرتنی دەسپێک بۆ بەکارهێنانی سیستەمی AIمان،
+                                            تێکێ سر بکە لە بەڕێوەبەری سیستەمە یان ئیتریشە بە پاڵپشتی.</p>
                                     </div>
                                 </div>
                             </div>
@@ -87,7 +91,8 @@
                                     </div>
                                     <div>
                                         <h6 class="fw-bold mb-1">پاڵپشتی</h6>
-                                        <p class="text-muted small mb-0">ئەگەر پرسیاری هێت، تێکێ سر بکە لە بەڕێوەبەری سیستەمە یا بۆ پاڵپشتی.</p>
+                                        <p class="text-muted small mb-0">ئەگەر پرسیاری هێت، تێکێ سر بکە لە بەڕێوەبەری
+                                            سیستەمە یا بۆ پاڵپشتی.</p>
                                     </div>
                                 </div>
                             </div>
@@ -111,11 +116,13 @@
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="d-flex gap-3 mt-5 justify-content-center flex-wrap">
-                            <a href="{{ route('student.dashboard') }}" class="btn btn-light btn-lg rounded-pill px-5 shadow-sm">
+                        <div class="d-flex gap-3 mt-5 justify-content-center flex-wrap print-hide">
+                            <a href="{{ route('student.dashboard') }}"
+                                class="btn btn-light btn-lg rounded-pill px-5 shadow-sm">
                                 <i class="fas fa-arrow-right ms-2"></i> گەڕانەوە بۆ داشبۆرد
                             </a>
-                            <button type="button" class="btn btn-success btn-lg rounded-pill px-5 shadow-lg" id="supportBtn">
+                            <button type="button" class="btn btn-success btn-lg rounded-pill px-5 shadow-lg"
+                                id="supportBtn">
                                 <i class="fas fa-headset ms-2"></i> پاڵپشتی
                             </button>
                         </div>
@@ -134,7 +141,8 @@
                         <div class="accordion accordion-flush" id="faqAccordion">
                             <div class="accordion-item border-0">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    <button class="accordion-button collapsed bg-transparent" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#faq1">
                                         چۆن دەتوانم مۆڵەتی سیستەمی AI بگەم؟
                                     </button>
                                 </h2>
@@ -146,19 +154,22 @@
                             </div>
                             <div class="accordion-item border-0">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    <button class="accordion-button collapsed bg-transparent" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#faq2">
                                         بەشی AI چی کار دەکات؟
                                     </button>
                                 </h2>
                                 <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                     <div class="accordion-body pt-0 pb-2">
-                                        سیستەمی AIمان وەڵامە سوال پێشکەشخۆیت شیکردنەوە دەکات و باشترین بەشەکانی پێشنیار دەکات بە پێی نمرە، کەسایەتی و حەز و ئارەزووە.
+                                        سیستەمی AIمان وەڵامە سوال پێشکەشخۆیت شیکردنەوە دەکات و باشترین بەشەکانی پێشنیار
+                                        دەکات بە پێی نمرە، کەسایەتی و حەز و ئارەزووە.
                                     </div>
                                 </div>
                             </div>
                             <div class="accordion-item border-0">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    <button class="accordion-button collapsed bg-transparent" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#faq3">
                                         کە دەتوانم تێکێ سر بکە؟
                                     </button>
                                 </h2>
@@ -199,12 +210,25 @@
                 justify-content: center;
             }
 
-            .bg-soft-primary { background: rgba(13, 110, 253, 0.1); }
-            .bg-soft-info { background: rgba(13, 202, 240, 0.1); }
-            .bg-soft-success { background: rgba(25, 135, 84, 0.1); }
-            .bg-soft-danger { background: rgba(220, 53, 69, 0.1); }
+            .bg-soft-primary {
+                background: rgba(13, 110, 253, 0.1);
+            }
 
-            .text-white-50 { color: rgba(255, 255, 255, 0.5); }
+            .bg-soft-info {
+                background: rgba(13, 202, 240, 0.1);
+            }
+
+            .bg-soft-success {
+                background: rgba(25, 135, 84, 0.1);
+            }
+
+            .bg-soft-danger {
+                background: rgba(220, 53, 69, 0.1);
+            }
+
+            .text-white-50 {
+                color: rgba(255, 255, 255, 0.5);
+            }
 
             .fade-in-up {
                 animation: fadeInUp 0.5s ease-out both;
@@ -215,6 +239,7 @@
                     opacity: 0;
                     transform: translateY(20px);
                 }
+
                 to {
                     opacity: 1;
                     transform: translateY(0);
@@ -242,34 +267,53 @@
                 bottom: -40px;
                 right: 10%;
             }
+
+            @media print {
+                body {
+                    background: #fff !important;
+                }
+
+                .page-title-right,
+                .breadcrumb,
+                .btn,
+                .print-hide {
+                    display: none !important;
+                }
+
+                .card,
+                .glass {
+                    box-shadow: none !important;
+                    border: 1px solid #ddd !important;
+                }
+            }
         </style>
     @endpush
 
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        $(document).ready(function() {
-            // نیشاندانی بارودۆخی خۆکار - هەر 30 چرکە
-            function checkAIStatus() {
-                $.ajax({
-                    url: '{{ route('student.ai-ranking.check-status') }}',
-                    method: 'GET',
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === 'active') {
-                            window.location.href = '{{ route('student.ai-ranking.questionnaire') }}';
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            $(document).ready(function() {
+                // نیشاندانی بارودۆخی خۆکار - هەر 30 چرکە
+                function checkAIStatus() {
+                    $.ajax({
+                        url: '{{ route('student.ai-ranking.check-status') }}',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.status === 'active') {
+                                window.location.href = '{{ route('student.ai-ranking.questionnaire') }}';
+                            }
                         }
-                    }
-                });
-            }
+                    });
+                }
 
-            setInterval(checkAIStatus, 30000);
+                setInterval(checkAIStatus, 30000);
 
-            // کلیککردن لەسەر بەشی پاڵپشتی
-            $('#supportBtn').click(function() {
-                Swal.fire({
-                    title: 'پەیوەندی بە پاڵپشتی',
-                    html: `
+                // کلیککردن لەسەر بەشی پاڵپشتی
+                $('#supportBtn').click(function() {
+                    Swal.fire({
+                        title: 'پەیوەندی بە پاڵپشتی',
+                        html: `
                         <div class="text-start">
                             <div class="mb-3">
                                 <p><i class="fas fa-phone me-2 text-primary"></i><strong>ژمارە مۆبایل:</strong></p>
@@ -281,12 +325,12 @@
                             </div>
                         </div>
                     `,
-                    icon: 'info',
-                    confirmButtonText: 'باشە',
-                    confirmButtonColor: '#0984e3'
+                        icon: 'info',
+                        confirmButtonText: 'باشە',
+                        confirmButtonColor: '#0984e3'
+                    });
                 });
             });
-        });
-    </script>
+        </script>
     @endpush
 @endsection

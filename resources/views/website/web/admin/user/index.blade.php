@@ -35,13 +35,13 @@
                 <h4 class="card-title mb-0">
                     <i class="fa-solid fa-users me-2"></i> لیستی بەکارهێنەران
                 </h4>
-                
+
                 <div class="d-flex gap-2">
                     <div class="input-group input-group-sm" style="width: 200px;">
                         <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
                         <input type="text" id="users-search" class="form-control form-control-sm" placeholder="گەڕان...">
                     </div>
-                    
+
                     <select id="users-role-filter" class="form-select form-select-sm" style="width: auto;">
                         <option value="">هەموو جۆرەکان</option>
                         <option value="admin">ئەدمین</option>
@@ -49,7 +49,7 @@
                         <option value="teacher">مامۆستا</option>
                         <option value="student">قوتابی</option>
                     </select>
-                    
+
                     <select id="users-status-filter" class="form-select form-select-sm" style="width: auto;">
                         <option value="">هەموو دۆخەکان</option>
                         <option value="1">چاڵاک</option>
@@ -78,7 +78,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-2"
                                                  style="width: 36px; height: 36px;">
                                                 <i class="fa-solid fa-user text-white"></i>
                                             </div>
@@ -109,42 +109,51 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            @if ($user->role === 'center')
-                                                <a href="{{ route('admin.center.show', $user->id) }}" 
-                                                   class="btn btn-outline-info" title="بینین">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </a>
-                                            @elseif ($user->role === 'teacher')
-                                                <a href="{{ route('admin.teacher.show', $user->id) }}" 
-                                                   class="btn btn-outline-info" title="بینین">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </a>
-                                            @elseif ($user->role === 'student')
-                                                <a href="{{ route('admin.student.show', $user->id) }}" 
-                                                   class="btn btn-outline-info" title="بینین">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </a>
-                                            @else
-                                                <button class="btn btn-outline-secondary" disabled title="بینین">
-                                                    <i class="fa-solid fa-eye"></i>
+
+
+                                            <div class="btn-group dropend">
+                                                <button type="button" class="btn btn-secondary dropdown-toggle"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fa-solid fa-ellipsis-vertical me-1"></i>
                                                 </button>
-                                            @endif
-                                            
-                                            <a href="{{ route('admin.users.edit', $user->id) }}" 
-                                               class="btn btn-outline-primary" title="دەستکاری">
-                                                <i class="fa-solid fa-pen-to-square"></i>
+                                                <ul class="dropdown-menu text-center">
+                                                    <li>
+                                                        <a href="{{ route('admin.users.edit', $user->id) }}"
+                                               class="dropdown-item" title="دەستکاری">
+                                                <i class="fa-solid fa-pen-to-square"></i> دەستکاری
                                             </a>
-                                            
-                                            <form action="{{ route('admin.users.destroy', $user->id) }}" 
-                                                  method="POST" class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-outline-danger" 
-                                                        onclick="return confirm('دڵنیایت دەتەوێت ئەم بەکارهێنەر بسڕیتەوە؟');"
-                                                        title="سڕینەوە">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </form>
+                                                    </li>
+                                                    <li>
+                                                        @if ($user->role === 'center')
+                                                            <a class="dropdown-item" href="{{ route('admin.center.show', $user->id) }}">
+                                                                <i class="fa-solid fa-eye me-1"></i> بینین
+                                                            </a>
+                                                        @elseif ($user->role === 'teacher')
+                                                            <a class="dropdown-item" href="{{ route('admin.teacher.show', $user->id) }}">
+                                                                <i class="fa-solid fa-eye me-1"></i> بینین
+                                                            </a>
+                                                        @elseif ($user->role === 'student')
+                                                            <a class="dropdown-item" href="{{ route('admin.student.show', $user->id) }}">
+                                                                <i class="fa-solid fa-eye me-1"></i> بینین
+                                                            </a>
+                                                        @else
+                                                            <span class="dropdown-item text-muted">بینین نیە</span>
+                                                        @endif
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <form action="{{ route('admin.users.destroy', $user->id) }}"
+                                                            method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="dropdown-item text-danger"
+                                                                onclick="return confirm('دڵنیایت دەتەوێت ئەم بەکارهێنەر بسڕیتەوە؟');">
+                                                                <i class="fa-solid fa-trash me-1"></i> سڕینەوە
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -225,7 +234,7 @@
                 $('#users-search').on('keyup', function() {
                     table.search(this.value).draw();
                 });
-                
+
                 // Add role filter handler
                 $('#users-role-filter').on('change', function() {
                     const role = this.value;
@@ -235,7 +244,7 @@
                         table.columns(4).search('^' + role + '$', true, false).draw();
                     }
                 });
-                
+
                 // Add status filter handler
                 $('#users-status-filter').on('change', function() {
                     const status = this.value;

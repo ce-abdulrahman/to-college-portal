@@ -1,4 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-glass sticky-top mb-3">
+    @php
+        $siteName = $appSettings['site_name'] ?? 'بۆ کۆلێژ';
+        $siteLogo = $appSettings['site_logo'] ?? 'images/logo.png';
+    @endphp
+
     <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
 
         {{-- 1. Left Section: Logo & Mobile Toggle --}}
@@ -9,10 +14,10 @@
             <a class="navbar-brand d-flex align-items-center" href="#">
                 <div class="logo-container bg-white rounded-3 shadow-sm p-1 d-flex align-items-center justify-content-center"
                     style="width: 45px; height: 45px;">
-                    <img src="{{ asset('assets/admin/images/logo.png') }}" alt="Logo" class="img-fluid"
+                    <img src="{{ asset($siteLogo) }}" alt="Logo" class="img-fluid"
                         style="max-height: 35px;">
                 </div>
-                <span class="ms-3 d-none d-md-inline fw-bolder text-gradient fs-4 tracking-tight">بۆ کۆلێژ</span>
+                <span class="ms-3 d-none d-md-inline fw-bolder text-gradient fs-4 tracking-tight p-2">{{ $siteName }}</span>
             </a>
         </div>
 
@@ -25,7 +30,7 @@
         <div class="d-flex align-items-center gap-3">
             @if (auth()->check())
                 {{-- Theme Toggle --}}
-                <div class="d-none d-lg-block">
+                <div class="">
                     <button
                         class="btn btn-light rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center"
                         onclick="toggleTheme()" title="Toggle Theme" style="width: 40px; height: 40px;">
@@ -46,7 +51,7 @@
                             </div>
                         </div>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end text-center shadow-lg border-0 rounded-4 mt-2 animate slideIn"
+                    <ul class="dropdown-menu dropdown-menu-left text-center shadow-lg border-0 rounded-4 mt-2 animate slideIn"
                         aria-labelledby="navbarDropdownProfile" style="min-width: 220px;">
                         <li class="px-3 py-2 text-center bg-light-subtle rounded-top-4 mb-2">
                             <small class="text-uppercase fw-bold text-muted letter-spacing-1">
@@ -74,15 +79,32 @@
                             <li><a class="dropdown-item px-3 py-2"
                                     href="{{ route('teacher.profile.edit', auth()->user()->id) }}">
                                     <i class="bi bi-person-gear me-2"></i> پرۆفایل</a></li>
+                        @elseif (auth()->user()->role === 'student')
+                            <li><a class="dropdown-item px-3 py-2"
+                                    href="{{ route('profile.edit') }}">
+                                    <i class="bi bi-person-gear me-2"></i> پرۆفایل</a></li>
                         @endif
 
+                        @if (auth()->user()->role === 'admin')
+                            <li><a class="dropdown-item px-3 py-2"
+                                    href="{{ route('admin.settings.index', auth()->user()->id) }}">
+                                    <i class="bi bi-gear me-2"></i> ڕێکخستنەکان</a></li>
+                        @endif
                         <li>
                             <hr class="dropdown-divider">
                         </li>
+                        {{--  <button class="drawer-btn theme-toggle-btn" onclick="toggleTheme()">
+                            <i class="bi bi-moon" id="themeIcon"></i>
+                            <span id="themeText" class="text-black">Dark Mode</span>
+                        </button>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>  --}}
                         <li>
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
-                                <button class="dropdown-item text-danger text-center px-3 py-2 fw-medium" type="submit">
+                                <button class="dropdown-item text-danger text-center px-3 py-2 fw-medium"
+                                    type="submit">
                                     <i class="bi bi-box-arrow-right me-2"></i> دەرچوون
                                 </button>
                             </form>

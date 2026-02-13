@@ -1,20 +1,20 @@
 <nav class="drawer-nav">
 
-    <a href="{{ route('student.dashboard') }}" class="drawer-nav-item {{ navActive('admin.dashboard') }}">
-        <i class="bi bi-house"></i><span>ماڵەوە</span>
+    <a href="{{ route('student.dashboard') }}" class="drawer-nav-item {{ navActive('student.dashboard') }}">
+        <i class="bi bi-house-door"></i><span>ماڵەوە</span>
     </a>
     <a href="{{ route('student.mbti.index') }}" class="drawer-nav-item {{ navActive('student.mbti.index') }}">
-        <i class="fa-solid fa-id-card"></i>
+        <i class="bi bi-puzzle"></i>
         <span>MBTI</span>
     </a>
     <a href="{{ route('student.departments.selection') }}"
         class="drawer-nav-item {{ navActive('student.departments.selection') }}">
-        <i class="fa-solid fa-id-card"></i>
+        <i class="fas fa-university"></i>
         <span>هەڵبژاردنی بەش</span>
     </a>
     <a href="{{ route('student.ai-ranking.questionnaire') }}"
-        class="drawer-nav-item {{ navActive('student.departments.selection') }}">
-        <i class="fa-solid fa-id-card"></i>
+        class="drawer-nav-item {{ navActive('student.ai-ranking.questionnaire') }}">
+        <i class="fas fa-robot"></i>
         <span>AI</span>
     </a>
     <a href="{{ route('student.final-report') }}" class="drawer-nav-item {{ navActive('student.final-report') }}">
@@ -23,7 +23,7 @@
     </a>
     <a href="{{ route('student.departments.request-more') }}"
         class="drawer-nav-item {{ navActive('student.departments.request-more') }}">
-        <i class="fa-solid fa-id-card"></i>
+        <i class="fas fa-history"></i>
         <span>مێژووی داواکاری بۆ بەش</span>
     </a>
     

@@ -147,7 +147,7 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 12px;
-    padding: 24px;
+    padding: 12px;
     border-bottom: 1px solid var(--card-border);
 }
 
@@ -547,7 +547,9 @@ body {
     }
 
     .action-buttons {
-        grid-template-columns: 3fr;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        padding: 12px;
     }
 
     .sidebar-header {

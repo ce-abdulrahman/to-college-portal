@@ -14,7 +14,7 @@
                             <li class="breadcrumb-item active">تاقیکردنەوەی MBTI</li>
                         </ol>
                     </div>
-                    <h4 class="page-title fw-bold text-dark font-primary">
+                    <h4 class="page-title fw-bold  font-primary">
                         <i class="fas fa-brain me-2 text-primary"></i>
                         تاقیکردنەوەی کەسایەتی MBTI
                     </h4>
@@ -33,7 +33,7 @@
                                 <i class="fas fa-user-astronaut fa-2x text-black"></i>
                             </div>
                             <div>
-                                <h3 class="mb-1 text-black fw-bold p-1">گەشتێکی نوێ دەستپێبکە بۆ ناسینی خۆت</h3>
+                                <h3 class="mb-1  fw-bold p-1">گەشتێکی نوێ دەستپێبکە بۆ ناسینی خۆت</h3>
                                 <p class="mb-0 text-black-50 p-1">قوتابی: {{ $student->user->name }} | کۆد:
                                     {{ $student->user->code }}</p>
                             </div>
@@ -82,17 +82,17 @@
                     <div class="d-flex justify-content-between align-items-center position-relative px-2">
                         @php
                             $dimensions = [
-                                'EI' => ['icon' => 'fa-users', 'label' => 'کۆمەڵایەتی'],
-                                'SN' => ['icon' => 'fa-eye', 'label' => 'هەست/ژیرێتی'],
-                                'TF' => ['icon' => 'fa-brain', 'label' => 'بیرکردنەوە'],
-                                'JP' => ['icon' => 'fa-gavel', 'label' => 'ڕێکخستن'],
+                                'EI' => ['icon' => 'fa-users', 'label' => 'کۆمەڵایەتی', 'color' => 'primary'],
+                                'SN' => ['icon' => 'fa-eye', 'label' => 'هەست / ژیری', 'color' => 'info'],
+                                'TF' => ['icon' => 'fa-brain', 'label' => 'بیرکردنەوە', 'color' => 'warning'],
+                                'JP' => ['icon' => 'fa-gavel', 'label' => 'ڕێکخستن', 'color' => 'success'],
                             ];
                         @endphp
                         @foreach ($dimensions as $key => $dim)
-                            <div class="step-item {{ $loop->first ? 'active' : '' }}" data-dimension="{{ $key }}">
+                            <div class="step-item text-center {{ $loop->first ? 'active' : '' }}" data-dimension="{{ $key }}">
                                 <div class="step-icon">
-                                    <i class="fas {{ $dim['icon'] }}"></i>
-                                    <div class="step-check"><i class="fas fa-check"></i></div>
+                                    <i class="fas {{ $dim['icon'] }} text-{{ $dim['color'] }}"></i>
+                                    <div class="step-check"><i class="fas fa-check text-{{ $dim['color'] }}"></i></div>
                                 </div>
                                 <span class="step-label d-none d-md-block">{{ $dim['label'] }}</span>
                             </div>

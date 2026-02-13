@@ -48,13 +48,13 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label">ناوی پارێزگا</label>
-                                <input type="text" name="name" class="form-control" required 
+                                <input type="text" name="name" class="form-control" required
                                        value="{{ old('name', $province->name) }}">
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">ناوی پارێزگا (ئینگلیزی)</label>
-                                <input type="text" name="name_en" class="form-control" required 
+                                <input type="text" name="name_en" class="form-control" required
                                        value="{{ old('name_en', $province->name_en) }}">
                             </div>
 
@@ -86,8 +86,8 @@
                             <div class="col-12">
                                 <label class="form-label">GeoJSON</label>
                                 @php
-                                    $geojson = is_array($province->geojson) 
-                                        ? json_encode($province->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) 
+                                    $geojson = is_array($province->geojson)
+                                        ? json_encode($province->geojson, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
                                         : ($province->geojson ?? '');
                                 @endphp
                                 <textarea name="geojson" rows="4" class="form-control">{{ old('geojson', $geojson) }}</textarea>
@@ -105,7 +105,7 @@
                                 @if($province->image)
                                     <div class="mt-2">
                                         <small class="text-muted">وێنەی ئێستا:</small>
-                                        <img src="{{ $province->image }}" alt="{{ $province->name }}" 
+                                        <img src="{{ $province->image }}" alt="{{ $province->name }}"
                                              class="mt-1 rounded" style="height: 60px;">
                                     </div>
                                 @endif
@@ -122,7 +122,7 @@
                             <div class="col-12">
                                 <div class="d-flex justify-content-end gap-2 mt-4">
                                     <a href="{{ route('admin.provinces.show', $province->id) }}" class="btn btn-outline-info">
-                                        <i class="fa-solid fa-eye me-1"></i> پیشاندان
+                                        <i class="fa-solid fa-eye me-1"></i> نیشاندان
                                     </a>
                                     <a href="{{ route('admin.provinces.index') }}" class="btn btn-outline-secondary">
                                         <i class="fa-solid fa-times me-1"></i> هەڵوەشاندنەوە
@@ -151,31 +151,31 @@
         const lngInput = document.getElementById('lng');
         const defaultLat = 33.3128;
         const defaultLng = 44.3615;
-        
+
         const initialLat = parseFloat(latInput.value) || defaultLat;
         const initialLng = parseFloat(lngInput.value) || defaultLng;
-        
+
         map = L.map('location-map').setView([initialLat, initialLng], 8);
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
-        
+
         if (latInput.value && lngInput.value) {
             marker = L.marker([initialLat, initialLng]).addTo(map);
         }
-        
+
         map.on('click', function(e) {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
-            
+
             latInput.value = lat.toFixed(6);
             lngInput.value = lng.toFixed(6);
-            
+
             if (marker) {
                 map.removeLayer(marker);
             }
-            
+
             marker = L.marker([lat, lng]).addTo(map);
         });
     });

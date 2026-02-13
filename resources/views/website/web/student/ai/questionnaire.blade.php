@@ -14,7 +14,7 @@
                             <li class="breadcrumb-item active">پشکنی AI</li>
                         </ol>
                     </div>
-                    <h4 class="page-title fw-bold text-dark font-primary">
+                    <h4 class="page-title fw-bold  font-primary">
                         <i class="fas fa-robot me-2 text-primary"></i>
                         پرسیارەکانی زیرەکی دەستکرد
                     </h4>
@@ -578,6 +578,38 @@
         [dir="rtl"] .scale-rtl {
             transform: scaleX(1);
         }
+
+        @media print {
+            body {
+                background: #fff !important;
+            }
+
+            .page-title-right,
+            .breadcrumb,
+            .ai-stepper,
+            .progress-wrapper,
+            .btn,
+            .modal,
+            .stepper-track,
+            .stepper-progress {
+                display: none !important;
+            }
+
+            .category-section {
+                display: block !important;
+                page-break-before: always;
+            }
+
+            .category-section:first-of-type {
+                page-break-before: auto;
+            }
+
+            .question-card {
+                page-break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+        }
     </style>
 @endpush
 
@@ -585,6 +617,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
+            const csrfToken = $('meta[name="csrf-token"]').attr('content');
             const totalQuestions = $('.modern-ai-input').length / 3; // Approximation or just use card count
             const questionCardsCount = $('.question-card').length;
 
@@ -708,8 +741,13 @@
 
                 $.ajax({
                     url: '{{ route('student.ai-ranking.submit') }}',
-                    method: 'POST',
+                    type: 'POST',
                     data: $(this).serialize(),
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
                     success: function(response) {
                         clearInterval(statusInterval);
                         clearInterval(progressInterval);
@@ -728,10 +766,19 @@
                             });
                         }
                     },
-                    error: function() {
+                    error: function(xhr) {
                         clearInterval(statusInterval);
                         clearInterval(progressInterval);
                         $('#loadingModal').modal('hide');
+                        if (xhr.status === 422 && xhr.responseJSON?.errors) {
+                            const firstError = Object.values(xhr.responseJSON.errors)[0]?.[0];
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'هەڵە',
+                                text: firstError || 'تکایە زانیاریەکان دوبارە چاوپێکەوە بکە.'
+                            });
+                            return;
+                        }
                         Swal.fire({
                             icon: 'error',
                             title: 'هەڵە',

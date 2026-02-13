@@ -11,10 +11,10 @@ use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\MbtiResultsExport;
 
-class MbtiAdminController extends Controller 
+class MbtiAdminController extends Controller
 {
     /**
-     * پیشاندانی لیستی پرسیارەکان
+     * نیشاندانی لیستی پرسیارەکان
      */
     public function index()
     {
@@ -25,9 +25,9 @@ class MbtiAdminController extends Controller
 
         return view('website.web.admin.mbti.questions.index', compact('questions'));
     }
-    
+
     /**
-     * پیشاندانی فۆڕمی دروستکردنی پرسیاری نوێ
+     * نیشاندانی فۆڕمی دروستکردنی پرسیاری نوێ
      */
     public function create()
     {
@@ -68,7 +68,7 @@ class MbtiAdminController extends Controller
     }
 
     /**
-     * پیشاندانی پرسیارێکی دیاریکراو
+     * نیشاندانی پرسیارێکی دیاریکراو
      */
     public function show(MbtiQuestion $question)
     {
@@ -78,7 +78,7 @@ class MbtiAdminController extends Controller
     }
 
     /**
-     * پیشاندانی فۆڕمی دەستکاری
+     * نیشاندانی فۆڕمی دەستکاری
      */
     public function edit(MbtiQuestion $question)
     {
@@ -135,7 +135,7 @@ class MbtiAdminController extends Controller
     }
 
     /**
-     * پیشاندانی هەموو ئەنجامەکان
+     * نیشاندانی هەموو ئەنجامەکان
      */
     public function results()
     {
@@ -159,7 +159,7 @@ class MbtiAdminController extends Controller
     }
 
     /**
-     * پیشاندانی ئەنجامی خوێندکارێکی دیاریکراو
+     * نیشاندانی ئەنجامی خوێندکارێکی دیاریکراو
      */
     public function showUserResult(string $id)
     {
@@ -190,7 +190,7 @@ class MbtiAdminController extends Controller
 
         return view('website.web.admin.mbti.results.show', compact('student', 'answers', 'scores', 'strengths', 'weaknesses', 'careers', 'workStyles'));
     }
-    
+
     /**
      * وەرگرتنی لایەنی بەهێزییەکانی جۆری MBTI
      */
@@ -214,7 +214,7 @@ class MbtiAdminController extends Controller
             'ENFJ' => ['مامۆستا', 'هاوسۆز', 'پەرەپێدەر', 'بەرپرسیار', 'بەخێوکەر'],
             'ENTJ' => ['فەرماندە', 'ستراتیژیست', 'بەڕێوەبەر', 'بەرپرسیار', 'کاریگەر'],
         ];
-        
+
         return $strengths[$type] ?? ['زانیاری بەردەست نییە'];
     }
 
@@ -241,7 +241,7 @@ class MbtiAdminController extends Controller
             'ENFJ' => ['زۆر هەستیار', 'قورسی نەبوونەوە', 'کەمەلایەنی سەربەخۆیی', 'نەگونجاو بۆ ڕق'],
             'ENTJ' => ['زۆر ڕەسمی', 'کەمەلایەنی هەستیار', 'بێزارکەر لەگەڵ بێ ئەندازەیی', 'قورسی پەیوەندی کەسی'],
         ];
-        
+
         return $weaknesses[$type] ?? ['زانیاری بەردەست نییە'];
     }
 
@@ -268,7 +268,7 @@ class MbtiAdminController extends Controller
             'ENFJ' => ['مامۆستا', 'ڕاوێژکار', 'کارمەندانی کۆمەڵایەتی', 'پەرەپێدەری کەسایەتی', 'سیاسەتمەدار'],
             'ENTJ' => ['بەڕێوەبەر', 'ئەندازیار', 'پزیشک', 'پڕۆگرامساز', 'سەرباز'],
         ];
-        
+
         return $careers[$type] ?? ['زانیاری بەردەست نییە'];
     }
 
@@ -375,7 +375,7 @@ class MbtiAdminController extends Controller
                 'بەرەنگاربوون' => ['بەهێز', 'ستراتیژی', 'سەرکردە', 'بەرپرسیار']
             ],
         ];
-        
+
         return $workStyles[$type] ?? [
             'شێوازی کارکردن' => ['زانیاری بەردەست نییە'],
             'کار لەگەڵ کەسەکان' => ['زانیاری بەردەست نییە'],
@@ -466,13 +466,13 @@ class MbtiAdminController extends Controller
             ->addColumn('actions', function($student) {
                 $showUrl = route('admin.mbti.results.show', $student->id);
                 $deleteUrl = route('admin.mbti.results.delete', $student->id);
-                
+
                 return '
                     <div class="btn-group btn-group-sm">
                         <a href="' . $showUrl . '" class="btn btn-info" title="بینین">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <button type="button" class="btn btn-danger delete-result" 
+                        <button type="button" class="btn btn-danger delete-result"
                                 data-id="' . $student->id . '" data-url="' . $deleteUrl . '" title="سڕینەوە">
                             <i class="fas fa-trash"></i>
                         </button>
