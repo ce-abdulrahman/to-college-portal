@@ -122,17 +122,21 @@
                                 <div class="form-check form-switch mb-3 p-3 bg-light rounded-2 transition-all hover-shadow">
                                     <input class="form-check-input" type="checkbox" id="nearby"
                                         name="prefer_nearby_departments" value="1"
-                                        @if($preference->prefer_nearby_departments) checked @endif
+                                        @if($preference->prefer_nearby_departments || (int) ($student->all_departments ?? 0) !== 1) checked @endif
+                                        @if((int) ($student->all_departments ?? 0) !== 1) disabled @endif
                                         onchange="toggleProvinceSelect()">
                                     <label class="form-check-label" for="nearby">
                                         <strong>بەشەکانی نزیکترین پاریزگا</strong>
                                         <br>
                                         <small class="text-muted">بەشەکانی نزیکترین بە پاریزگای تۆ بۆ پریویت کات</small>
+                                        @if ((int) ($student->all_departments ?? 0) !== 1)
+                                            <br><small class="text-warning">ئەم فیلتەرە بۆ تۆ هەمیشە چالاکە.</small>
+                                        @endif
                                     </label>
                                 </div>
 
                                 <div id="provinceSelectGroup" class="ms-4 mb-3"
-                                    style="@if(!$preference->prefer_nearby_departments) display: none; @endif">
+                                    style="@if(!$preference->prefer_nearby_departments && (int) ($student->all_departments ?? 0) === 1) display: none; @endif">
                                     <label for="province" class="form-label fw-5 text-muted">پاریزگای پریویت</label>
                                     <select id="province" name="province_filter"
                                         class="form-select form-select-lg rounded-2">
@@ -149,31 +153,37 @@
 
                             <hr>
 
-                            <!-- System Preferences Section (for year 1 students) -->
-                            @if ($student->year == 1)
-                                <div class="section-divider mb-4">
-                                    <h6 class="fw-bold text-dark mb-3">
-                                        <i class="fas fa-layer-group me-2 text-primary"></i>
-                                        سیستەمەکانی خوێندن
-                                    </h6>
+                            <!-- System Preferences Section -->
+                            <div class="section-divider mb-4">
+                                <h6 class="fw-bold text-dark mb-3">
+                                    <i class="fas fa-layer-group me-2 text-primary"></i>
+                                    سیستەمەکانی خوێندن
+                                </h6>
 
+                                @if ((int) ($student->year ?? 1) > 1)
+                                    <small class="text-muted d-block mb-3">
+                                        بەپێی ساڵی تۆ، تەنها سیستەمی پاراڵیل و ئێواران بەردەستن.
+                                    </small>
+                                @else
                                     <small class="text-muted d-block mb-3">کام سیستەمی خوێندن پریویتی تۆیە؟</small>
+                                @endif
 
-                                    @foreach ($systems as $system)
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox"
-                                                id="system{{ $system->id }}" name="preferred_systems[]"
-                                                value="{{ $system->id }}"
-                                                @if(in_array($system->id, $preference->preferred_systems ?? [])) checked @endif>
-                                            <label class="form-check-label" for="system{{ $system->id }}">
-                                                {{ $system->name }}
-                                            </label>
-                                        </div>
-                                    @endforeach
-                                </div>
+                                @forelse ($systems as $system)
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox"
+                                            id="system{{ $system->id }}" name="preferred_systems[]"
+                                            value="{{ $system->id }}"
+                                            @if(in_array($system->id, $preference->preferred_systems ?? [])) checked @endif>
+                                        <label class="form-check-label" for="system{{ $system->id }}">
+                                            {{ $system->name }}
+                                        </label>
+                                    </div>
+                                @empty
+                                    <small class="text-danger">هیچ سیستەمێکی خوێندن بەردەست نییە.</small>
+                                @endforelse
+                            </div>
 
-                                <hr>
-                            @endif
+                            <hr>
 
                             <!-- Action Buttons -->
                             <div class="d-flex gap-3 mt-5 print-hide">
@@ -274,7 +284,24 @@
             provinceGroup.style.display = checkbox.checked ? 'block' : 'none';
         }
 
+        function getBrowserLocation() {
+            return new Promise((resolve, reject) => {
+                if (!('geolocation' in navigator)) {
+                    reject(new Error('Geolocation is not supported'));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                });
+            });
+        }
+
         const preferencesForm = document.getElementById('preferencesForm');
+        const nearbyCheckbox = document.getElementById('nearby');
+        const isNearbyForced = @json((int) ($student->all_departments ?? 0) !== 1);
         if (preferencesForm) {
             // Handle form submission
             preferencesForm.addEventListener('submit', async function(e) {
@@ -286,12 +313,24 @@
                 // Convert checkboxes to proper format
                 data.consider_personality = document.getElementById('personality').checked ? 1 : 0;
                 data.use_mark_bonus = document.getElementById('markBonus').checked ? 1 : 0;
-                data.prefer_nearby_departments = document.getElementById('nearby').checked ? 1 : 0;
+                data.prefer_nearby_departments = (isNearbyForced || (nearbyCheckbox && nearbyCheckbox.checked)) ? 1 : 0;
                 data.mark_bonus_enabled = 1; // Default to enabled
                 data.preferred_systems = Array.from(document.querySelectorAll(
                     'input[name="preferred_systems[]"]:checked'
                 )).map(cb => cb.value);
-                data.province_filter = document.getElementById('province').value || null;
+                const provinceElement = document.getElementById('province');
+                data.province_filter = provinceElement ? (provinceElement.value || null) : null;
+
+                if (data.prefer_nearby_departments === 1) {
+                    try {
+                        const position = await getBrowserLocation();
+                        data.lat = Number(position.coords.latitude);
+                        data.lng = Number(position.coords.longitude);
+                    } catch (geoError) {
+                        alert('تکایە مۆڵەتی شوێن بدە بۆ بەکارهێنانی "بەشەکانی نزیکترین پاریزگا".');
+                        return;
+                    }
+                }
 
                 try {
                     const response = await fetch('{{ route('student.ai-ranking.save-preferences') }}', {
@@ -305,7 +344,7 @@
 
                     const result = await response.json();
 
-                    if (result.success) {
+                    if (response.ok && result.success) {
                         // Show success message
                         const alert = document.createElement('div');
                         alert.className = 'alert alert-success alert-dismissible fade show';
@@ -325,7 +364,8 @@
                             window.location.href = result.redirect;
                         }, 1500);
                     } else {
-                        alert('ھێڵە: ' + result.message);
+                        const firstError = result?.errors ? Object.values(result.errors)[0]?.[0] : null;
+                        alert('ھێڵە: ' + (firstError || result.message || 'هەڵەیەک ڕوویدا'));
                     }
                 } catch (error) {
                     console.error('Error:', error);

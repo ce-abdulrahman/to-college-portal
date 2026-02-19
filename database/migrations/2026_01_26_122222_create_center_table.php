@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('ai_rank')->default(0);
             $table->boolean('gis')->default(0);
             $table->boolean('all_departments')->default(0);
-            $table->string('referral_code')->nullable()->comment('Get Relation in User Role Center column to rand_code');
+            $table->string('referral_code')->default(0)->comment('Get Relation in User Role Center column to rand_code');
             $table->timestamps();
         });
     }

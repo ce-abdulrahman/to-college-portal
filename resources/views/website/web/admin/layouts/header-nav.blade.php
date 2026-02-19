@@ -14,7 +14,8 @@
                 request()->routeIs('admin.provinces.index') ||
                 request()->routeIs('admin.universities.index') ||
                 request()->routeIs('admin.colleges.index') ||
-                request()->routeIs('admin.departments.index');
+                request()->routeIs('admin.departments.index') ||
+                request()->routeIs('admin.departments.compare-descriptions');
         @endphp
         <li class="nav-item dropdown">
             <a class="nav-link custom-nav-link dropdown-toggle {{ $isGeneralDataActive ? 'active' : '' }}" href="#"
@@ -33,6 +34,8 @@
                         href="{{ route('admin.colleges.index') }}">کۆلێژەکان</a></li>
                 <li><a class="dropdown-item rounded-2 {{ navActive('admin.departments.index') }}"
                         href="{{ route('admin.departments.index') }}">بەشەکانی</a></li>
+                <li><a class="dropdown-item rounded-2 {{ navActive('admin.departments.compare-descriptions') }}"
+                        href="{{ route('admin.departments.compare-descriptions') }}">بەراوردی وەسف</a></li>
             </ul>
         </li>
 
@@ -78,7 +81,7 @@
         <li class="nav-item">
             <a class="nav-link custom-nav-link position-relative {{ navActive('admin.requests.index') }}"
                 href="{{ route('admin.requests.index') }}">
-                <i class="bi bi-bell me-1"></i> پرسەکانی بەشەکانی
+                <i class="bi bi-bell me-1"></i> داواکاریەکان
                 @if ($pendingCount > 0)
                     <span
                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm border border-white">
@@ -90,33 +93,21 @@
         </li>
 
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('admin.backups.index') }}"
-                href="{{ route('admin.backups.index') }}">
-                <i class="bi bi-cloud-arrow-up me-1"></i> Backup
+            <a class="nav-link custom-nav-link {{ navActive('admin.queue-hand-departments.index') }}"
+                href="{{ route('admin.queue-hand-departments.index') }}">
+                <i class="fa-solid fa-list me-1"></i> ڕێزبەندی قوتابیان
             </a>
         </li>
-
-        <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('admin.results.index') }}"
-                href="{{ route('admin.results.index') }}">
-                <i class="fa-solid fa-receipt me-1"></i> ئەنجامی هەڵبژاردنەکانی قوتابیان
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('admin.settings.index') }}"
-                href="{{ route('admin.settings.index') }}">
-                <i class="fa-solid fa-gear me-1"></i> ڕێکخستنەکان
-            </a>
-        </li>
-
+        
         {{-- Users Dropdown --}}
         @php
             $isUsersActive =
                 request()->routeIs('admin.centers.index') ||
                 request()->routeIs('admin.teachers.index') ||
                 request()->routeIs('admin.students.index') ||
-                request()->routeIs('admin.users.index');
+                request()->routeIs('admin.users.index') ||
+                request()->routeIs('admin.users.deleted') ||
+                request()->routeIs('admin.users.admin-referrals');
         @endphp
         <li class="nav-item dropdown">
             <a class="nav-link custom-nav-link dropdown-toggle {{ $isUsersActive ? 'active' : '' }}" href="#"
@@ -133,6 +124,10 @@
                         href="{{ route('admin.students.index') }}">قوتابیان</a></li>
                 <li><a class="dropdown-item rounded-2 {{ navActive('admin.users.index') }}"
                         href="{{ route('admin.users.index') }}">بەکارهێنەر</a></li>
+                <li><a class="dropdown-item rounded-2 {{ navActive('admin.users.deleted') }}"
+                        href="{{ route('admin.users.deleted') }}">سڕاوەکان</a></li>
+                <li><a class="dropdown-item rounded-2 {{ navActive('admin.users.admin-referrals') }}"
+                        href="{{ route('admin.users.admin-referrals') }}">سەر بە ئەدمین</a></li>
             </ul>
         </li>
     @endif
@@ -146,21 +141,39 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('center.departments.index') }}"
+            <a class="nav-link custom-nav-link {{ navActive('center.departments.*') }}"
                 href="{{ route('center.departments.index') }}">
                 <i class="fa-solid fa-building me-1"></i> بەشەکانی
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('center.teachers.index') }}"
+            <a class="nav-link custom-nav-link {{ navActive('center.departments.compare-descriptions') }}"
+                href="{{ route('center.departments.compare-descriptions') }}">
+                <i class="fa-solid fa-code-compare me-1"></i> بەراوردی وەسف
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('center.teachers.*') }}"
                 href="{{ route('center.teachers.index') }}">
                 <i class="fa-solid fa-chalkboard-user me-1"></i> مامۆستاکانم
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('center.students.index') }}"
+            <a class="nav-link custom-nav-link {{ navActive('center.students.*') }}"
                 href="{{ route('center.students.index') }}">
                 <i class="fa-solid fa-user-graduate me-1"></i> قوتابیەکانم
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('center.features.*') }}"
+                href="{{ route('center.features.request') }}">
+                <i class="fa-solid fa-file-invoice me-1"></i> داواکارییەکان
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('center.queue-hand-departments.*') }}"
+                href="{{ route('center.queue-hand-departments.index') }}">
+                <i class="fa-solid fa-list me-1"></i> ڕێزبەندی قوتابیان
             </a>
         </li>
     @endif
@@ -174,15 +187,33 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('teacher.departments.index') }}"
+            <a class="nav-link custom-nav-link {{ navActive('teacher.departments.*') }}"
                 href="{{ route('teacher.departments.index') }}">
                 <i class="fa-solid fa-building me-1"></i> بەشەکانی
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('teacher.students.index') }}"
+            <a class="nav-link custom-nav-link {{ navActive('teacher.departments.compare-descriptions') }}"
+                href="{{ route('teacher.departments.compare-descriptions') }}">
+                <i class="fa-solid fa-code-compare me-1"></i> بەراوردی وەسف
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('teacher.students.*') }}"
                 href="{{ route('teacher.students.index') }}">
                 <i class="fa-solid fa-user-graduate me-1"></i> قوتابیەکانم
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('teacher.features.*') }}"
+                href="{{ route('teacher.features.request') }}">
+                <i class="fa-solid fa-file-invoice me-1"></i> داواکارییەکان
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link custom-nav-link {{ navActive('teacher.queue-hand-departments.*') }}"
+                href="{{ route('teacher.queue-hand-departments.index') }}">
+                <i class="fa-solid fa-list me-1"></i> ڕێزبەندی قوتابیان
             </a>
         </li>
     @endif
@@ -196,32 +227,32 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('student.mbti.index') }}"
+            <a class="nav-link custom-nav-link {{ navActive('student.mbti.*') }}"
                 href="{{ route('student.mbti.index') }}">
                 <i class="bi bi-puzzle me-1 text-success"></i> MBTI
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('student.departments.selection') }}"
+            <a class="nav-link custom-nav-link {{ navActive('student.departments.*') }}"
                 href="{{ route('student.departments.selection') }}">
                 <i class="fas fa-university me-1 text-primary"></i> هەڵبژاردنی بەش
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('student.ai-ranking.questionnaire') }}"
+            <a class="nav-link custom-nav-link {{ navActive('student.ai-ranking.*') }}"
                 href="{{ route('student.ai-ranking.questionnaire') }}">
                 <i class="fas fa-robot text-success"></i> سیستەمی AI
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('student.final-report') }}"
+            <a class="nav-link custom-nav-link {{ navActive('student.final-report.*') }}"
                 href="{{ route('student.final-report') }}">
                 <i class="fa-solid fa-file-invoice text-dark"></i> لیستی کۆتایی
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link custom-nav-link {{ navActive('student.departments.request-more') }}"
+            <a class="nav-link custom-nav-link {{ navActive('student.departments.request-more.*') }}"
                 href="{{ route('student.departments.request-more') }}">
                 <i class="fas fa-history me-1 text-success"></i> مێژووی داواکاری
             </a>

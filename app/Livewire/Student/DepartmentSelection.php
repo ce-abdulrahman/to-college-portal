@@ -11,6 +11,7 @@ use App\Models\System;
 use App\Models\Province;
 use App\Models\University;
 use App\Models\College;
+use App\Support\DepartmentSexScope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -66,13 +67,13 @@ class DepartmentSelection extends Component
     public function addDepartment($departmentId)
     {
         $student = Auth::user()->student;
-        $maxSelections = $student->all_departments ? 50 : 20;
+        $maxSelections = $student->all_departments ? 50 : 10;
 
         if (count($this->sessionSelectedIds) >= $maxSelections) {
             $this->dispatch('toast', [
                 'type' => 'error', 
                 'title' => 'هەڵە',
-                'message' => "تۆ ناتوانیت زیاتر لە $maxSelections بەش هەڵبژێریت."
+                'message' => "تۆ ناتوانیت زیاتر لە $maxSelections بەش هەڵبژێریت. دەتوانیت داواکاری زیادکردنی بەش بنێریت."
             ]);
             return;
         }
@@ -161,16 +162,14 @@ class DepartmentSelection extends Component
         $student = Auth::user()->student;
 
         // Query available departments eligible for this student
-        $query = Department::where('status', 1)
+        $query = Department::query()
+            ->visibleForSelection()
             ->where(function($q) use ($student) {
                 $q->where('type', $student->type)
                   ->orWhere('type', 'زانستی و وێژەیی');
             })
-            ->where(function($q) use ($student) {
-                $q->where('sex', $student->gender)
-                  ->orWhere('sex', 'هەردووکیان');
-            })
             ->where('local_score', '<=', $student->mark);
+        DepartmentSexScope::applyForStudent($query, $student->gender);
 
         // Application filters
         if ($this->search) {
@@ -194,7 +193,9 @@ class DepartmentSelection extends Component
             ->paginate(15);
 
         // Map session IDs to actual objects for the ranked list
-        $allSelected = Department::whereIn('id', $this->sessionSelectedIds)
+        $allSelected = Department::query()
+            ->visibleForSelection()
+            ->whereIn('id', $this->sessionSelectedIds)
             ->with(['university', 'system', 'province', 'college'])
             ->get();
         
@@ -209,14 +210,14 @@ class DepartmentSelection extends Component
         $universities = University::where('status', 1)
             ->when($this->selectedProvince, fn($q) => $q->where('province_id', $this->selectedProvince))
             ->when($this->selectedSystem, function($q) {
-                $q->whereHas('departments', fn($dq) => $dq->where('system_id', $this->selectedSystem));
+                $q->whereHas('departments', fn($dq) => $dq->visibleForSelection()->where('system_id', $this->selectedSystem));
             })
             ->get();
 
         $colleges = College::where('status', 1)
             ->when($this->selectedUniversity, fn($q) => $q->where('university_id', $this->selectedUniversity))
             ->when($this->selectedSystem, function($q) {
-                $q->whereHas('departments', fn($dq) => $dq->where('system_id', $this->selectedSystem));
+                $q->whereHas('departments', fn($dq) => $dq->visibleForSelection()->where('system_id', $this->selectedSystem));
             })
             ->get();
 
@@ -227,7 +228,7 @@ class DepartmentSelection extends Component
             'provinces' => $provinces,
             'universities' => $universities,
             'colleges' => $colleges,
-            'maxSelections' => $student->all_departments ? 50 : 20,
+            'maxSelections' => $student->all_departments ? 50 : 10,
             'hasUnsavedChanges' => $this->sessionSelectedIds !== $this->originalDbIds
         ]);
     }

@@ -148,12 +148,28 @@
                     @enderror
                 </div>
 
-                <div class="mb-3 d-none">
+                <div class="mb-3">
                     <label for="referral_code"><i class="fas fa-link"></i> کۆدی پێشنیار</label>
                     <div class="input-icon">
                         <i class="fas fa-link"></i>
-                        <input type="text" name="referral_code" value="0" class="form-control"
+                        <input type="text" id="referral_code" name="referral_code"
+                            value="{{ old('referral_code', $prefilledReferralCode ?? '') }}" class="form-control"
                             placeholder="کۆدی پێشنیار (ئارەزوومەندە)">
+                    </div>
+                    <div id="referral-owner" class="small mt-2
+                        @if (!empty($referrer)) text-success @else text-muted @endif">
+                        @if (!empty($referrer))
+                            تۆمارکردنەکەت لەژێر کۆدی
+                            <strong>{{ $referrer->name }}</strong>
+                            ({{ $referrer->role === 'admin' ? 'ئەدمین' : ($referrer->role === 'center' ? 'سەنتەر' : 'مامۆستا') }})
+                            دەچێت.
+                            <span class="d-block mt-1">
+                                ژمارەی پەیوەندی:
+                                <strong>{{ $referrer->phone ?: 'نییە' }}</strong>
+                            </span>
+                        @else
+                            ئەم خانەیە ئارەزوومەندانەیە. ئەگەر center/teacher کۆد دانەنرێت، بە شێوەی خۆکارانە بۆ ئەدمین حساب دەکرێت.
+                        @endif
                     </div>
                     @error('referral_code')
                         <div class="alert alert-danger mt-2">{{ $message }}</div>
@@ -195,6 +211,61 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const referralInput = document.getElementById('referral_code');
+            const referralOwner = document.getElementById('referral-owner');
+            const infoUrl = "{{ route('register.referrer-info') }}";
+
+            if (!referralInput || !referralOwner) {
+                return;
+            }
+
+            let debounceTimer = null;
+
+            function setInfoText(text, className) {
+                referralOwner.textContent = text;
+                referralOwner.classList.remove('text-success', 'text-danger', 'text-muted', 'text-warning');
+                referralOwner.classList.add(className);
+            }
+
+            async function resolveReferralOwner() {
+                const code = (referralInput.value || '').trim();
+
+                if (!code) {
+                    setInfoText('ئەم خانەیە ئارەزوومەندانەیە. ئەگەر کۆد نەنووسیت، تۆمارکردن بۆ ئەدمین حساب دەکرێت.', 'text-muted');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${infoUrl}?code=${encodeURIComponent(code)}`, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (data.found) {
+                        const phone = data.phone ? data.phone : 'نییە';
+                        setInfoText(`تۆمارکردنەکەت لەژێر کۆدی ${data.name} (${data.role_label}) دەچێت. ژمارەی پەیوەندی: ${phone}`, 'text-success');
+                    } else {
+                        setInfoText('ئەم کۆدە نەدۆزرایەوە. تۆمارکردنەکەت خۆکارانە بۆ ئەدمین حساب دەکرێت.', 'text-warning');
+                    }
+                } catch (e) {
+                    setInfoText('هەڵەیەک ڕوویدا لە دۆزینەوەی خاوەنی کۆد.', 'text-danger');
+                }
+            }
+
+            referralInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(resolveReferralOwner, 300);
+            });
+
+            if (referralInput.value.trim() !== '') {
+                resolveReferralOwner();
+            }
+        });
+    </script>
 </body>
 
 </html>

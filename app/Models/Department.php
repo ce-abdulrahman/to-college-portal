@@ -12,6 +12,9 @@ class Department extends Model
 {
     use HasFactory;
 
+    public const MIN_VISIBLE_LOCAL_SCORE = 50;
+    public const MIN_VISIBLE_YEARS = 1;
+
     protected $fillable = [
         'system_id',
         'province_id',
@@ -57,6 +60,20 @@ class Department extends Model
     public function collection()
     {
         return Department::with(['system', 'province', 'university', 'college'])->get();
+    }
+
+    /**
+     * Departments visible in center/teacher/student flows.
+     */
+    public function scopeVisibleForSelection($query)
+    {
+        return $query
+            ->where('status', 1)
+            ->where(function ($query) {
+                $query->where('years', '>', self::MIN_VISIBLE_YEARS)
+                    ->orWhereIn('system_id', [2, 3]);
+            })
+            ->where('local_score', '>=', self::MIN_VISIBLE_LOCAL_SCORE);
     }
     
     public function headings(): array

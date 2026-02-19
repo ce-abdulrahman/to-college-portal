@@ -7,6 +7,7 @@ use App\Models\Student;
 use App\Models\ResultDep;
 use App\Models\System;
 use App\Models\Province;
+use App\Support\DepartmentSexScope;
 use Illuminate\Support\Facades\DB;
 
 class DepartmentSelector
@@ -74,8 +75,9 @@ class DepartmentSelector
             ? ['زانستی', 'زانستی و وێژەیی']
             : ['وێژەیی', 'زانستی و وێژەیی'];
 
-        // c) gender: هەمان ڕەگەز یان 'هەردوو' (ئەگەر لە داتابەیسەکەت بە 'both' نوسراوە، ئەوە بەکاربەرە)
-        $genderAcceptable = ['هەردوو', $gender];
+        // c) gender: based on current student department-sex rules
+        // male => all department genders, female => [female, male, both-labels]
+        $genderAcceptable = DepartmentSexScope::allowedForStudent($gender);
 
         // d) systems: بەپێی year → system_id ـەکان بدۆزەوە
         //   year > 1 → ['پاراڵیل','ئێواران']
@@ -88,9 +90,13 @@ class DepartmentSelector
 
         // 3) بنەڕەتی فلتەر لە departments
         $base = Department::query()
+            ->visibleForSelection()
             ->when($provinceId, fn($q) => $q->where('province_id', $provinceId)) // departments.province_id
-            ->whereIn('type', $typeAcceptable)                                   // departments.type
-            ->whereIn('sex', $genderAcceptable);                                 // departments.sex
+            ->whereIn('type', $typeAcceptable);                                   // departments.type
+
+        if ($genderAcceptable !== null) {
+            $base->whereIn('sex', $genderAcceptable); // departments.sex
+        }
 
         // 4) بە پێی سیستەمەکان لیمیت کردنی دەرئەنجام
         $zankoline = collect();

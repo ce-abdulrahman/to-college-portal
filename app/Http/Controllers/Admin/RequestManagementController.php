@@ -76,8 +76,8 @@ class RequestManagementController extends Controller
     }
 
     // app/Http\Controllers/Admin/RequestManagementController.php
-public function approve(Request $request, $id)
-{
+    public function approve(Request $request, $id)
+    {
     $adminRequest = RequestMoreDepartments::with(['student', 'teacher', 'center', 'user'])->findOrFail($id);
 
     if ($adminRequest->status !== 'pending') {
@@ -86,9 +86,28 @@ public function approve(Request $request, $id)
 
     $validated = $request->validate([
         'notes' => 'nullable|string|max:500',
-        'approve_types' => 'required|array|min:1',
-        'approve_types.*' => 'in:all_departments,ai_rank,gis',
+        'approve_types' => 'nullable|array',
+        'approve_types.*' => 'in:all_departments,ai_rank,gis,queue_hand_department',
+        'approve_limit_teacher' => 'nullable|integer|min:0',
+        'approve_limit_student' => 'nullable|integer|min:0',
     ]);
+
+    $approveTypes = $validated['approve_types'] ?? [];
+    $approveLimitTeacher = (int) ($validated['approve_limit_teacher'] ?? 0);
+    $approveLimitStudent = (int) ($validated['approve_limit_student'] ?? 0);
+
+    if ($adminRequest->user_type !== 'center' || (int) $adminRequest->request_limit_teacher <= 0) {
+        $approveLimitTeacher = 0;
+    }
+    if ((int) $adminRequest->request_limit_student <= 0) {
+        $approveLimitStudent = 0;
+    }
+
+    if (empty($approveTypes) && $approveLimitTeacher === 0 && $approveLimitStudent === 0) {
+        return redirect()->back()
+            ->withErrors(['approve_types' => 'پێویستە لانیکەم یەک جۆری feature یان زیادکردنی سنوور پەسەند بکەیت.'])
+            ->withInput();
+    }
 
     $userID = auth()->user()->id;
     DB::beginTransaction();
@@ -99,6 +118,8 @@ public function approve(Request $request, $id)
             'admin_id' => $userID,
             'admin_notes' => $validated['notes'] ?? null,
             'approved_at' => now(),
+            'approved_limit_teacher' => $approveLimitTeacher,
+            'approved_limit_student' => $approveLimitStudent,
         ]);
 
         // چالاککردنی جۆرە پەسەندکراوەکان
@@ -114,22 +135,57 @@ public function approve(Request $request, $id)
         }
 
         if ($targetModel) {
-            $updates = [];
+            $featureUpdates = [];
+            $limitUpdates = [];
             
-            if (in_array('all_departments', $validated['approve_types']) && $targetModel->all_departments == 0) {
-                $updates['all_departments'] = 1;
+            if (in_array('all_departments', $approveTypes) && $targetModel->all_departments == 0) {
+                $featureUpdates['all_departments'] = 1;
             }
             
-            if (in_array('ai_rank', $validated['approve_types']) && $targetModel->ai_rank == 0) {
-                $updates['ai_rank'] = 1;
+            if (in_array('ai_rank', $approveTypes) && $targetModel->ai_rank == 0) {
+                $featureUpdates['ai_rank'] = 1;
             }
             
-            if (in_array('gis', $validated['approve_types']) && $targetModel->gis == 0) {
-                $updates['gis'] = 1;
+            if (in_array('gis', $approveTypes) && $targetModel->gis == 0) {
+                $featureUpdates['gis'] = 1;
             }
+
+            if (
+                in_array('queue_hand_department', $approveTypes)
+                && $adminRequest->user_type !== 'student'
+                && (int) ($targetModel->queue_hand_department ?? 0) === 0
+            ) {
+                $featureUpdates['queue_hand_department'] = 1;
+            }
+
+            if ($adminRequest->user_type === 'center' && $approveLimitTeacher > 0) {
+                $currentCount = 0;
+                if ($adminRequest->user && $adminRequest->user->rand_code) {
+                    $currentCount = Teacher::where('referral_code', $adminRequest->user->rand_code)->count();
+                }
+                $limitUpdates['limit_teacher'] = $this->resolveNextLimit(
+                    $targetModel->limit_teacher ?? null,
+                    $approveLimitTeacher,
+                    $currentCount
+                );
+            }
+
+            if ($approveLimitStudent > 0) {
+                $currentCount = 0;
+                if ($adminRequest->user && $adminRequest->user->rand_code) {
+                    $currentCount = Student::where('referral_code', $adminRequest->user->rand_code)->count();
+                }
+                $limitUpdates['limit_student'] = $this->resolveNextLimit(
+                    $targetModel->limit_student ?? null,
+                    $approveLimitStudent,
+                    $currentCount
+                );
+            }
+
+            $targetUpdates = array_merge($featureUpdates, $limitUpdates);
             
-            if (!empty($updates)) {
-                $targetModel->update($updates);
+            if (!empty($targetUpdates)) {
+                $targetModel->update($targetUpdates);
 
                 // --- Propagation Logic ---
                 if ($adminRequest->user_type == 'center') {
@@ -138,10 +194,17 @@ public function approve(Request $request, $id)
                         $centerRandCode = $centerUser->rand_code;
 
                         // 1. Update all Teachers referred directly by this center
-                        Teacher::where('referral_code', $centerRandCode)->update($updates);
+                        if (!empty($featureUpdates)) {
+                            Teacher::where('referral_code', $centerRandCode)->update($featureUpdates);
+                        }
+
+                        $studentFeatureUpdates = $featureUpdates;
+                        unset($studentFeatureUpdates['queue_hand_department']);
 
                         // 2. Update all Students referred directly by this center
-                        Student::where('referral_code', $centerRandCode)->update($updates);
+                        if (!empty($studentFeatureUpdates)) {
+                            Student::where('referral_code', $centerRandCode)->update($studentFeatureUpdates);
+                        }
 
                         // 3. Update all Students referred by Teachers who belong to this center
                         $teacherRandCodes = User::where('role', 'teacher')
@@ -152,14 +215,21 @@ public function approve(Request $request, $id)
                             ->filter();
 
                         if ($teacherRandCodes->isNotEmpty()) {
-                            Student::whereIn('referral_code', $teacherRandCodes)->update($updates);
+                            if (!empty($studentFeatureUpdates)) {
+                                Student::whereIn('referral_code', $teacherRandCodes)->update($studentFeatureUpdates);
+                            }
                         }
                     }
                 } elseif ($adminRequest->user_type == 'teacher') {
                     $teacherUser = $adminRequest->user;
                     if ($teacherUser && $teacherUser->rand_code) {
+                        $studentFeatureUpdates = $featureUpdates;
+                        unset($studentFeatureUpdates['queue_hand_department']);
+
                         // Update all Students referred by this teacher
-                        Student::where('referral_code', $teacherUser->rand_code)->update($updates);
+                        if (!empty($studentFeatureUpdates)) {
+                            Student::where('referral_code', $teacherUser->rand_code)->update($studentFeatureUpdates);
+                        }
                     }
                 }
             }
@@ -167,10 +237,22 @@ public function approve(Request $request, $id)
 
         DB::commit();
 
-        $approvedTypes = array_map(function($type) {
-            return $type == 'all_departments' ? '٥٠ بەش' : 
-                   ($type == 'ai_rank' ? 'سیستەمی AI' : 'سیستەمی نەخشە');
-        }, $validated['approve_types']);
+        $approvedTypeLabels = [
+            'all_departments' => '٥٠ بەش',
+            'ai_rank' => 'سیستەمی AI',
+            'gis' => 'سیستەمی نەخشە',
+            'queue_hand_department' => 'ڕیزبەندی بەشەکان',
+        ];
+        $approvedTypes = array_map(function ($type) use ($approvedTypeLabels) {
+            return $approvedTypeLabels[$type] ?? $type;
+        }, $approveTypes);
+
+        if ($approveLimitTeacher > 0) {
+            $approvedTypes[] = 'زیادکردنی سنووری مامۆستا +' . $approveLimitTeacher;
+        }
+        if ($approveLimitStudent > 0) {
+            $approvedTypes[] = 'زیادکردنی سنووری قوتابی +' . $approveLimitStudent;
+        }
 
         return redirect()->route('admin.requests.index')
             ->with('success', 'داواکاریەکە بە سەرکەوتوویی پەسەند کرا. جۆرەکان: ' . implode('، ', $approvedTypes));
@@ -178,7 +260,7 @@ public function approve(Request $request, $id)
         DB::rollBack();
         return redirect()->back()->with('error', 'هەڵەیەک ڕوویدا: ' . $e->getMessage());
     }
-}
+    }
 
     /**
      * ڕەتکردنەوەی داواکاری
@@ -266,5 +348,11 @@ public function approve(Request $request, $id)
             'html' => view('website.web.admin.requests.partials.requests-table', compact('requests'))->render(),
             'pagination' => $requests->links()->toHtml()
         ]);
+    }
+
+    private function resolveNextLimit($currentLimit, int $increment, int $currentCount): int
+    {
+        $base = is_null($currentLimit) ? $currentCount : max((int) $currentLimit, $currentCount);
+        return $base + max(0, $increment);
     }
 }

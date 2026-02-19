@@ -4,174 +4,175 @@
 @section('view_name', 'index')
 
 @section('content')
+    <div class="container-fluid py-4">
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
-                        <li class="breadcrumb-item active">لیستی هەڵبژاردراوەکانی قوتابیان</li>
-                    </ol>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                            <li class="breadcrumb-item active">لیستی هەڵبژاردراوەکانی قوتابیان</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        لیستی هەڵبژاردراوەکانی قوتابیان
+                    </h4>
                 </div>
-                <h4 class="page-title">
-                    <i class="fas fa-chart-bar me-1"></i>
-                    لیستی هەڵبژاردراوەکانی قوتابیان
-                </h4>
             </div>
         </div>
-    </div>
 
-    {{-- Filters Toolbar --}}
-    <div class="card glass mb-3">
-        <div class="card-body">
-            <div class="row g-2 align-items-end">
-                <form action="{{ route('admin.results.index') }}" method="get" class="row g-2 align-items-end">
-                    {{-- Student --}}
-                    <div class="col-12 col-md-3">
-                        <label class="form-label"><i class="fa-solid fa-cube me-1 text-muted"></i> قوتابیەکان</label>
-                        <select name="student_id" class="form-select">
-                            <option value="">ناوی هەموو قوتابیەکان</option>
-                            @foreach ($students as $student)
-                                <option value="{{ $student->id }}" @selected(request('student_id') == $student->id)>
-                                    {{ $student->user->name ?? '—' }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+        {{-- Filters Toolbar --}}
+        <div class="card glass mb-3">
+            <div class="card-body">
+                <div class="row g-2 align-items-end">
+                    <form action="{{ route('admin.results.index') }}" method="get" class="row g-2 align-items-end">
+                        {{-- Student --}}
+                        <div class="col-12 col-md-3">
+                            <label class="form-label"><i class="fa-solid fa-cube me-1 text-muted"></i> قوتابیەکان</label>
+                            <select name="student_id" class="form-select">
+                                <option value="">ناوی هەموو قوتابیەکان</option>
+                                @foreach ($students as $student)
+                                    <option value="{{ $student->id }}" @selected(request('student_id') == $student->id)>
+                                        {{ $student->user->name ?? '—' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    {{-- Search --}}
-                    <div class="col-12 col-md-6 mt-2">
-                        <label class="form-label"><i class="fa-solid fa-magnifying-glass me-1 text-muted"></i> گەڕانی
-                            گشتی</label>
-                        <input type="text" name="search" class="form-control"
-                            value="{{ request('search') }}"
-                            placeholder="ناوی بەش/سیستەم/پارێزگا/زانکۆ/کۆلێژ/قوتابی ...">
-                    </div>
-                    <div class="col-12 col-md-3 mt-2">
-                        <button class="btn btn-dark w-100">گەڕانە</button>
-                    </div>
-                </form>
+                        {{-- Search --}}
+                        <div class="col-12 col-md-6 mt-2">
+                            <label class="form-label"><i class="fa-solid fa-magnifying-glass me-1 text-muted"></i> گەڕانی
+                                گشتی</label>
+                            <input type="text" name="search" class="form-control" value="{{ request('search') }}"
+                                placeholder="ناوی بەش/سیستەم/پارێزگا/زانکۆ/کۆلێژ/قوتابی ...">
+                        </div>
+                        <div class="col-12 col-md-3 mt-2">
+                            <button class="btn btn-dark w-100">گەڕانە</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
 
-        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
-            <div class="d-flex align-items-center gap-2">
-                <label class="small text-muted mb-0">نیشاندانی</label>
-                <select id="page-length" class="form-select form-select-sm" style="width:auto">
-                    <option value="10" selected>10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-                <label class="small text-muted mb-0">تۆمار لە هەردەم</label>
-            </div>
+            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <label class="small text-muted mb-0">نیشاندانی</label>
+                    <select id="page-length" class="form-select form-select-sm" style="width:auto">
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <label class="small text-muted mb-0">تۆمار لە هەردەم</label>
+                </div>
 
-            <div class="ms-auto" style="min-width:260px">
-                <input id="custom-search" type="search" class="form-control"
-                    placeholder="گەڕان... (ناو/سیستەم/پارێزگا/...)">
+                <div class="ms-auto" style="min-width:260px">
+                    <input id="custom-search" type="search" class="form-control"
+                        placeholder="گەڕان... (ناو/سیستەم/پارێزگا/...)">
+                </div>
             </div>
         </div>
-    </div>
 
 
-    <div class="card glass fade-in">
-        <div class="card-body">
-            <h4 class="card-title mb-3"><i class="fa-solid fa-table-list me-2"></i> بەشەکان</h4>
+        <div class="card glass fade-in">
+            <div class="card-body">
+                <h4 class="card-title mb-3"><i class="fa-solid fa-table-list me-2"></i> بەشەکان</h4>
 
-            <div class="table-wrap">
-                <div class="table-responsive table-scroll-x">
-                    <table id="datatable" class="table align-middle nowrap" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>ناوی قوتابی</th>
-                                <th>ناوی بەش</th>
-                                <th>نمرەی ناوەندی</th>
-                                <th>نمرەی دەرەوە</th>
-                                {{--  <th>جۆر</th>
+                <div class="table-wrap">
+                    <div class="table-responsive table-scroll-x">
+                        <table id="datatable" class="table align-middle nowrap" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>ناوی قوتابی</th>
+                                    <th>ناوی بەش</th>
+                                    <th>نمرەی ناوەندی</th>
+                                    <th>نمرەی دەرەوە</th>
+                                    {{--  <th>جۆر</th>
                                 <th>ڕەگەز</th>  --}}
-                                <th>دۆخ</th>
-                                <th>کردار</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($results as $i => $result)
-                                @php
-                                    $systemName = $result->department->system->name;
-                                    $systemBadgeClass = match ($systemName) {
-                                        'زانکۆلاین' => 'bg-primary',
-                                        'پاراڵیل' => 'bg-success',
-                                        default => 'bg-danger',
-                                    };
-                                @endphp
+                                    <th>دۆخ</th>
+                                    <th>کردار</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($results as $i => $result)
+                                    @php
+                                        $systemName = $result->department->system->name;
+                                        $systemBadgeClass = match ($systemName) {
+                                            'زانکۆلاین' => 'bg-primary',
+                                            'پاراڵیل' => 'bg-success',
+                                            default => 'bg-danger',
+                                        };
+                                    @endphp
 
-                                <tr data-systemColor="{{ $systemName }}"
-                                    data-system="{{ $result->department->system->name }}"
-                                    data-province="{{ $result->department->province->name }}"
-                                    data-university="{{ $result->department->university->name }}"
-                                    data-college="{{ $result->department->college->name }}">
-                                    <td>{{ $i + 1 }}</td>
-                                    <td data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                                        data-bs-title="{{ data_get($result, 'student.mark') ?? '—' }}">
-                                        {{ data_get($result, 'student.user.name') ?? '—' }}
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-column">
-                                            <div class="fw-semibold">{{ $result->department->name }}</div>
-                                            <div class="text-muted small">
-                                                <span class="badge {{ $systemBadgeClass }}">
-                                                    <i class="fa-solid fa-cube me-1"></i> {{ $systemName }}
-                                                </span> /
-                                                {{ $result->department->province->name }} /
-                                                {{ $result->department->university->name }} /
-                                                {{ $result->department->college->name }}
+                                    <tr data-systemColor="{{ $systemName }}"
+                                        data-system="{{ $result->department->system->name }}"
+                                        data-province="{{ $result->department->province->name }}"
+                                        data-university="{{ $result->department->university->name }}"
+                                        data-college="{{ $result->department->college->name }}">
+                                        <td>{{ $i + 1 }}</td>
+                                        <td data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                                            data-bs-title="{{ data_get($result, 'student.mark') ?? '—' }}">
+                                            {{ data_get($result, 'student.user.name') ?? '—' }}
+                                        </td>
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <div class="fw-semibold">{{ $result->department->name }}</div>
+                                                <div class="text-muted small">
+                                                    <span class="badge {{ $systemBadgeClass }}">
+                                                        <i class="fa-solid fa-cube me-1"></i> {{ $systemName }}
+                                                    </span> /
+                                                    {{ $result->department->province->name }} /
+                                                    {{ $result->department->university->name }} /
+                                                    {{ $result->department->college->name }}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ $result->department->local_score ?? '—' }}</td>
-                                    <td>{{ $result->department->external_score ?? '—' }}</td>
-                                    {{--  <td><span class="chip"><i class="fa-solid fa-layer-group"></i>
+                                        </td>
+                                        <td>{{ $result->department->local_score ?? '—' }}</td>
+                                        <td>{{ $result->department->external_score ?? '—' }}</td>
+                                        {{--  <td><span class="chip"><i class="fa-solid fa-layer-group"></i>
                                             {{ $department->type }}</span></td>
                                     <td>{{ $department->sex ?? '—' }}</td>  --}}
-                                    <td>
-                                        @if ($result->department->status)
-                                            <span class="badge bg-success">چاڵاک</span>
-                                        @else
-                                            <span class="badge bg-danger">ناچاڵاک</span>
-                                        @endif
-                                    </td>
-                                    <td class="actions">
-                                        <a href="{{ route('admin.results.show', $result->id) }}"
-                                            class="btn btn-sm btn-outline" data-bs-toggle="tooltip"
-                                            data-bs-title="وردەکاری">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </a>
-                                        <form action="{{ route('admin.results.destroy', $result->id) }}"
-                                            method="POST" class="d-inline"
-                                            onsubmit="return confirm('ئایە دڵنیایت لە سڕینەوەی ئەم هەڵبژاردنە؟');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip"
-                                                data-bs-title="سڕینەوە">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2">
-                        <div id="dt-info" class="small text-muted"></div>
-                        <div id="dt-pager"></div>
+                                        <td>
+                                            @if ($result->department->status)
+                                                <span class="badge bg-success">چاڵاک</span>
+                                            @else
+                                                <span class="badge bg-danger">ناچاڵاک</span>
+                                            @endif
+                                        </td>
+                                        <td class="actions">
+                                            <a href="{{ route('admin.results.show', $result->id) }}"
+                                                class="btn btn-sm btn-outline" data-bs-toggle="tooltip"
+                                                data-bs-title="وردەکاری">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            <form action="{{ route('admin.results.destroy', $result->id) }}" method="POST"
+                                                class="d-inline"
+                                                onsubmit="return confirm('ئایە دڵنیایت لە سڕینەوەی ئەم هەڵبژاردنە؟');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger"
+                                                    data-bs-toggle="tooltip" data-bs-title="سڕینەوە">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mt-2">
+                            <div id="dt-info" class="small text-muted"></div>
+                            <div id="dt-pager"></div>
+                        </div>
+
                     </div>
-
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
 @endsection

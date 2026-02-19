@@ -605,11 +605,20 @@
                             showToast('سەرکەوتوو', response.message, 'success');
                             $('#departmentModal').modal('hide');
                         } else {
+                            if (response.can_request_more && response.request_url) {
+                                showRequestMorePrompt(response.message, response.request_url);
+                                return;
+                            }
                             showToast('هەڵە', response.message, 'error');
                         }
                     },
                     error: function(xhr) {
-                        showToast('هەڵە', xhr.responseJSON?.message || 'هەڵەیەک ڕوویدا', 'error');
+                        const payload = xhr.responseJSON || {};
+                        if (payload.can_request_more && payload.request_url) {
+                            showRequestMorePrompt(payload.message, payload.request_url);
+                            return;
+                        }
+                        showToast('هەڵە', payload.message || 'هەڵەیەک ڕوویدا', 'error');
                     }
                 });
             };
@@ -917,6 +926,30 @@
                 } else {
                     // پەیامی سادە
                     alert(title + ': ' + message);
+                }
+            }
+
+            function showRequestMorePrompt(message, requestUrl) {
+                const text = message || 'دەتوانیت داواکاری زیادکردنی بەش بنێریت.';
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'سنووری هەڵبژاردن تەواو بوو',
+                        text: text,
+                        showCancelButton: true,
+                        confirmButtonText: 'ناردنی داواکاری',
+                        cancelButtonText: 'باشە'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = requestUrl;
+                        }
+                    });
+                    return;
+                }
+
+                if (confirm(text + ' \n\nئایا دەتەوێت ئێستا داواکاری بنێریت؟')) {
+                    window.location.href = requestUrl;
                 }
             }
 

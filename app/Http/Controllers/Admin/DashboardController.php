@@ -115,6 +115,7 @@ class DashboardController extends Controller
 
         if ($kind === 'dep') {
             $base += [
+                'system_name'    => $row->system->name     ?? null,
                 'local_score'    => $row->local_score ?? null,
                 'external_score' => $row->external_score ?? null,
                 'type'           => $row->type ?? null,
@@ -216,11 +217,11 @@ class DashboardController extends Controller
         $cid = $this->decryptId($collegeId);
         if (!$cid) return response()->json(['college' => null, 'items' => []]);
 
-        $rows = Department::with(['province:id,name','university:id,name','college:id,name'])
+        $rows = Department::with(['system:id,name','province:id,name','university:id,name','college:id,name'])
             ->where('college_id', $cid)
             ->where('status', 1)
             ->get([
-                'id','name','name_en','lat','lng','image','image_url',
+                'id','system_id','name','name_en','lat','lng','image','image_url','geojson',
                 'local_score','external_score','type','sex','description',
                 'province_id', 'university_id', 'college_id', 'status'
             ]);

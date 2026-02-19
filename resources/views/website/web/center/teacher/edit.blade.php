@@ -48,6 +48,7 @@
 
                         @php
                             $info = 'بۆ گۆڕینی ئەم زانیاریانە تەنها بەڕێوبەر ئەم وێبسایتە بکە! 7504342452';
+                            $center = auth()->user()->center;
                         @endphp
 
                         <form action="{{ route('center.teachers.update', $teacher->id) }}" method="POST"
@@ -79,6 +80,22 @@
                                     @enderror
                                 </div>
 
+                                <div class="col-md-6">
+                                    <label for="province" class="form-label">پارێزگا</label>
+                                    <select class="form-select @error('province') is-invalid @enderror" id="province"
+                                        name="province" required>
+                                        <option value="">هەڵبژێرە...</option>
+                                        @foreach (($provinces ?? collect()) as $province)
+                                            <option value="{{ $province->name }}" @selected(old('province', $teacher->province) === $province->name)>
+                                                {{ $province->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('province')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 {{-- Code --}}
                                 <div class="col-12 col-md-6">
                                     <abbr title="{!! $info !!}"> <label for="code" class="form-label">کۆد
@@ -102,12 +119,8 @@
 
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
-                                        <input type="text" class="form-control @error('rand_code') is-invalid @enderror"
-                                            id="rand_code" name="rand_code"
-                                            value="{{ old('rand_code', $teacher->user->rand_code) }}" readonly>
-                                        @error('rand_code')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                        <input type="text" class="form-control" id="rand_code"
+                                            value="{{ $teacher->user->rand_code }}" readonly disabled>
                                     </div>
                                 </div>
 
@@ -131,14 +144,43 @@
                                 </div>
 
                                 <div class="col-md-6">
+                                    <label for="limit_student" class="form-label">سنووری قوتابی بۆ مامۆستا</label>
+                                    <input type="number" min="0"
+                                        class="form-control @error('limit_student') is-invalid @enderror"
+                                        id="limit_student" name="limit_student"
+                                        value="{{ old('limit_student', $teacher->limit_student) }}">
+                                    @error('limit_student')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @else
+                                        <div class="form-text">
+                                            سنووری سەنتەر:
+                                            {{ is_null($center?->limit_student) ? 'بێ سنوور' : $center->limit_student }}
+                                        </div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
                                     <label for="status" class="form-label">دۆخ</label>
                                     <select class="form-select" id="status" name="status" required>
-                                        <option value="1" @selected(old('status') === '1')>چاڵاک</option>
-                                        <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
+                                        <option value="1" @selected((string) old('status', $teacher->user->status) === '1')>چاڵاک</option>
+                                        <option value="0" @selected((string) old('status', $teacher->user->status) === '0')>ناچاڵاک</option>
                                     </select>
                                 </div>
 
                             </div>
+
+                            @include('website.web.center.partials.feature-access-fields', [
+                                'center' => $center,
+                                'currentModel' => $teacher,
+                                'subjectLabel' => 'مامۆستا',
+                                'formPrefix' => 'teacher_edit',
+                                'featureDefinitions' => [
+                                    'ai_rank' => 'ڕیزبەندی کرد بە زیرەکی دەستکرد',
+                                    'gis' => 'سیستەمی نەخشە',
+                                    'all_departments' => 'ڕێزبەندی 50 بەش',
+                                    'queue_hand_department' => 'Queue Hand Department',
+                                ],
+                            ])
 
                             <hr class="my-4">
 

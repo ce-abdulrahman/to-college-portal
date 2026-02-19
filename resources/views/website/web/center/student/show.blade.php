@@ -128,38 +128,42 @@
                                     <tbody>
                                         @forelse ($result_deps as $index => $result_dep)
                                             @php
-                                                $systemName = $result_dep->department->system->name ?? '';
+                                                $department = $result_dep->department;
+                                            @endphp
+                                            @continue(!$department)
+                                            @php
+                                                $systemName = $department->system->name ?? '';
                                                 $badge = match ($systemName) {
                                                     'زانکۆلاین' => 'bg-primary',
                                                     'پاراڵیل' => 'bg-success',
                                                     default => 'bg-danger',
                                                 };
-                                                $lat = $result_dep->department->lat ?? null;
-                                                $lng = $result_dep->department->lng ?? null;
+                                                $lat = $department->lat ?? null;
+                                                $lng = $department->lng ?? null;
                                             @endphp
                                             <tr data-lat="{{ $lat ?? '' }}" data-lng="{{ $lng ?? '' }}">
                                                 <td>{{ ++$index }}</td>
                                                 <td class="fw-semibold">
-                                                    <div class="fw-semibold">{{ $result_dep->department->name }}</div>
+                                                    <div class="fw-semibold">{{ $department->name }}</div>
                                                     <div class="text-muted small">
                                                         <span class="badge {{ $badge }}"><i
-                                                                class="fa-solid fa-cube me-1"></i>{{ $result_dep->department->system->name }}</span>
+                                                                class="fa-solid fa-cube me-1"></i>{{ $department->system->name ?? '' }}</span>
                                                         /
-                                                        {{ $result_dep->department->province->name ?? '' }} /
-                                                        {{ $result_dep->department->university->name ?? '' }} /
-                                                        {{ $result_dep->department->college->name ?? '' }}
+                                                        {{ $department->province->name ?? '' }} /
+                                                        {{ $department->university->name ?? '' }} /
+                                                        {{ $department->college->name ?? '' }}
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    {{ $result_dep->department->local_score ?? '—' }}
+                                                    {{ $department->local_score ?? '—' }}
                                                 </td>
                                                 <td>
-                                                    {{ $result_dep->department->external_score ?? '—' }}
+                                                    {{ $department->external_score ?? '—' }}
                                                 </td>
                                                 <td>
                                                     <span class="badge bg-success" data-bs-toggle="tooltip"
-                                                        data-bs-placement="top" title="{!! $result_dep->department->description !!}">
-                                                        {{ \Illuminate\Support\Str::limit($result_dep->department->description ?? '', 10) }}
+                                                        data-bs-placement="top" title="{{ strip_tags($department->description ?? '') }}">
+                                                        {{ \Illuminate\Support\Str::limit($department->description ?? '', 10) }}
                                                     </span>
                                                 </td>
                                                 <td>

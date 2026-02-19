@@ -20,6 +20,7 @@
                 </div>
             </div>
         </div>
+
         <div class="container py-4">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
@@ -31,303 +32,258 @@
                                 </div>
                                 <div>
                                     <h4 class="mb-1">داواکردنی تایبەتمەندی</h4>
-                                    <p class="mb-0">مامۆستا: {{ $teacher->user->name }} | کۆد: {{ $teacher->user->code }}
-                                    </p>
+                                    <p class="mb-0">مامۆستا: {{ $teacher->user->name }} | کۆد: {{ $teacher->user->code }}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="card-body">
-                            @if ($existingRequest)
-                                @if ($existingRequest->isPending())
-                                    <div class="alert alert-info">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-clock fa-2x me-3"></i>
-                                            <div>
-                                                <h5 class="alert-heading">داواکاری چاوەڕوانە!</h5>
-                                                <p class="mb-0">تۆ پێشتر داواکاریت ناردووە و لە چاوەڕوانی پەسەندکردنێ.</p>
-                                                <p class="mb-0 mt-2"><strong>کات:</strong>
-                                                    {{ $existingRequest->created_at->format('Y/m/d - H:i') }}</p>
-                                                <p class="mb-0"><strong>هۆکار:</strong> {{ $existingRequest->reason }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                            @if ($errors->any())
+                                <div class="alert alert-danger">
+                                    <ul class="mb-0 ps-3">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-                                    <div class="text-center mt-4">
-                                        <form method="POST"
-                                            action="{{ route('teacher.features.cancel-request', $existingRequest->id) }}"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger me-2">
-                                                <i class="fas fa-times me-1"></i>هەڵوەشاندنەوەی داواکاری
-                                            </button>
-                                        </form>
-                                        <a href="{{ route('teacher.dashboard') }}" class="btn btn-secondary">
-                                            <i class="fas fa-arrow-left me-1"></i>گەڕانەوە
-                                        </a>
-                                    </div>
-                                @endif
-                            @else
-                                @if ($teacher->all_departments == 1 && $teacher->ai_rank == 1 && $teacher->gis == 1)
-                                    <div class="alert alert-success">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-star fa-2x me-3"></i>
-                                            <div>
-                                                <h5 class="alert-heading">هەموو تایبەتمەندییەکان چالاکن!</h5>
-                                                <p class="mb-0">سەرجەم تایبەتمەندییەکانی سیستم بۆ ئەم مامۆستایە چالاک
-                                                    کراون و
-                                                    پێویست بە داواکاری نوێ ناکات.</p>
-                                            </div>
+                            @if ($existingRequest && $existingRequest->isPending())
+                                <div class="alert alert-info">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-clock fa-2x me-3"></i>
+                                        <div>
+                                            <h5 class="alert-heading">داواکاری چاوەڕوانە!</h5>
+                                            <p class="mb-0">تۆ پێشتر داواکاریت ناردووە و لە چاوەڕوانی پەسەندکردنێ.</p>
+                                            <p class="mb-0 mt-2"><strong>کات:</strong>
+                                                {{ $existingRequest->created_at->format('Y/m/d - H:i') }}</p>
+                                            <p class="mb-0"><strong>هۆکار:</strong> {{ $existingRequest->reason }}</p>
                                         </div>
                                     </div>
-                                    <div class="text-center mt-4">
-                                        <a href="{{ route('teacher.dashboard') }}" class="btn btn-success">
-                                            <i class="fas fa-home me-1"></i>گەڕانەوە بۆ داشبۆرد
-                                        </a>
-                                    </div>
-                                @else
-                                    <div class="alert alert-warning">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-info-circle fa-2x me-3"></i>
-                                            <div>
-                                                <h5 class="alert-heading">سەرنج بدە!</h5>
-                                                <p class="mb-0">ئەگەر پێویستت بە تایبەتمەندی زیاتر هەیە، تکایە
-                                                    داواکاریەکەت
-                                                    لێرە
-                                                    بنێرە.</p>
-                                                <p class="mb-0 mt-2">داواکاریەکەت دەنێردرێت بۆ بەڕێوەبەری سیستم و پاش چەند
-                                                    خولەکێک
-                                                    وەڵامی دەدرێتەوە.</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                </div>
 
-                                    <form method="POST" action="{{ route('teacher.features.submit-request') }}"
-                                        id="requestForm" enctype="multipart/form-data">
+                                <div class="text-center mt-4">
+                                    <form method="POST" action="{{ route('teacher.features.cancel-request', $existingRequest->id) }}"
+                                        class="d-inline">
                                         @csrf
-
-                                        <div class="mb-4">
-                                            <label class="form-label fw-bold">
-                                                <i class="fas fa-list-check me-1"></i>جۆرەکانی داواکاری
-                                            </label>
-                                            <div class="card bg-soft-info border-info-soft border-dashed mb-4 shadow-none">
-                                                <div class="card-body p-3">
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <div class="avatar-xs flex-shrink-0 me-2">
-                                                            <span class="avatar-title bg-info rounded-circle fs-13">
-                                                                <i class="fa-solid fa-credit-card text-white"></i>
-                                                            </span>
-                                                        </div>
-                                                        <h6 class="mb-0 text-info fw-bold">ڕێنمایی و جۆری چالاککردن</h6>
-                                                    </div>
-                                                    @php
-                                                        $defaultFeaturePrices = [
-                                                            '1' => 3000,
-                                                            '2' => 5000,
-                                                            '3' => 6000,
-                                                        ];
-                                                        $baseFeaturePrices = json_decode(
-                                                            $appSettings['feature_prices'] ?? '',
-                                                            true,
-                                                        );
-                                                        if (!is_array($baseFeaturePrices)) {
-                                                            $baseFeaturePrices = $defaultFeaturePrices;
-                                                        }
-
-                                                        $featureMultiplier = 3; // teacher
-                                                        $featurePrices = [];
-                                                        foreach ($defaultFeaturePrices as $tier => $defaultPrice) {
-                                                            $featurePrices[$tier] = (int) ($baseFeaturePrices[$tier] ?? $defaultPrice) * $featureMultiplier;
-                                                        }
-                                                    @endphp
-                                                    <div class="ms-1">
-                                                        <p class="mb-2 small text-muted lh-lg">
-                                                            هەر جۆرێک کە پێویستت پێیەتی هەڵیبژێرە. بۆ چالاککردنی هەر
-                                                            کامێکیان،
-                                                            پێویستە بڕی
-                                                            <span id="featurePriceText"
-                                                                class="badge bg-soft-info text-info border border-info-soft fw-bold fx-text fx-gradient">{{ number_format($featurePrices['1'] ?? 3000) }}</span>
-                                                            دینار بۆ ئەم ژمارەیە
-                                                            <span
-                                                                class="badge bg-soft-primary text-primary border border-primary-soft fw-bold">07504342452</span>
-                                                            بنێریت لە ڕێگت <span class="fx-text fx-glitch"
-                                                                data-text="FastPay">FastPay</span> یان <span
-                                                                class="fx-text fx-extrude">FIB</span>.
-                                                        </p>
-                                                        <div class="d-flex flex-wrap gap-2 mb-2">
-                                                            <span class="badge bg-light text-dark border">1 =>
-                                                                {{ number_format($featurePrices['1'] ?? 3000) }}</span>
-                                                            <span class="badge bg-light text-dark border">2 =>
-                                                                {{ number_format($featurePrices['2'] ?? 5000) }}</span>
-                                                            <span class="badge bg-light text-dark border">3 =>
-                                                                {{ number_format($featurePrices['3'] ?? 6000) }}</span>
-                                                        </div>
-                                                        <div
-                                                            class="alert alert-light border-0 mb-0 py-2 px-3 small text-muted">
-                                                            <i class="fa-solid fa-camera me-1 text-primary"></i>
-                                                            وێنەی (پارەدانەکەت) بۆ <b><a href="https://t.me/AGHA_ACE"
-                                                                    class="fx-text fx-glitch"
-                                                                    data-text="Telegram">Telegram</a></b> یان <b><a
-                                                                    href="https://wa.me/9647504342452"
-                                                                    class="fx-text fx-glitch"
-                                                                    data-text="WhatsApp">WhatsApp</a></b> یان
-                                                            <b><a href="viber://chat?number=9647504342452"
-                                                                    class="fx-text fx-glitch"
-                                                                    data-text="Viber">Viber</a></b> ی
-                                                            هەمان
-                                                            ژمارە بنێرە بۆ چالاککردنی خێرا.
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <!-- مۆڵەتی ٥٠ بەش -->
-                                                <div class="col-md-4 mb-3">
-                                                    <div
-                                                        class="card h-100 border-{{ $teacher->all_departments == 1 ? 'success' : 'warning' }}">
-                                                        <div class="card-body">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    name="request_types[]" value="all_departments"
-                                                                    id="allDepartmentsCheck"
-                                                                    {{ $teacher->all_departments == 1 ? 'disabled checked' : '' }}>
-                                                                <label class="form-check-label fw-bold"
-                                                                    for="allDepartmentsCheck">
-                                                                    <i class="fas fa-layer-group me-2"></i>مۆڵەتی ٥٠ بەش
-                                                                </label>
-                                                            </div>
-                                                            <p class="card-text mt-2">
-                                                                <small>
-                                                                    @if ($teacher->all_departments == 1)
-                                                                        <span class="text-success">
-                                                                            <i class="fas fa-check-circle me-1"></i>پێشتر
-                                                                            پەسەند
-                                                                            کراوە
-                                                                        </span>
-                                                                    @else
-                                                                        مۆڵەتی هەڵبژاردنی ٥٠ بەش لەبری ٢٠ بەش
-                                                                    @endif
-                                                                </small>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- سیستەمی AI -->
-                                                <div class="col-md-4 mb-3">
-                                                    <div
-                                                        class="card h-100 border-{{ $teacher->ai_rank == 1 ? 'success' : 'warning' }}">
-                                                        <div class="card-body">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    name="request_types[]" value="ai_rank"
-                                                                    id="aiRankCheck"
-                                                                    {{ $teacher->ai_rank == 1 ? 'disabled checked' : '' }}>
-                                                                <label class="form-check-label fw-bold" for="aiRankCheck">
-                                                                    <i class="fas fa-robot me-2"></i>سیستەمی AI
-                                                                </label>
-                                                            </div>
-                                                            <p class="card-text mt-2">
-                                                                <small>
-                                                                    @if ($teacher->ai_rank == 1)
-                                                                        <span class="text-success">
-                                                                            <i class="fas fa-check-circle me-1"></i>پێشتر
-                                                                            پەسەند
-                                                                            کراوە
-                                                                        </span>
-                                                                    @else
-                                                                        ڕیزکردنی بەشەکان بەهۆی سیستەمی دەستکردی زیرەک
-                                                                    @endif
-                                                                </small>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- سیستەمی نەخشە (GIS) -->
-                                                <div class="col-md-4 mb-3">
-                                                    <div
-                                                        class="card h-100 border-{{ $teacher->gis == 1 ? 'success' : 'warning' }}">
-                                                        <div class="card-body">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox"
-                                                                    name="request_types[]" value="gis" id="gisCheck"
-                                                                    {{ $teacher->gis == 1 ? 'disabled checked' : '' }}>
-                                                                <label class="form-check-label fw-bold" for="gisCheck">
-                                                                    <i class="fas fa-map-marked-alt me-2"></i>سیستەمی نەخشە
-                                                                    (GIS)
-                                                                </label>
-                                                            </div>
-                                                            <p class="card-text mt-2">
-                                                                <small>
-                                                                    @if ($teacher->gis == 1)
-                                                                        <span class="text-success">
-                                                                            <i class="fas fa-check-circle me-1"></i>پێشتر
-                                                                            پەسەند
-                                                                            کراوە
-                                                                        </span>
-                                                                    @else
-                                                                        هەڵبژاردنی بەشەکان لەسەر نەخشە
-                                                                    @endif
-                                                                </small>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-4">
-                                                <label for="receipt_image" class="form-label fw-bold">
-                                                    <i class="fas fa-image text-primary me-2"></i>وێنەی پارەدانەکەت
-                                                    (Receipt)
-                                                </label>
-                                                <input type="file"
-                                                    class="form-control @error('receipt_image') is-invalid @enderror"
-                                                    id="receipt_image" name="receipt_image" accept="image/*">
-                                                @error('receipt_image')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                                <div id="receiptPreview" class="mt-3 d-none">
-                                                    <div class="small text-muted mb-2">پێشبینینی وێنە</div>
-                                                    <img src="#" alt="Receipt Preview"
-                                                        class="img-fluid rounded border shadow-sm">
-                                                </div>
-                                            </div>
-
-                                            <div id="requestTypesError" class="text-danger small mt-2 d-none">
-                                                <i class="fas fa-exclamation-circle me-1"></i>کەمترین یەک جۆر هەڵبژێرە.
-                                            </div>
-                                        </div>
-
-                                        <!-- هۆکار -->
-                                        <div class="mb-4">
-                                            <label for="reason" class="form-label fw-bold">
-                                                <i class="fas fa-comment-dots me-1"></i>هۆکاری داواکاری
-                                            </label>
-                                            <textarea class="form-control @error('reason') is-invalid @enderror" id="reason" name="reason" rows="6"
-                                                placeholder="هۆکاری داواکردنەکانت بنووسە...">{{ old('reason') }}</textarea>
-                                            @error('reason')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div class="form-text">بە ڕوونی هۆکارەکانت بۆ هەر جۆرێک ڕوون بکەرەوە. کەمتر لە
-                                                ٥٠٠
-                                                پیت.
-                                            </div>
-                                        </div>
-
-                                        <div class="text-center">
-                                            <button type="submit" class="btn btn-warning btn-lg px-5">
-                                                <i class="fas fa-paper-plane me-2"></i>ناردنی داواکاری
-                                            </button>
-                                            <a href="{{ route('teacher.dashboard') }}"
-                                                class="btn btn-secondary btn-lg px-5 ms-2">
-                                                <i class="fas fa-arrow-left me-2"></i>گەڕانەوە
-                                            </a>
-                                        </div>
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger me-2">
+                                            <i class="fas fa-times me-1"></i>هەڵوەشاندنەوەی داواکاری
+                                        </button>
                                     </form>
-                                @endif
+                                    <a href="{{ route('teacher.dashboard') }}" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-1"></i>گەڕانەوە
+                                    </a>
+                                </div>
+                            @else
+                                @php
+                                    $defaultFeaturePrices = [
+                                        '1' => 3000,
+                                        '2' => 5000,
+                                        '3' => 6000,
+                                    ];
+                                    $baseFeaturePrices = json_decode($appSettings['feature_prices'] ?? '', true);
+                                    if (!is_array($baseFeaturePrices)) {
+                                        $baseFeaturePrices = $defaultFeaturePrices;
+                                    }
+
+                                    $featureMultiplier = 3; // teacher
+                                    $featurePrices = [];
+                                    foreach ($defaultFeaturePrices as $tier => $defaultPrice) {
+                                        $featurePrices[$tier] = (int) ($baseFeaturePrices[$tier] ?? $defaultPrice) * $featureMultiplier;
+                                    }
+
+                                    $defaultLimitPrices = [
+                                        'teacher' => 5000,
+                                        'student' => 1000,
+                                    ];
+                                    $limitPrices = json_decode($appSettings['limit_prices'] ?? '', true);
+                                    if (!is_array($limitPrices)) {
+                                        $limitPrices = $defaultLimitPrices;
+                                    }
+                                    $limitStudentUnitPrice = (int) ($limitPrices['student'] ?? $defaultLimitPrices['student']);
+                                    $queueHandDepartmentPrice = (int) ($appSettings['queue_hand_department_price'] ?? 0);
+                                @endphp
+
+                                <div class="alert alert-warning">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-info-circle fa-2x me-3"></i>
+                                        <div>
+                                            <h5 class="alert-heading">سەرنج بدە!</h5>
+                                            <p class="mb-0">دەتوانیت داوای تایبەتمەندی یان زیادکردنی سنووری قوتابی بنێریت.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card border-light mb-4">
+                                    <div class="card-body">
+                                        <h6 class="mb-3"><i class="fas fa-gauge me-2"></i>دۆخی سنوور</h6>
+                                        <div class="small text-muted">سنووری قوتابی</div>
+                                        <div class="fw-semibold">
+                                            {{ is_null($teacher->limit_student) ? 'بێ سنوور' : $teacher->limit_student }}
+                                            @if (!is_null($teacher->limit_student))
+                                                <span class="text-muted"> (ئێستا: {{ $currentStudentsCount ?? 0 }})</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <form method="POST" action="{{ route('teacher.features.submit-request') }}" id="requestForm"
+                                    enctype="multipart/form-data">
+                                    @csrf
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-list-check me-1"></i>جۆرەکانی داواکاری
+                                        </label>
+                                        <div class="card bg-soft-info border-info-soft border-dashed mb-4 shadow-none">
+                                            <div class="card-body p-3">
+                                                <p class="mb-2 small text-muted lh-lg">
+                                                    نرخی تایبەتمەندی (teacher multiplier): 1 =>
+                                                    {{ number_format($featurePrices['1']) }}، 2 =>
+                                                    {{ number_format($featurePrices['2']) }}، 3 =>
+                                                    {{ number_format($featurePrices['3']) }}.
+                                                </p>
+                                                <p class="mb-2 small text-muted lh-lg">
+                                                    نرخی ڕیزبەندی بەشەکان:
+                                                    {{ number_format($queueHandDepartmentPrice) }} دینار.
+                                                </p>
+                                                <p class="mb-2 small text-muted lh-lg">
+                                                    نرخی زیادکردنی سنووری قوتابی: هەر 1 قوتابی =>
+                                                    {{ number_format($limitStudentUnitPrice) }} دینار.
+                                                </p>
+                                                <div class="small">
+                                                    کۆی نرخ:
+                                                    <span id="totalPriceText"
+                                                        class="badge bg-soft-info text-info border border-info-soft fw-bold">0</span>
+                                                    دینار
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card h-100 border-{{ $teacher->all_departments == 1 ? 'success' : 'warning' }}">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="request_types[]" value="all_departments"
+                                                                id="allDepartmentsCheck"
+                                                                data-tier-feature="1"
+                                                                {{ $teacher->all_departments == 1 ? 'disabled checked' : '' }}>
+                                                            <label class="form-check-label fw-bold" for="allDepartmentsCheck">
+                                                                <i class="fas fa-layer-group me-2"></i>مۆڵەتی ٥٠ بەش
+                                                            </label>
+                                                            <div class="small text-muted mt-2">
+                                                                دەتوانی زانیاری لەسەر هەموو بەشەکانی تری پارێزگاکان سەیر بکەیت.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card h-100 border-{{ $teacher->ai_rank == 1 ? 'success' : 'warning' }}">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="request_types[]" value="ai_rank" id="aiRankCheck"
+                                                                data-tier-feature="1"
+                                                                {{ $teacher->ai_rank == 1 ? 'disabled checked' : '' }}>
+                                                            <label class="form-check-label fw-bold" for="aiRankCheck">
+                                                                <i class="fas fa-robot me-2"></i>سیستەمی AI
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3 mb-3">
+                                                <div class="card h-100 border-{{ $teacher->gis == 1 ? 'success' : 'warning' }}">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="request_types[]" value="gis" id="gisCheck"
+                                                                data-tier-feature="1"
+                                                                {{ $teacher->gis == 1 ? 'disabled checked' : '' }}>
+                                                            <label class="form-check-label fw-bold" for="gisCheck">
+                                                                <i class="fas fa-map-marked-alt me-2"></i>سیستەمی نەخشە (GIS)
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-3 mb-3">
+                                                <div
+                                                    class="card h-100 border-{{ $teacher->queue_hand_department == 1 ? 'success' : 'warning' }}">
+                                                    <div class="card-body">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="request_types[]" value="queue_hand_department"
+                                                                id="queueHandDepartmentCheck"
+                                                                {{ $teacher->queue_hand_department == 1 ? 'disabled checked' : '' }}>
+                                                            <label class="form-check-label fw-bold" for="queueHandDepartmentCheck">
+                                                                <i class="fas fa-list-ol me-2"></i>ڕیزبەندی بەشەکان
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3 mt-1">
+                                            <div class="col-md-6">
+                                                <label for="request_limit_student" class="form-label fw-bold">
+                                                    <i class="fas fa-user-graduate me-1"></i>زیادکردنی سنووری قوتابی
+                                                </label>
+                                                <input type="number" min="0" class="form-control"
+                                                    id="request_limit_student" name="request_limit_student"
+                                                    value="{{ old('request_limit_student', 0) }}">
+                                            </div>
+                                        </div>
+
+                                        <div id="requestTypesError" class="text-danger small mt-2 d-none">
+                                            <i class="fas fa-exclamation-circle me-1"></i>
+                                            کەمترین یەک داواکاری هەڵبژێرە (feature یان زیادکردنی سنوور).
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="receipt_image" class="form-label fw-bold">
+                                            <i class="fas fa-image text-primary me-2"></i>وێنەی پارەدانەکەت (Receipt)
+                                        </label>
+                                        <input type="file" class="form-control @error('receipt_image') is-invalid @enderror"
+                                            id="receipt_image" name="receipt_image" accept="image/*">
+                                        @error('receipt_image')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div id="receiptPreview" class="mt-3 d-none">
+                                            <div class="small text-muted mb-2">پێشبینینی وێنە</div>
+                                            <img src="#" alt="Receipt Preview" class="img-fluid rounded border shadow-sm">
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="reason" class="form-label fw-bold">
+                                            <i class="fas fa-comment-dots me-1"></i>هۆکاری داواکاری
+                                        </label>
+                                        <textarea class="form-control @error('reason') is-invalid @enderror" id="reason" name="reason" rows="6"
+                                            placeholder="هۆکاری داواکردنەکانت بنووسە...">{{ old('reason') }}</textarea>
+                                        @error('reason')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-warning btn-lg px-5">
+                                            <i class="fas fa-paper-plane me-2"></i>ناردنی داواکاری
+                                        </button>
+                                        <a href="{{ route('teacher.dashboard') }}" class="btn btn-secondary btn-lg px-5 ms-2">
+                                            <i class="fas fa-arrow-left me-2"></i>گەڕانەوە
+                                        </a>
+                                    </div>
+                                </form>
                             @endif
                         </div>
                     </div>
@@ -345,33 +301,63 @@
             if (!form) return;
 
             const checkboxes = form.querySelectorAll('input[name="request_types[]"]:not(:disabled)');
-            const priceText = document.getElementById('featurePriceText');
-            const priceMap = @json($featurePrices ?? ['1' => 3000, '2' => 5000, '3' => 6000]);
+            const tierFeatureCheckboxes = form.querySelectorAll(
+                'input[name="request_types[]"][data-tier-feature="1"]:not(:disabled)'
+            );
+            const queueHandDepartmentCheckbox = document.getElementById('queueHandDepartmentCheck');
+            const totalPriceText = document.getElementById('totalPriceText');
+            const featurePriceMap = @json($featurePrices ?? ['1' => 3000, '2' => 5000, '3' => 6000]);
+            const queueHandDepartmentPrice = @json($queueHandDepartmentPrice ?? 0);
+            const limitStudentUnitPrice = @json($limitStudentUnitPrice ?? 1000);
+            const requestLimitStudentInput = document.getElementById('request_limit_student');
             const errorDiv = document.getElementById('requestTypesError');
             const receiptInput = document.getElementById('receipt_image');
             const receiptPreview = document.getElementById('receiptPreview');
             const receiptPreviewImg = receiptPreview ? receiptPreview.querySelector('img') : null;
 
-            function updatePrice() {
-                if (!priceText) return;
+            function getCheckedTierFeatureCount() {
                 let checkedCount = 0;
-                checkboxes.forEach(checkbox => {
+                tierFeatureCheckboxes.forEach(checkbox => {
                     if (checkbox.checked) checkedCount++;
                 });
-                const price = priceMap[String(checkedCount)] ?? priceMap[checkedCount] ?? 0;
-                priceText.textContent = price ? Number(price).toLocaleString() : '0';
+                return checkedCount;
+            }
+
+            function getQueueHandDepartmentPrice() {
+                if (!queueHandDepartmentCheckbox || queueHandDepartmentCheckbox.disabled) {
+                    return 0;
+                }
+
+                return queueHandDepartmentCheckbox.checked ? Number(queueHandDepartmentPrice) : 0;
+            }
+
+            function getLimitStudentQty() {
+                return Math.max(0, parseInt(requestLimitStudentInput ? requestLimitStudentInput.value : '0', 10) || 0);
+            }
+
+            function updatePrice() {
+                if (!totalPriceText) return;
+                const checkedCount = getCheckedTierFeatureCount();
+                const featurePrice = featurePriceMap[String(checkedCount)] ?? featurePriceMap[checkedCount] ?? 0;
+                const queueFeaturePrice = getQueueHandDepartmentPrice();
+                const limitsPrice = getLimitStudentQty() * limitStudentUnitPrice;
+                const totalPrice = Number(featurePrice) + Number(queueFeaturePrice) + Number(limitsPrice);
+                totalPriceText.textContent = Number(totalPrice).toLocaleString();
+            }
+
+            function hasAnyRequest() {
+                const hasQueueRequest = queueHandDepartmentCheckbox
+                    && !queueHandDepartmentCheckbox.disabled
+                    && queueHandDepartmentCheckbox.checked;
+                return getCheckedTierFeatureCount() > 0 || hasQueueRequest || getLimitStudentQty() > 0;
             }
 
             checkboxes.forEach(cb => cb.addEventListener('change', updatePrice));
+            if (requestLimitStudentInput) requestLimitStudentInput.addEventListener('input', updatePrice);
             updatePrice();
 
             form.addEventListener('submit', function(e) {
-                let checkedCount = 0;
-                checkboxes.forEach(checkbox => {
-                    if (checkbox.checked) checkedCount++;
-                });
-
-                if (checkedCount === 0) {
+                if (!hasAnyRequest()) {
                     e.preventDefault();
                     errorDiv.classList.remove('d-none');
                     errorDiv.scrollIntoView({
@@ -382,11 +368,14 @@
 
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
-                    if (this.checked) {
-                        errorDiv.classList.add('d-none');
-                    }
+                    if (hasAnyRequest()) errorDiv.classList.add('d-none');
                 });
             });
+            if (requestLimitStudentInput) {
+                requestLimitStudentInput.addEventListener('input', () => {
+                    if (hasAnyRequest()) errorDiv.classList.add('d-none');
+                });
+            }
 
             if (receiptInput && receiptPreview && receiptPreviewImg) {
                 receiptInput.addEventListener('change', function() {

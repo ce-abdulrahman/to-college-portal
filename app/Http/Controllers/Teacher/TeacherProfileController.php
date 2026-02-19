@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
+use App\Models\Province;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -17,9 +19,13 @@ class TeacherProfileController extends Controller
         if (auth()->user()->id !== $user->id) {
             abort(403);
         }
+        $currentStudentsCount = Student::where('referral_code', $user->rand_code)->count();
+
         return view('website.web.teacher.profile.edit', [
             'user' => $user,
             'teacher' => $user->teacher,
+            'provinces' => Province::where('status', 1)->get(),
+            'currentStudentsCount' => $currentStudentsCount,
         ]);
     }
 
@@ -36,9 +42,18 @@ class TeacherProfileController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:11',
+            'province' => 'nullable|string|max:255|exists:provinces,name',
         ]);
 
-        $user->update($data);
+        $user->update([
+            'name' => $data['name'],
+            'phone' => $data['phone'] ?? null,
+        ]);
+
+        $user->teacher()->updateOrCreate(
+            ['user_id' => $user->id],
+            ['province' => $data['province'] ?? null]
+        );
 
         return back()->with('status', 'profile-updated');
     }

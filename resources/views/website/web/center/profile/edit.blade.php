@@ -58,6 +58,21 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label">پارێزگا</label>
+                                <select name="province" class="form-select">
+                                    <option value="">هەڵبژێرە...</option>
+                                    @foreach (($provinces ?? collect()) as $province)
+                                        <option value="{{ $province->name }}" @selected(old('province', $center?->province) === $province->name)>
+                                            {{ $province->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('province')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label">ناونیشان</label>
                                 <input type="text" name="address" class="form-control"
                                     value="{{ old('address', $center?->address) }}">
@@ -113,6 +128,24 @@
                         </form>
                     </div>
                 </div>
+
+                @php
+                    $centerReferralLink = route('register', ['ref' => $user->rand_code]);
+                @endphp
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header bg-white">
+                        <h6 class="mb-0">Referral Link بۆ بڵاوکردنەوە</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group">
+                            <input type="text" id="center-referral-link" class="form-control" value="{{ $centerReferralLink }}" readonly>
+                            <button type="button" id="copy-center-referral-link" class="btn btn-outline-primary">کۆپی</button>
+                        </div>
+                        <small id="center-referral-feedback" class="text-muted d-inline-block mt-2">
+                            ئەم لینکە بنێرە بۆ قوتابی/مامۆستاکان بۆ خۆتۆمارکردن لەژێر کۆدی تۆ.
+                        </small>
+                    </div>
+                </div>
             </div>
 
             <div class="col-lg-8">
@@ -134,6 +167,10 @@
                                 <div class="fw-semibold">{{ $user->phone ?? '—' }}</div>
                             </div>
                             <div class="col-md-6">
+                                <div class="text-muted small">پارێزگا</div>
+                                <div class="fw-semibold">{{ $center?->province ?? '—' }}</div>
+                            </div>
+                            <div class="col-md-6">
                                 <div class="text-muted small">کۆدی داخیل بوون</div>
                                 <div class="fw-semibold">{{ $user->code ?? '—' }}</div>
                             </div>
@@ -141,6 +178,36 @@
                             <div class="col-md-6">
                                 <div class="text-muted small">پیشە</div>
                                 <div class="fw-semibold">{{ $user->role === 'center' ? 'سەنتەر' : '—' }}</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted small">سنووری مامۆستا</div>
+                                <div class="fw-semibold">
+                                    {{ is_null($center?->limit_teacher) ? 'بێ سنوور' : $center->limit_teacher }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted small">سنووری قوتابی</div>
+                                <div class="fw-semibold">
+                                    {{ is_null($center?->limit_student) ? 'بێ سنوور' : $center->limit_student }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted small">مامۆستا دروستکراوەکان</div>
+                                <div class="fw-semibold">
+                                    {{ $currentTeachersCount ?? 0 }}
+                                    @if (!is_null($center?->limit_teacher))
+                                        / {{ $center->limit_teacher }}
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-muted small">قوتابی دروستکراوەکان</div>
+                                <div class="fw-semibold">
+                                    {{ $currentStudentsCount ?? 0 }}
+                                    @if (!is_null($center?->limit_student))
+                                        / {{ $center->limit_student }}
+                                    @endif
+                                </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="text-muted small">کۆدی بانگێشت کردن</div>
@@ -196,3 +263,32 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyBtn = document.getElementById('copy-center-referral-link');
+            const input = document.getElementById('center-referral-link');
+            const feedback = document.getElementById('center-referral-feedback');
+
+            if (!copyBtn || !input || !feedback) {
+                return;
+            }
+
+            copyBtn.addEventListener('click', async function() {
+                try {
+                    await navigator.clipboard.writeText(input.value);
+                    feedback.textContent = 'لینکەکە کۆپی کرا.';
+                    feedback.classList.remove('text-muted', 'text-danger');
+                    feedback.classList.add('text-success');
+                } catch (e) {
+                    input.select();
+                    document.execCommand('copy');
+                    feedback.textContent = 'لینکەکە کۆپی کرا.';
+                    feedback.classList.remove('text-muted', 'text-danger');
+                    feedback.classList.add('text-success');
+                }
+            });
+        });
+    </script>
+@endpush

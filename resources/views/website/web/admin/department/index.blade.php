@@ -4,27 +4,28 @@
 @section('view_name', 'index')
 
 @section('content')
-    {{-- Actions bar --}}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
-                        <li class="breadcrumb-item active">بەشەکان</li>
-                    </ol>
+    <div class="container-fluid py-4">
+        {{-- Actions bar --}}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                            <li class="breadcrumb-item active">بەشەکان</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">
+                        <i class="fas fa-building-columns me-1"></i>
+                        ناوی بەشەکەکان
+                    </h4>
                 </div>
-                <h4 class="page-title">
-                    <i class="fas fa-building-columns me-1"></i>
-                    ناوی بەشەکەکان
-                </h4>
             </div>
         </div>
-    </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-        <div class="d-flex gap-2">
-            {{--  <div class="dropdown">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="d-flex gap-2">
+                {{--  <div class="dropdown">
                 <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                     <i class="fa-solid fa-gear me-1"></i> بەڕێوەبەرایەتی
                 </button>
@@ -41,68 +42,71 @@
                 </div>
             </div>  --}}
 
-            <div class="dropdown">
-                <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fa-solid fa-file-import me-1"></i> Import/Export
-                </button>
-                <div class="dropdown-menu">
-                    <a href="#importModal" class="dropdown-item" data-bs-toggle="modal">
-                        <i class="fa-solid fa-file-import me-2"></i> Import بەشەکان
-                    </a>
-                    <a href="{{ route('admin.departments.export') }}" class="dropdown-item">
-                        <i class="fa-solid fa-file-export me-2"></i> Export بەشەکان
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a href="{{ route('admin.departments.download-template') }}" class="dropdown-item">
-                        <i class="fa-solid fa-file-excel me-2"></i> داگرتنی نموونە
-                    </a>
+                <div class="dropdown">
+                    <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-file-import me-1"></i> Import/Export
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#importModal" class="dropdown-item" data-bs-toggle="modal">
+                            <i class="fa-solid fa-file-import me-2"></i> Import بەشەکان
+                        </a>
+                        <a href="{{ route('admin.departments.export') }}" class="dropdown-item">
+                            <i class="fa-solid fa-file-export me-2"></i> Export بەشەکان
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ route('admin.departments.download-template') }}" class="dropdown-item">
+                            <i class="fa-solid fa-file-excel me-2"></i> داگرتنی نموونە
+                        </a>
+                    </div>
                 </div>
+
+                <a href="{{ route('admin.departments.create') }}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus me-1"></i> زیادکردنی بەش
+                </a>
+                <a href="{{ route('admin.departments.compare-descriptions') }}" class="btn btn-outline-info">
+                    <i class="fa-solid fa-code-compare me-1"></i> بەراوردکردنی وەسف
+                </a>
             </div>
 
-            <a href="{{ route('admin.departments.create') }}" class="btn btn-primary">
-                <i class="fa-solid fa-plus me-1"></i> زیادکردنی بەش
-            </a>
+            <div></div>
         </div>
 
-        <div></div>
-    </div>
-
-    {{-- Filters Section --}}
-    <div class="row mb-3">
-        <div class="col-md-3">
-            <label for="searchInput" class="form-label">ناوی بەش</label>
-            <input type="text" id="searchInput" class="form-control" placeholder="ناوی بەش بنوسە...">
+        {{-- Filters Section --}}
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="searchInput" class="form-label">ناوی بەش</label>
+                <input type="text" id="searchInput" class="form-control" placeholder="ناوی بەش بنوسە...">
+            </div>
+            <div class="col-md-2">
+                <label for="systemFilter" class="form-label">سیستەم</label>
+                <select id="systemFilter" class="form-select">
+                    <option value="">هەموو</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="provinceFilter" class="form-label">پارێزگا</label>
+                <select id="provinceFilter" class="form-select">
+                    <option value="">هەموو</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="universityFilter" class="form-label">زانکۆ</label>
+                <select id="universityFilter" class="form-select">
+                    <option value="">هەموو</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="collegeFilter" class="form-label">پۆل</label>
+                <select id="collegeFilter" class="form-select">
+                    <option value="">هەموو</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button id="resetFilters" class="btn btn-outline-secondary w-100">
+                    <i class="fa-solid fa-redo me-1"></i> پاکردنەوە
+                </button>
+            </div>
         </div>
-        <div class="col-md-2">
-            <label for="systemFilter" class="form-label">سیستەم</label>
-            <select id="systemFilter" class="form-select">
-                <option value="">هەموو</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label for="provinceFilter" class="form-label">پارێزگا</label>
-            <select id="provinceFilter" class="form-select">
-                <option value="">هەموو</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label for="universityFilter" class="form-label">زانکۆ</label>
-            <select id="universityFilter" class="form-select">
-                <option value="">هەموو</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label for="collegeFilter" class="form-label">پۆل</label>
-            <select id="collegeFilter" class="form-select">
-                <option value="">هەموو</option>
-            </select>
-        </div>
-        <div class="col-md-1 d-flex align-items-end">
-            <button id="resetFilters" class="btn btn-outline-secondary w-100">
-                <i class="fa-solid fa-redo me-1"></i> پاکردنەوە
-            </button>
-        </div>
-    </div>
     </div>
 
     {{-- Departments Table --}}
@@ -144,6 +148,7 @@
         </div>
     </div>
 
+    </div>
 @endsection
 
 {{-- Modal بۆ Import --}}
@@ -171,8 +176,8 @@
 
                     <div class="mb-3">
                         <label for="importFile" class="form-label">فایلی Excel</label>
-                        <input type="file" class="form-control" id="importFile" name="file" accept=".xlsx,.xls"
-                            required>
+                        <input type="file" class="form-control" id="importFile" name="file"
+                            accept=".xlsx,.xls" required>
                         <small class="text-muted">تەنها فایلەکانی Excel پشتگیری دەکرێن</small>
                     </div>
 
@@ -237,7 +242,7 @@
                 setSelectOptions($('#universityFilter'), [], 'بارکردن...');
 
                 $.ajax({
-                    url: '{{ route("admin.api.universities") }}',
+                    url: '{{ route('admin.api.universities') }}',
                     type: 'GET',
                     dataType: 'json',
                     data: {
@@ -261,7 +266,7 @@
                 setSelectOptions($('#collegeFilter'), [], 'بارکردن...');
 
                 $.ajax({
-                    url: '{{ route("admin.api.colleges") }}',
+                    url: '{{ route('admin.api.colleges') }}',
                     type: 'GET',
                     dataType: 'json',
                     data: {
@@ -283,7 +288,7 @@
             // بارکردنی فلتەرەکانی dropdown
             function loadFilterOptions() {
                 $.ajax({
-                    url: '{{ route("admin.departments.index") }}?ajax=1&get_filters=1',
+                    url: '{{ route('admin.departments.index') }}?ajax=1&get_filters=1',
                     type: 'GET',
                     dataType: 'json',
                     success: function(response) {
@@ -311,7 +316,7 @@
                 params.append('page', page);
 
                 $.ajax({
-                    url: '{{ route("admin.departments.index") }}?' + params.toString(),
+                    url: '{{ route('admin.departments.index') }}?' + params.toString(),
                     type: 'GET',
                     dataType: 'json',
                     success: function(response) {
@@ -351,9 +356,9 @@
 
                 let html = '';
                 $.each(data, function(index, dept) {
-                    const statusBadge = dept.status
-                        ? '<span class="badge bg-success">چالاک</span>'
-                        : '<span class="badge bg-danger">ناچالاک</span>';
+                    const statusBadge = dept.status ?
+                        '<span class="badge bg-success">چالاک</span>' :
+                        '<span class="badge bg-danger">ناچالاک</span>';
 
                     // دیاریکردنی رەنگی badge بەپێی سیستەم
                     const systemName = dept.system?.name ?? '-';
@@ -435,9 +440,11 @@
 
                 // دوگمەی پێشتر
                 if (currentPage > 1) {
-                    html += `<li class="page-item"><button class="page-link pagination-btn" data-page="${currentPage - 1}"><i class="fa-solid fa-chevron-right me-1"></i> پێشتر</button></li>`;
+                    html +=
+                        `<li class="page-item"><button class="page-link pagination-btn" data-page="${currentPage - 1}"><i class="fa-solid fa-chevron-right me-1"></i> پێشتر</button></li>`;
                 } else {
-                    html += `<li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-chevron-right me-1"></i> پێشتر</span></li>`;
+                    html +=
+                        `<li class="page-item disabled"><span class="page-link"><i class="fa-solid fa-chevron-right me-1"></i> پێشتر</span></li>`;
                 }
 
                 // پەڕەکان
@@ -445,7 +452,8 @@
                 let endPage = Math.min(lastPage, currentPage + 2);
 
                 if (startPage > 1) {
-                    html += `<li class="page-item"><button class="page-link pagination-btn" data-page="1">1</button></li>`;
+                    html +=
+                        `<li class="page-item"><button class="page-link pagination-btn" data-page="1">1</button></li>`;
                     if (startPage > 2) {
                         html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
                     }
@@ -455,7 +463,8 @@
                     if (i === currentPage) {
                         html += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
                     } else {
-                        html += `<li class="page-item"><button class="page-link pagination-btn" data-page="${i}">${i}</button></li>`;
+                        html +=
+                            `<li class="page-item"><button class="page-link pagination-btn" data-page="${i}">${i}</button></li>`;
                     }
                 }
 
@@ -463,14 +472,17 @@
                     if (endPage < lastPage - 1) {
                         html += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
                     }
-                    html += `<li class="page-item"><button class="page-link pagination-btn" data-page="${lastPage}">${lastPage}</button></li>`;
+                    html +=
+                        `<li class="page-item"><button class="page-link pagination-btn" data-page="${lastPage}">${lastPage}</button></li>`;
                 }
 
                 // دوگمەی داهاتوو
                 if (currentPage < lastPage) {
-                    html += `<li class="page-item"><button class="page-link pagination-btn" data-page="${currentPage + 1}">داهاتوو <i class="fa-solid fa-chevron-left ms-1"></i></button></li>`;
+                    html +=
+                        `<li class="page-item"><button class="page-link pagination-btn" data-page="${currentPage + 1}">داهاتوو <i class="fa-solid fa-chevron-left ms-1"></i></button></li>`;
                 } else {
-                    html += `<li class="page-item disabled"><span class="page-link">داهاتوو <i class="fa-solid fa-chevron-left ms-1"></i></span></li>`;
+                    html +=
+                        `<li class="page-item disabled"><span class="page-link">داهاتوو <i class="fa-solid fa-chevron-left ms-1"></i></span></li>`;
                 }
 
                 $('#pagination').html(html);
@@ -565,7 +577,7 @@
             function deleteDepartment(id) {
                 if (confirm('ئایا تێدەگەیت بەم بەشە سڕیبکەیتەوە؟')) {
                     $.ajax({
-                        url: '{{ route("admin.departments.destroy", "") }}/' + id,
+                        url: '{{ route('admin.departments.destroy', '') }}/' + id,
                         type: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

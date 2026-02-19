@@ -65,8 +65,9 @@ class DepartmentTable extends Component
     public function render()
     {
         // 1. Core Query for Table
-        $query = Department::with(['system', 'province', 'university', 'college'])
-            ->where('status', 1);
+        $query = Department::query()
+            ->visibleForSelection()
+            ->with(['system', 'province', 'university', 'college']);
 
         if ($this->system_id) {
             $query->where('system_id', $this->system_id);
@@ -109,7 +110,11 @@ class DepartmentTable extends Component
         $provinces = Province::where('status', 1)
             ->when($this->system_id, function($q) {
                 $q->whereIn('id', function($sub) {
-                    $sub->select('province_id')->from('departments')->where('system_id', $this->system_id)->where('status', 1);
+                    $sub->select('province_id')
+                        ->from('departments')
+                        ->where('system_id', $this->system_id)
+                        ->where('status', 1)
+                        ->where('local_score', '>=', Department::MIN_VISIBLE_LOCAL_SCORE);
                 });
             })->get();
         
@@ -119,7 +124,11 @@ class DepartmentTable extends Component
             })
             ->when($this->system_id, function($q) {
                 $q->whereIn('id', function($sub) {
-                    $sub->select('university_id')->from('departments')->where('system_id', $this->system_id)->where('status', 1);
+                    $sub->select('university_id')
+                        ->from('departments')
+                        ->where('system_id', $this->system_id)
+                        ->where('status', 1)
+                        ->where('local_score', '>=', Department::MIN_VISIBLE_LOCAL_SCORE);
                 });
             })->get();
 
@@ -129,7 +138,11 @@ class DepartmentTable extends Component
             })
             ->when($this->system_id, function($q) {
                 $q->whereIn('id', function($sub) {
-                    $sub->select('college_id')->from('departments')->where('system_id', $this->system_id)->where('status', 1);
+                    $sub->select('college_id')
+                        ->from('departments')
+                        ->where('system_id', $this->system_id)
+                        ->where('status', 1)
+                        ->where('local_score', '>=', Department::MIN_VISIBLE_LOCAL_SCORE);
                 });
             })->get();
 

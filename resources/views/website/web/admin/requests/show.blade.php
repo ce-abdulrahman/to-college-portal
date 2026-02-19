@@ -78,6 +78,15 @@
                                                 @if ($request->request_gis)
                                                     <span class="badge bg-info">GIS Map</span>
                                                 @endif
+                                                @if ($request->request_queue_hand_department)
+                                                    <span class="badge bg-primary">ڕیزبەندی بەشەکان</span>
+                                                @endif
+                                                @if ((int) $request->request_limit_teacher > 0)
+                                                    <span class="badge bg-dark">زیادکردنی مامۆستا +{{ (int) $request->request_limit_teacher }}</span>
+                                                @endif
+                                                @if ((int) $request->request_limit_student > 0)
+                                                    <span class="badge bg-secondary">زیادکردنی قوتابی +{{ (int) $request->request_limit_student }}</span>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -114,6 +123,18 @@
                                         <tr>
                                             <th>بەڕێوەبەر:</th>
                                             <td>{{ $request->admin->name }}</td>
+                                        </tr>
+                                    @endif
+                                    @if ((int) $request->approved_limit_teacher > 0)
+                                        <tr>
+                                            <th>زیادکردنی سنووری مامۆستا:</th>
+                                            <td>+{{ (int) $request->approved_limit_teacher }}</td>
+                                        </tr>
+                                    @endif
+                                    @if ((int) $request->approved_limit_student > 0)
+                                        <tr>
+                                            <th>زیادکردنی سنووری قوتابی:</th>
+                                            <td>+{{ (int) $request->approved_limit_student }}</td>
                                         </tr>
                                     @endif
                                 </table>
@@ -203,12 +224,47 @@
                                                             </label>
                                                         </div>
                                                     @endif
+
+                                                    @if ($request->request_queue_hand_department && $request->user_type !== 'student')
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="approve_types[]" value="queue_hand_department"
+                                                                id="checkQueueHandDepartment" checked>
+                                                            <label class="form-check-label" for="checkQueueHandDepartment">
+                                                                ڕیزبەندی بەشەکان
+                                                            </label>
+                                                        </div>
+                                                    @endif
+
+                                                    @if ((int) $request->request_limit_teacher > 0)
+                                                        <div class="mt-3">
+                                                            <label for="approve_limit_teacher" class="form-label mb-1">
+                                                                زیادکردنی سنووری مامۆستا
+                                                            </label>
+                                                            <input type="number" min="0" class="form-control"
+                                                                id="approve_limit_teacher" name="approve_limit_teacher"
+                                                                value="{{ old('approve_limit_teacher', (int) $request->request_limit_teacher) }}">
+                                                        </div>
+                                                    @endif
+
+                                                    @if ((int) $request->request_limit_student > 0)
+                                                        <div class="mt-3">
+                                                            <label for="approve_limit_student" class="form-label mb-1">
+                                                                زیادکردنی سنووری قوتابی
+                                                            </label>
+                                                            <input type="number" min="0" class="form-control"
+                                                                id="approve_limit_student" name="approve_limit_student"
+                                                                value="{{ old('approve_limit_student', (int) $request->request_limit_student) }}">
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
 
-                                            <div class="input-group mb-3">
+                                            <div class="mb-3">
                                                 <input type="text" class="form-control" name="notes"
                                                     placeholder="تێبینی (ئارەزوومەند)">
+                                            </div>
+                                            <div>
                                                 <button type="submit" class="btn btn-success">
                                                     <i class="fas fa-check me-1"></i>پەسەندکردن
                                                 </button>
@@ -258,18 +314,42 @@
                     </div>
                     <div class="card-body">
                         <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                قوتابی دەتوانێت ٥٠ بەش هەڵبژێرێت
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                خانەی <code>all_departments</code> دەکرێت بە ١
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-check text-success me-2"></i>
-                                قوتابی ئاگادار دەکرێتەوە
-                            </li>
+                            @if ($request->request_all_departments)
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    چالاککردنی مۆڵەتی ٥٠ بەش
+                                </li>
+                            @endif
+                            @if ($request->request_ai_rank)
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    چالاککردنی سیستەمی AI
+                                </li>
+                            @endif
+                            @if ($request->request_gis)
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    چالاککردنی GIS
+                                </li>
+                            @endif
+                            @if ($request->request_queue_hand_department && $request->user_type !== 'student')
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    چالاککردنی ڕیزبەندی بەشەکان
+                                </li>
+                            @endif
+                            @if ((int) $request->request_limit_teacher > 0)
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    زیادکردنی سنووری مامۆستا (+{{ (int) $request->request_limit_teacher }})
+                                </li>
+                            @endif
+                            @if ((int) $request->request_limit_student > 0)
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    زیادکردنی سنووری قوتابی (+{{ (int) $request->request_limit_student }})
+                                </li>
+                            @endif
                             <li>
                                 <i class="fas fa-check text-success me-2"></i>
                                 داواکاری دەچێتە مێژووەوە

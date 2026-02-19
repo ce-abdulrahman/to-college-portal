@@ -46,6 +46,39 @@
                             </div>
                         @endif
 
+                        @php
+                            $center = auth()->user()->center;
+                            $teacherLimit = $teacherLimit ?? null;
+                            $currentTeachersCount = $currentTeachersCount ?? 0;
+                            $remainingTeachersCount = $remainingTeachersCount ?? null;
+                            $canCreateTeacher = $canCreateTeacher ?? true;
+                        @endphp
+
+                        <div
+                            class="alert {{ is_null($teacherLimit) ? 'alert-info' : ($canCreateTeacher ? 'alert-warning' : 'alert-danger') }}">
+                            <div class="fw-semibold mb-1">
+                                <i class="fa-solid fa-people-group me-1"></i>
+                                سنووری مامۆستاکان
+                            </div>
+                            @if (is_null($teacherLimit))
+                                <div>بۆ ئێستا سنوور بۆ دروستکردنی مامۆستا دیاری نەکراوە (بێ سنوور).</div>
+                            @else
+                                <div>
+                                    سنوور: <strong>{{ $teacherLimit }}</strong> |
+                                    ئێستا: <strong>{{ $currentTeachersCount }}</strong> |
+                                    ماوە: <strong>{{ $remainingTeachersCount }}</strong>
+                                </div>
+                                @unless($canCreateTeacher)
+                                    <div class="mt-2">
+                                        <div class="mb-2">ناتوانیت مامۆستای نوێ زیاد بکەیت تا سنوورەکە زیاد بکرێت.</div>
+                                        <a href="{{ route('center.features.request') }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-plus-circle me-1"></i>سنووری زیاد کردن
+                                        </a>
+                                    </div>
+                                @endunless
+                            @endif
+                        </div>
+
                         <form action="{{ route('center.teachers.store') }}" method="POST" class="needs-validation"
                             novalidate>
                             @csrf
@@ -91,6 +124,22 @@
                                     @enderror
                                 </div>
 
+                                <div class="col-md-6">
+                                    <label for="province" class="form-label">پارێزگا</label>
+                                    <select class="form-select @error('province') is-invalid @enderror" id="province"
+                                        name="province" required>
+                                        <option value="">هەڵبژێرە...</option>
+                                        @foreach (($provinces ?? collect()) as $province)
+                                            <option value="{{ $province->name }}" @selected(old('province', $center?->province) === $province->name)>
+                                                {{ $province->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('province')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <div class="col-12 col-md-6">
                                     <label for="role" class="form-label">قوتابی یان مامۆستا</label>
                                     <select class="form-select @error('role') is-invalid @enderror" id="role"
@@ -115,39 +164,39 @@
                                     @enderror
                                 </div>
 
-                                <input type="hidden" id="rand_code" name="rand_code" value="{{ old('rand_code') }}"
-                                    readonly>
-
                             </div>
 
                             {{-- Feature Inheritance Display --}}
-                            @php
-                                $center = auth()->user()->center;
-                            @endphp
-
                             @if ($center)
                                 <div class="alert alert-info mt-4">
                                     <h6 class="mb-2"><i class="fa-solid fa-info-circle me-2"></i>تایبەتمەندییەکانی
                                         وەرگیراو
                                     </h6>
-                                    <p class="mb-2 small">ئەم مامۆستایە ئەم تایبەتمەندیانە لە سەنتەرەکەت وەردەگرێت:</p>
+                                    <p class="mb-2 small">ئەمە تایبەتمەندییەکانی سەنتەرەکەتن؛ لە خوارەوە دەتوانیت بۆ ئەم مامۆستایە دیارییان بکەیت.</p>
                                     <div class="d-flex gap-3 flex-wrap">
-                                        <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                        <span class="badge {{ $center->ai_rank ? 'bg-success' : 'bg-danger' }}">
                                             <i class="fa-solid {{ $center->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
                                             ڕیزبەندی کرد بە زیرەکی دەستکرد
                                             {{ $center->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
                                         </span>
-                                        <span class="badge {{ $center->gis ? 'bg-success' : 'bg-secondary' }}">
+                                        <span class="badge {{ $center->gis ? 'bg-success' : 'bg-danger' }}">
                                             <i class="fa-solid {{ $center->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                            GIS {{ $center->gis ? '(چالاکە)' : '(ناچالاکە)' }}
+                                            سیستەمی نەخشە {{ $center->gis ? '(چالاکە)' : '(ناچالاکە)' }}
                                         </span>
-                                        <span class="badge {{ $center->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                        <span class="badge {{ $center->all_departments ? 'bg-success' : 'bg-danger' }}">
                                             <i
                                                 class="fa-solid {{ $center->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                            All Departments (50) {{ $center->all_departments ? '(چالاکە)' : '(ناچالاکە)' }}
+                                            ڕێزبەندی 50 بەش {{ $center->all_departments ? '(چالاکە)' : '(ناچالاکە)' }}
+                                        </span>
+                                        <span
+                                            class="badge {{ $center->queue_hand_department ? 'bg-success' : 'bg-danger' }}">
+                                            <i
+                                                class="fa-solid {{ $center->queue_hand_department ? 'fa-check' : 'fa-times' }} me-1"></i>
+                                            Queue Hand Department
+                                            {{ $center->queue_hand_department ? '(چالاکە)' : '(ناچالاکە)' }}
                                         </span>
                                     </div>
-                                    @if (!$center->ai_rank || !$center->gis || !$center->all_departments)
+                                    @if (!$center->ai_rank || !$center->gis || !$center->all_departments || !$center->queue_hand_department)
                                         <p class="mb-0 mt-2 small text-muted">
                                             <i class="fa-solid fa-lightbulb me-1"></i>
                                             ئەگەر پێویستت بە تایبەتمەندی زیاتر هەیە،
@@ -160,9 +209,35 @@
                                 </div>
                             @endif
 
+                            @include('website.web.center.partials.feature-access-fields', [
+                                'center' => $center,
+                                'subjectLabel' => 'مامۆستا',
+                                'formPrefix' => 'teacher_create',
+                                'featureDefinitions' => [
+                                    'ai_rank' => 'ڕیزبەندی کرد بە زیرەکی دەستکرد',
+                                    'gis' => 'سیستەمی نەخشە',
+                                    'all_departments' => 'ڕێزبەندی 50 بەش',
+                                    'queue_hand_department' => 'Queue Hand Department',
+                                ],
+                            ])
+
                             <hr class="my-4">
 
                             <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="limit_student" class="form-label">سنووری قوتابی بۆ ئەم مامۆستایە</label>
+                                    <input type="number" min="0"
+                                        class="form-control @error('limit_student') is-invalid @enderror"
+                                        id="limit_student" name="limit_student"
+                                        value="{{ old('limit_student', $center?->limit_student) }}"
+                                        placeholder="بۆ نموونە: 100">
+                                    @error('limit_student')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @else
+                                        <div class="form-text">ئەگەر بەتاڵ بێت، سنووری سەنتەر بەکاردهێنرێت.</div>
+                                    @enderror
+                                </div>
+
                                 <div class="col-md-6">
                                     <label for="status" class="form-label">دۆخ</label>
                                     <select class="form-select" id="status" name="status" required>
@@ -173,7 +248,7 @@
                             </div>
 
                             <div class="d-flex justify-content-end mt-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" @disabled(!$canCreateTeacher)>
                                     <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
                                 </button>
                             </div>
@@ -232,15 +307,6 @@
             if ($queueSel.length) {
                 $queueSel.on('change', toggleNum);
                 toggleNum();
-            }
-
-            // Random codes
-            const $randCodeInput = $('#rand_code');
-
-            if ($randCodeInput.length) {
-                const gen2 = () => $randCodeInput.val(Math.floor(1000 + Math.random() * 9000));
-                gen2();
-                $randCodeInput.on('focus', gen2);
             }
 
             // Random codes

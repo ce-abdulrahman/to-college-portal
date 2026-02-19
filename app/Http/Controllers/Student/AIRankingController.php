@@ -40,11 +40,11 @@ class AIRankingController extends Controller
         $systems = collect();
 
         if (!$aiRestricted) {
-            // پشکنین ئەگەر پێشتر preference هیچ نیە، بسازە بە دیفۆڵت
+            $allowedSystemIds = $this->getAllowedSystemIdsForStudent($student);
+            $systems = $this->getAllowedSystemsForStudent($student);
             $preference = AIRankingPreference::where('student_id', $student->id)->first();
 
             if (!$preference) {
-                // بە دیفۆڵت هەموو تایبەتمەندیەکان بکو
                 $preference = AIRankingPreference::create([
                     'student_id' => $student->id,
                     'consider_personality' => true,
@@ -52,18 +52,41 @@ class AIRankingController extends Controller
                     'prefer_nearby_departments' => true,
                     'use_mark_bonus' => true,
                     'mark_bonus_enabled' => true,
-                    'preferred_systems' => [1, 2, 3],
+                    'preferred_systems' => $allowedSystemIds,
                     'gender_filter' => [$student->gender],
                     'field_type_filter' => [$student->type],
                     'province_filter' => $student->province_id,
                 ]);
+            } else {
+                $currentPreferred = collect($preference->preferred_systems ?? [])
+                    ->map(fn($id) => (int) $id)
+                    ->values();
+                $normalizedPreferred = $currentPreferred
+                    ->intersect($allowedSystemIds)
+                    ->unique()
+                    ->values();
+
+                if ($normalizedPreferred->isEmpty()) {
+                    $normalizedPreferred = collect($allowedSystemIds);
+                }
+
+                if ($normalizedPreferred->toArray() !== $currentPreferred->toArray()) {
+                    $preference->update([
+                        'preferred_systems' => $normalizedPreferred->all(),
+                    ]);
+                    $preference->refresh();
+                }
             }
 
             // وەرگرتنی پارێزگاکان
-            $provinces = Province::all();
-
-            // وەرگرتنی سیستەمەکان
-            $systems = System::all();
+            if ((int) ($student->all_departments ?? 0) === 1) {
+                $provinces = Province::all();
+            } else {
+                $studentProvinceId = (int) ($student->province_id ?? 0);
+                $provinces = Province::query()
+                    ->when($studentProvinceId > 0, fn($q) => $q->where('id', $studentProvinceId))
+                    ->get();
+            }
         }
 
         return view('website.web.student.ai.preferences', compact(
@@ -90,6 +113,14 @@ class AIRankingController extends Controller
             ], 403);
         }
 
+        $allowedSystemIds = $this->getAllowedSystemIdsForStudent($student);
+        if (empty($allowedSystemIds)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'هیچ سیستەمێکی خوێندن بەردەست نییە.'
+            ], 422);
+        }
+
         $validated = $request->validate([
             'consider_personality' => 'boolean',
             'include_specific_questions' => 'boolean',
@@ -99,20 +130,84 @@ class AIRankingController extends Controller
             'preferred_systems' => 'array',
             'preferred_systems.*' => 'integer|exists:systems,id',
             'province_filter' => 'nullable|integer|exists:provinces,id',
+            'lat' => 'nullable|numeric|between:-90,90',
+            'lng' => 'nullable|numeric|between:-180,180',
         ]);
 
-        $payload = $validated;
+        $payload = array_merge([
+            'consider_personality' => 0,
+            'include_specific_questions' => 1,
+            'prefer_nearby_departments' => 0,
+            'use_mark_bonus' => 1,
+            'mark_bonus_enabled' => 1,
+        ], $validated);
+
+        $selectedSystemIds = collect($payload['preferred_systems'] ?? [])
+            ->map(fn($id) => (int) $id)
+            ->intersect($allowedSystemIds)
+            ->unique()
+            ->values()
+            ->all();
+        if (empty($selectedSystemIds)) {
+            $selectedSystemIds = $allowedSystemIds;
+        }
+
+        $payload['preferred_systems'] = $selectedSystemIds;
         $payload['gender_filter'] = [$student->gender];
         $payload['field_type_filter'] = [$student->type];
+
+        if ((int) ($student->all_departments ?? 0) !== 1) {
+            $payload['province_filter'] = (int) ($student->province_id ?? 0) ?: null;
+            $payload['prefer_nearby_departments'] = true;
+        }
 
         if (empty($payload['prefer_nearby_departments'])) {
             $payload['province_filter'] = null;
         }
 
+        if (!empty($payload['prefer_nearby_departments'])) {
+            $lat = $validated['lat'] ?? $student->lat;
+            $lng = $validated['lng'] ?? $student->lng;
+
+            if ($lat === null || $lng === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'تکایە مۆڵەتی شوێن بدە بۆ بەکارهێنانی فیلتەری نزیکی شوێن.'
+                ], 422);
+            }
+
+            $student->update([
+                'lat' => (float) $lat,
+                'lng' => (float) $lng,
+            ]);
+        }
+
+        unset($payload['lat'], $payload['lng']);
+
         AIRankingPreference::updateOrCreate(
             ['student_id' => $student->id],
             $payload
         );
+
+        $student->refresh();
+
+        if (!empty($payload['consider_personality']) && empty($student->mbti_type)) {
+            return response()->json([
+                'success' => true,
+                'message' => 'پێویستە سەرەتا تاقیکردنەوەی MBTI تەواو بکەیت.',
+                'redirect' => route('student.mbti.index')
+            ]);
+        }
+
+        if (empty($payload['use_mark_bonus'])) {
+            (new AIRankingService($student))->calculateRankings();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'تایبەتمەندیەکانت پاشەکش کرا! پشکنینی AI پێویست نییە.',
+                'redirect' => route('student.ai-ranking.results')
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -134,15 +229,25 @@ class AIRankingController extends Controller
                 ->with('error', 'توشێت پێویست نیە.');
         }
 
+        // ئەگەر ai_rank == 0 ئەوا نیشان بدە warning
+        if ($student->ai_rank == 0) {
+            return view('website.web.student.ai.restricted', compact('student'));
+        }
+
         // ئەگەر پێش ئەو پرسیاریە فیلتەرەکان هاتنی، بڕۆ بۆ preferences
         $preference = AIRankingPreference::where('student_id', $student->id)->first();
         if (!$preference) {
             return redirect()->route('student.ai-ranking.preferences');
         }
 
-        // ئەگەر ai_rank == 0 ئەوا نیشان بدە warning
-        if ($student->ai_rank == 0) {
-            return view('website.web.student.ai.restricted', compact('student'));
+        if ((bool) $preference->consider_personality && empty($student->mbti_type)) {
+            return redirect()->route('student.mbti.index')
+                ->with('warning', 'پێویستە سەرەتا تاقیکردنەوەی MBTI تەواو بکەیت.');
+        }
+
+        if (!(bool) $preference->use_mark_bonus) {
+            (new AIRankingService($student))->calculateRankings();
+            return redirect()->route('student.ai-ranking.results');
         }
 
         // پشکنین ئەگەر پێشتر وەڵامی دابێت
@@ -166,11 +271,6 @@ class AIRankingController extends Controller
      */
     public function submitQuestionnaire(Request $request)
     {
-        $request->validate([
-            'answers' => 'required|array',
-            'answers.*' => 'required|string|max:500',
-        ]);
-
         $user = Auth::user();
         $student = $user->student;
 
@@ -180,6 +280,38 @@ class AIRankingController extends Controller
                 'message' => 'مۆڵەتی بەکارهێنانی سیستەمی AIت نییە.'
             ], 403);
         }
+
+        $preference = AIRankingPreference::where('student_id', $student->id)->first();
+        if (!$preference) {
+            return response()->json([
+                'success' => false,
+                'message' => 'تکایە سەرەتا تایبەتمەندیەکان دیاری بکە.',
+                'redirect' => route('student.ai-ranking.preferences'),
+            ], 422);
+        }
+
+        if ((bool) $preference->consider_personality && empty($student->mbti_type)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'پێویستە سەرەتا تاقیکردنەوەی MBTI تەواو بکەیت.',
+                'redirect' => route('student.mbti.index'),
+            ], 422);
+        }
+
+        if (!(bool) $preference->use_mark_bonus) {
+            (new AIRankingService($student))->calculateRankings();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'پشکنینی AI پێویست نەبوو، ڕیزبەندی دروست کرا.',
+                'redirect' => route('student.ai-ranking.results')
+            ]);
+        }
+
+        $request->validate([
+            'answers' => 'required|array',
+            'answers.*' => 'required|string|max:500',
+        ]);
 
         // سڕینەوەی وەڵامە کۆنەکان
         AIAnswer::where('student_id', $student->id)->delete();
@@ -222,20 +354,39 @@ class AIRankingController extends Controller
             return view('website.web.student.ai.restricted', compact('student'));
         }
 
+        $preference = AIRankingPreference::where('student_id', $student->id)->first();
+        if (!$preference) {
+            return redirect()->route('student.ai-ranking.preferences');
+        }
+
+        if ((bool) $preference->consider_personality && empty($student->mbti_type)) {
+            return redirect()->route('student.mbti.index')
+                ->with('warning', 'پێویستە سەرەتا تاقیکردنەوەی MBTI تەواو بکەیت.');
+        }
+
         // پشکنین ئەگەر پێشتر وەڵامی دابێت
         $hasAnswers = AIAnswer::where('student_id', $student->id)->exists();
 
-        if (!$hasAnswers) {
+        if ((bool) $preference->use_mark_bonus && !$hasAnswers) {
             return redirect()->route('student.ai-ranking.questionnaire');
         }
 
+        $hasRankings = AIRanking::where('student_id', $student->id)->exists();
+        if (!$hasRankings) {
+            (new AIRankingService($student))->calculateRankings();
+        }
+
         // وەرگرتنی ڕیزبەندیەکان
+        $maxRankedDepartments = (int) ($student->all_departments ?? 0) === 1 ? 50 : 10;
+
         $rankings = AIRanking::where('student_id', $student->id)
+            ->whereHas('department', fn($q) => $q->visibleForSelection())
             ->with(['department' => function($query) {
-                $query->with(['university', 'province', 'college', 'system']);
+                $query->visibleForSelection()
+                    ->with(['university', 'province', 'college', 'system']);
             }])
             ->orderBy('rank')
-            ->limit(50) // تەنها ٥٠ بەشی سەرەکی
+            ->limit($maxRankedDepartments)
             ->get();
 
         // ئامارەکان
@@ -261,6 +412,12 @@ class AIRankingController extends Controller
         // سڕینەوەی هەموو زانیاریەکانی پێشوو
         AIAnswer::where('student_id', $student->id)->delete();
         AIRanking::where('student_id', $student->id)->delete();
+
+        $preference = AIRankingPreference::where('student_id', $student->id)->first();
+        if ($preference && !(bool) $preference->use_mark_bonus) {
+            (new AIRankingService($student))->calculateRankings();
+            return redirect()->route('student.ai-ranking.results');
+        }
 
         return redirect()->route('student.ai-ranking.questionnaire');
     }
@@ -398,6 +555,13 @@ class AIRankingController extends Controller
     {
         $user = Auth::user();
         $student = $user->student;
+        if (!$student) {
+            return response()->json([
+                'status' => 'missing',
+                'message' => 'زانیاریەکانی قوتابی تۆمار نەکراوە.',
+                'ai_rank' => 0,
+            ], 404);
+        }
 
         return response()->json([
             'status' => $student->ai_rank == 1 ? 'active' : 'restricted',
@@ -421,7 +585,8 @@ class AIRankingController extends Controller
         }
 
         $rankings = AIRanking::where('student_id', $student->id)
-            ->with('department')
+            ->whereHas('department', fn($q) => $q->visibleForSelection())
+            ->with(['department' => fn($q) => $q->visibleForSelection()])
             ->orderBy('rank')
             ->get();
 
@@ -443,10 +608,16 @@ class AIRankingController extends Controller
             return redirect()->back()->with('error', 'مۆڵەت نیە');
         }
 
+        $maxRankedDepartments = (int) ($student->all_departments ?? 0) === 1 ? 50 : 10;
         $rankings = AIRanking::where('student_id', $student->id)
-            ->with(['department.university', 'department.province'])
+            ->whereHas('department', fn($q) => $q->visibleForSelection())
+            ->with([
+                'department' => fn($q) => $q->visibleForSelection(),
+                'department.university',
+                'department.province',
+            ])
             ->orderBy('rank')
-            ->limit(50)
+            ->limit($maxRankedDepartments)
             ->get();
 
         // ئیتریشە PDF export logic هێریکان
@@ -460,13 +631,21 @@ class AIRankingController extends Controller
      */
     public function departmentDetails($id)
     {
-        $department = Department::with(['university', 'province', 'college', 'system'])->find($id);
+        $student = Auth::user()->student;
+        if (!$student || (int) ($student->ai_rank ?? 0) !== 1) {
+            return response()->json(['error' => 'مۆڵەت نییە'], 403);
+        }
+
+        $department = Department::query()
+            ->visibleForSelection()
+            ->with(['university', 'province', 'college', 'system'])
+            ->find($id);
 
         if (!$department) {
             return response()->json(['error' => 'بەشەکە نەدۆزرایەوە'], 404);
         }
 
-        $ranking = AIRanking::where('student_id', Auth::user()->student->id)
+        $ranking = AIRanking::where('student_id', $student->id)
             ->where('department_id', $id)
             ->first();
 
@@ -495,9 +674,14 @@ class AIRankingController extends Controller
 
         $user = Auth::user();
         $student = $user->student;
+        if (!$student || (int) ($student->ai_rank ?? 0) !== 1) {
+            return redirect()->route('student.ai-ranking.questionnaire')
+                ->with('error', 'مۆڵەتی بەکارهێنانی سیستەمی AIت نییە.');
+        }
 
         $rankings = AIRanking::where('student_id', $student->id)
-            ->with('department')
+            ->whereHas('department', fn($q) => $q->visibleForSelection())
+            ->with(['department' => fn($q) => $q->visibleForSelection()])
             ->orderBy('rank')
             ->get();
 
@@ -531,7 +715,8 @@ class AIRankingController extends Controller
         }
 
         $topDepartments = AIRanking::where('student_id', $student->id)
-            ->with('department')
+            ->whereHas('department', fn($q) => $q->visibleForSelection())
+            ->with(['department' => fn($q) => $q->visibleForSelection()])
             ->orderBy('rank')
             ->limit(5)
             ->get();
@@ -540,5 +725,29 @@ class AIRankingController extends Controller
             'student' => $student,
             'topDepartments' => $topDepartments
         ]);
+    }
+
+    private function getAllowedSystemNamesForStudent($student): array
+    {
+        return (int) ($student->year ?? 1) > 1
+            ? ['پاراڵیل', 'ئێواران']
+            : ['زانکۆلاین', 'پاراڵیل', 'ئێواران'];
+    }
+
+    private function getAllowedSystemsForStudent($student)
+    {
+        return System::query()
+            ->whereIn('name', $this->getAllowedSystemNamesForStudent($student))
+            ->orderBy('id')
+            ->get();
+    }
+
+    private function getAllowedSystemIdsForStudent($student): array
+    {
+        return $this->getAllowedSystemsForStudent($student)
+            ->pluck('id')
+            ->map(fn($id) => (int) $id)
+            ->values()
+            ->all();
     }
 }

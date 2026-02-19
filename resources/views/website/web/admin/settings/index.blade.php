@@ -225,6 +225,9 @@
                                 $price1 = $featurePrices['1'] ?? 3000;
                                 $price2 = $featurePrices['2'] ?? 5000;
                                 $price3 = $featurePrices['3'] ?? 6000;
+                                $limitTeacherPrice = $limitPrices['teacher'] ?? 5000;
+                                $limitStudentPrice = $limitPrices['student'] ?? 1000;
+                                $queueHandDepartmentPrice = (int) ($settings['queue_hand_department_price'] ?? 0);
                             @endphp
                             <div class="row g-3">
                                 <div class="col-md-4">
@@ -243,8 +246,29 @@
                                         value="{{ $price3 }}">
                                 </div>
                             </div>
+                            <hr>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">نرخی زیادکردنی 1 مامۆستا</label>
+                                    <input type="number" min="0" class="form-control" name="limit_price_teacher"
+                                        value="{{ $limitTeacherPrice }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">نرخی زیادکردنی 1 قوتابی</label>
+                                    <input type="number" min="0" class="form-control" name="limit_price_student"
+                                        value="{{ $limitStudentPrice }}">
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">نرخی ڕیزبەندی بەشەکان (center/teacher)</label>
+                                    <input type="number" min="0" class="form-control"
+                                        name="queue_hand_department_price" value="{{ $queueHandDepartmentPrice }}">
+                                </div>
+                            </div>
                             <div class="small text-muted mt-2">
-                                نرخی داواکاری بە ژمارەی تایبەتمەندییەکان پێوەندیدارە.
+                                نرخەکانی سەرەوە لە کاتی ناردنی داواکاری تایبەتمەندی/زیادکردنی سنوور پیشان دەدرێن.
                             </div>
                         </div>
                     </div>
@@ -307,4 +331,3 @@
         })();
     </script>
 @endpush
-

@@ -1,4 +1,4 @@
-{{-- resources/views/website/web/center/student/edit.blade.php --}}
+{{-- resources/views/website/web/teacher/student/edit.blade.php --}}
 @extends('website.web.admin.layouts.app')
 
 @section('content')
@@ -43,6 +43,12 @@
                                 </ul>
                             </div>
                         @endif
+
+                        @php
+                            $teacher = auth()->user()->teacher;
+                            $canActivateStudent = $canActivateStudent ?? true;
+                            $currentStatusValue = (string) old('status', (string) ((int) data_get($student, 'status', data_get($student, 'user.status', 0))));
+                        @endphp
 
                         <form action="{{ route('teacher.students.update', $student->id) }}" method="POST"
                             class="needs-validation" novalidate>
@@ -157,7 +163,36 @@
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                <div class="col-12 col-md-6">
+                                    <label for="status" class="form-label">دۆخ</label>
+                                    <select id="status" name="status"
+                                        class="form-select @error('status') is-invalid @enderror" @disabled(!$canActivateStudent)>
+                                        <option value="1" @selected($currentStatusValue === '1')>چاڵاک</option>
+                                        <option value="0" @selected($currentStatusValue === '0')>ناچاڵاک</option>
+                                    </select>
+                                    @if (!$canActivateStudent)
+                                        <input type="hidden" name="status" value="{{ $currentStatusValue === '1' ? '1' : '0' }}">
+                                        <small class="text-danger d-block mt-1">
+                                            سنووری قبوڵکردنی قوتابی تەواو بووە. هەتا سنوور زیاد نەکرێت چاڵاککردن ناچالاکە.
+                                        </small>
+                                    @endif
+                                    @error('status')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <input type="hidden" id="lat" name="lat" value="{{ old('lat') }}">
+                                <input type="hidden" id="lng" name="lng" value="{{ old('lng') }}">
                             </div>
+
+                            @include('website.web.center.partials.feature-access-fields', [
+                                'center' => $teacher,
+                                'currentModel' => $student,
+                                'subjectLabel' => 'قوتابی',
+                                'formPrefix' => 'teacher_student_edit',
+                                'ownerLabel' => 'مامۆستا',
+                            ])
 
                             <div class="d-flex justify-content-end mt-4">
                                 <button type="submit" class="btn btn-primary">
@@ -188,6 +223,103 @@
                     form.classList.add('was-validated');
                 }, false);
             });
+        })();
+
+        (function() {
+            const latInput = document.getElementById('lat');
+            const lngInput = document.getElementById('lng');
+            const form = document.querySelector('form.needs-validation');
+            let locatingInProgress = false;
+
+            function getAiRankValue() {
+                const checked = document.querySelector('input[name="ai_rank"]:checked');
+                if (checked) return String(checked.value);
+
+                const hidden = document.querySelector('input[name="ai_rank"][type="hidden"]');
+                return hidden ? String(hidden.value) : '0';
+            }
+
+            function shouldRequireLocation() {
+                return getAiRankValue() === '1';
+            }
+
+            function hasLocation() {
+                const lat = String(latInput?.value ?? '').trim();
+                const lng = String(lngInput?.value ?? '').trim();
+                return lat !== '' && lng !== '';
+            }
+
+            function fillLocationFromBrowser() {
+                return new Promise((resolve) => {
+                    if (!latInput || !lngInput || !navigator.geolocation || locatingInProgress) {
+                        resolve(false);
+                        return;
+                    }
+
+                    locatingInProgress = true;
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            latInput.value = Number(position.coords.latitude).toFixed(7);
+                            lngInput.value = Number(position.coords.longitude).toFixed(7);
+                            locatingInProgress = false;
+                            resolve(true);
+                        },
+                        () => {
+                            locatingInProgress = false;
+                            resolve(false);
+                        }, {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0,
+                        }
+                    );
+                });
+            }
+
+            async function syncLocationRequirement() {
+                const requireLocation = shouldRequireLocation();
+                if (latInput) latInput.required = requireLocation;
+                if (lngInput) lngInput.required = requireLocation;
+
+                if (!requireLocation) {
+                    if (latInput) latInput.value = '';
+                    if (lngInput) lngInput.value = '';
+                    return;
+                }
+
+                if (!hasLocation()) {
+                    await fillLocationFromBrowser();
+                }
+            }
+
+            document.querySelectorAll('input[name="ai_rank"]').forEach((el) => {
+                el.addEventListener('change', () => {
+                    void syncLocationRequirement();
+                });
+            });
+
+            if (form) {
+                form.addEventListener('submit', async function(event) {
+                    if (!shouldRequireLocation() || hasLocation()) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    const ok = await fillLocationFromBrowser();
+                    if (ok) {
+                        if (typeof form.requestSubmit === 'function') {
+                            form.requestSubmit();
+                        } else {
+                            form.submit();
+                        }
+                        return;
+                    }
+
+                    alert('نەتوانرا شوێنی قوتابی وەربگیرێت. تکایە ڕێگەبدە بە Location.');
+                });
+            }
+
+            void syncLocationRequirement();
         })();
     </script>
 @endpush

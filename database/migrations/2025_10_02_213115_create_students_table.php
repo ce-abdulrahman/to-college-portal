@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('type', ['زانستی','وێژەیی'])->default('زانستی');
             $table->enum('gender', ['نێر','مێ'])->default('نێر');
             $table->integer('year');
-            $table->string('referral_code')->nullable()->comment('Get Relation in User Role Student column to rand_code');
+            $table->string('referral_code')->default(0)->comment('Get Relation in User Role Student column to rand_code');
             $table->boolean('status')->default(0);
             $table->string('mbti_type')->nullable()->index();
             $table->boolean('ai_rank')->default(0);

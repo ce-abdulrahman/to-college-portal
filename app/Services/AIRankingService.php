@@ -8,6 +8,7 @@ use App\Models\AIRanking;
 use App\Models\AIAnswer;
 use App\Models\AIRankingPreference;
 use App\Models\System;
+use App\Support\DepartmentSexScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -16,6 +17,7 @@ class AIRankingService
     private $student;
     private $preference;
     private $studentProvinceId;
+    private ?array $selectedSystemIds = null;
     private $weights = [
         'academic' => 0.30,      // 30% نمرە (گرینگترین)
         'interest' => 0.25,      // 25% حەز
@@ -100,7 +102,8 @@ class AIRankingService
      */
     private function getEligibleDepartments()
     {
-        $query = Department::where('status', 1)
+        $query = Department::query()
+            ->visibleForSelection()
             ->with(['university', 'province', 'college', 'system']);
 
         // ١. فیلتەری جۆر (زانستی / وێژەیی) - لە زانیاری قوتابی
@@ -110,39 +113,45 @@ class AIRankingService
         });
 
         // ٢. فیلتەری ڕەگەز - لە زانیاری قوتابی
-        $query->where(function($q) {
-            $q->where('sex', $this->student->gender)
-              ->orWhere('sex', 'هەردووکیان');
-        });
+        DepartmentSexScope::applyForStudent($query, $this->student->gender);
 
         // ٣. فیلتەری نمرە بەپێی پاریزگا و تایبەتمەندی
-        $query->where(function($q) {
-            $preferNearby = $this->preference && $this->preference->prefer_nearby_departments ? true : false;
-
-            if ($preferNearby && $this->preference && $this->preference->province_filter) {
-                // ئەگەر پاریزگای دیاریکراو هەبێت، تەنها ئەو پاریزگاکە
-                $provinceId = $this->preference->province_filter;
-                $q->where('province_id', $provinceId)
-                  ->where('local_score', '<=', $this->getAdjustedMark('local'));
-            } elseif ($this->studentProvinceId) {
-                // نۆرمال: ناو پاریزگا یا دەرەوەی پاریزگا
-                $q->where('province_id', $this->studentProvinceId)
-                  ->where('local_score', '<=', $this->getAdjustedMark('local'))
-                  ->orWhere('province_id', '!=', $this->studentProvinceId)
-                  ->where('external_score', '<=', $this->getAdjustedMark('external'));
+        if ((int) ($this->student->all_departments ?? 0) !== 1) {
+            if ($this->studentProvinceId) {
+                // تەنها بەشەکانی پارێزگای خۆی
+                $query->where('province_id', $this->studentProvinceId)
+                    ->where('local_score', '<=', $this->getAdjustedMark('local'));
             } else {
-                // ئەگەر پاریزگای قوتابی ناسراو نەبوو، تەنها بەپێی دەرەوە نمرە هەڵبژێرە
-                $q->where('external_score', '<=', $this->getAdjustedMark('external'));
+                // ئەگەر پارێزگا ناسراو نەبوو، هیچ داتایەک مەهێڵە
+                $query->whereRaw('1 = 0');
             }
-        });
+        } else {
+            $query->where(function($q) {
+                $preferNearby = $this->preference && $this->preference->prefer_nearby_departments ? true : false;
 
-        // ٤. فیلتەری سیستەم (ئەگەر ساڵ = 1)
-        if ($this->student->year == 1) {
-            if ($this->preference && $this->preference->preferred_systems && !empty($this->preference->preferred_systems)) {
-                $systemIds = $this->preference->preferred_systems;
-            } else {
-                $systemIds = System::whereIn('name', [1, 2, 3])->pluck('id')->toArray();
-            }
+                if ($preferNearby && $this->preference && $this->preference->province_filter) {
+                    // ئەگەر پاریزگای دیاریکراو هەبێت، تەنها ئەو پاریزگاکە
+                    $provinceId = $this->preference->province_filter;
+                    $q->where('province_id', $provinceId)
+                    ->where('local_score', '<=', $this->getAdjustedMark('local'));
+                } elseif ($this->studentProvinceId) {
+                    // نۆرمال: ناو پاریزگا یا دەرەوەی پاریزگا
+                    $q->where('province_id', $this->studentProvinceId)
+                    ->where('local_score', '<=', $this->getAdjustedMark('local'))
+                    ->orWhere('province_id', '!=', $this->studentProvinceId)
+                    ->where('external_score', '<=', $this->getAdjustedMark('external'));
+                } else {
+                    // ئەگەر پاریزگای قوتابی ناسراو نەبوو، تەنها بەپێی دەرەوە نمرە هەڵبژێرە
+                    $q->where('external_score', '<=', $this->getAdjustedMark('external'));
+                }
+            });
+        }
+
+        // ٤. فیلتەری سیستەم (بۆ هەموو ساڵەکان)
+        $systemIds = $this->getSelectedSystemIds();
+        if (empty($systemIds)) {
+            $query->whereRaw('1 = 0');
+        } else {
             $query->whereIn('system_id', $systemIds);
         }
 
@@ -426,13 +435,13 @@ class AIRankingService
     {
         $score = 70; // بنەڕەت چونکە پێشتر فیلتەر کراون
 
-        // ساڵی قوتابی
-        if ($this->student->year == 1 && in_array($department->system_id, [1, 2, 3])) {
+        // سیستەمی خوێندن
+        if (in_array((int) $department->system_id, $this->getSelectedSystemIds(), true)) {
             $score += 15;
         }
 
         // ڕەگەز
-        if ($department->sex == 'هەردووکیان' || $department->sex == $this->student->gender) {
+        if (DepartmentSexScope::isAllowedForStudent($department->sex, $this->student->gender)) {
             $score += 10;
         }
 
@@ -502,6 +511,49 @@ class AIRankingService
         }
 
         return implode('، ', $reasons);
+    }
+
+    private function getAllowedSystemNamesForStudent(): array
+    {
+        return (int) ($this->student->year ?? 1) > 1
+            ? ['پاراڵیل', 'ئێواران']
+            : ['زانکۆلاین', 'پاراڵیل', 'ئێواران'];
+    }
+
+    private function getAllowedSystemIdsForStudent(): array
+    {
+        return System::query()
+            ->whereIn('name', $this->getAllowedSystemNamesForStudent())
+            ->pluck('id')
+            ->map(fn($id) => (int) $id)
+            ->values()
+            ->all();
+    }
+
+    private function getSelectedSystemIds(): array
+    {
+        if ($this->selectedSystemIds !== null) {
+            return $this->selectedSystemIds;
+        }
+
+        $allowedSystemIds = $this->getAllowedSystemIdsForStudent();
+        if (empty($allowedSystemIds)) {
+            $this->selectedSystemIds = [];
+            return $this->selectedSystemIds;
+        }
+
+        $preferredSystemIds = collect($this->preference?->preferred_systems ?? [])
+            ->map(fn($id) => (int) $id)
+            ->intersect($allowedSystemIds)
+            ->unique()
+            ->values()
+            ->all();
+
+        $this->selectedSystemIds = !empty($preferredSystemIds)
+            ? $preferredSystemIds
+            : $allowedSystemIds;
+
+        return $this->selectedSystemIds;
     }
 
     /**

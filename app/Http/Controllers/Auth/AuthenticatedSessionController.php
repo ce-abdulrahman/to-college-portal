@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,17 @@ class AuthenticatedSessionController extends Controller
         return view('auth.login');
     }
 
+    public function inactive(Request $request): View
+    {
+        $inactiveAccount = $request->session()->get('inactiveAccount');
+
+        if (!$inactiveAccount) {
+            return view('auth.login');
+        }
+
+        return view('auth.inactive-account', compact('inactiveAccount'));
+    }
+
     /**
      * Handle an incoming authentication request.
      */
@@ -31,11 +43,24 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        if (!$user->status) {
+        if (
+            in_array($user->role, ['center', 'teacher', 'student'], true)
+            && (int) $user->status === 0
+        ) {
+            $referrer = $this->resolveReferrer($user);
+
+            $inactiveAccount = [
+                'accountRoleLabel' => $this->roleLabel($user->role),
+                'referrer' => $referrer,
+            ];
+
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return back()->with('error', 'هەژمارەکەت هێشتا پەسەند نەکراوە.');
+
+            return redirect()
+                ->route('account.inactive')
+                ->with('inactiveAccount', $inactiveAccount);
         }
 
         if ($user->role === 'center') {
@@ -69,5 +94,49 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function roleLabel(string $role): string
+    {
+        return match ($role) {
+            'admin' => 'ئەدمین',
+            'center' => 'سەنتەر',
+            'teacher' => 'مامۆستا',
+            'student' => 'قوتابی',
+            default => $role,
+        };
+    }
+
+    private function resolveReferrer(User $user): ?array
+    {
+        $user->loadMissing(['center', 'teacher', 'student']);
+
+        $referralCode = match ($user->role) {
+            'center' => data_get($user, 'center.referral_code'),
+            'teacher' => data_get($user, 'teacher.referral_code'),
+            'student' => data_get($user, 'student.referral_code'),
+            default => null,
+        };
+
+        if (!$referralCode || !is_numeric($referralCode)) {
+            return null;
+        }
+
+        $referrer = User::query()
+            ->select('name', 'phone', 'role', 'rand_code')
+            ->where('rand_code', (int) $referralCode)
+            ->first();
+
+        if (!$referrer) {
+            return null;
+        }
+
+        return [
+            'name' => $referrer->name,
+            'phone' => $referrer->phone,
+            'role' => $referrer->role,
+            'roleLabel' => $this->roleLabel($referrer->role),
+            'randCode' => $referrer->rand_code,
+        ];
     }
 }

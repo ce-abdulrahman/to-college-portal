@@ -44,6 +44,40 @@
                             </div>
                         @endif
 
+                        @php
+                            $teacher = auth()->user()->teacher;
+                            $studentLimit = $studentLimit ?? null;
+                            $currentStudentsCount = $currentStudentsCount ?? 0;
+                            $remainingStudentsCount = $remainingStudentsCount ?? null;
+                            $canCreateStudent = $canCreateStudent ?? true;
+                            $showExtra = old('role') === 'student' || request()->has('student');
+                        @endphp
+
+                        <div
+                            class="alert {{ is_null($studentLimit) ? 'alert-info' : ($canCreateStudent ? 'alert-warning' : 'alert-danger') }}">
+                            <div class="fw-semibold mb-1">
+                                <i class="fa-solid fa-user-graduate me-1"></i>
+                                سنووری قوتابی بۆ مامۆستا
+                            </div>
+                            @if (is_null($studentLimit))
+                                <div>بۆ ئێستا سنوور دیاری نەکراوە (بێ سنوور).</div>
+                            @else
+                                <div>
+                                    سنوور: <strong>{{ $studentLimit }}</strong> |
+                                    ئێستا: <strong>{{ $currentStudentsCount }}</strong> |
+                                    ماوە: <strong>{{ $remainingStudentsCount }}</strong>
+                                </div>
+                                @unless($canCreateStudent)
+                                    <div class="mt-2">
+                                        <div class="mb-2">ناتوانیت قوتابیی نوێ زیاد بکەیت تا سنوورەکە زیاد بکرێت.</div>
+                                        <a href="{{ route('teacher.features.request') }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-plus-circle me-1"></i>سنووری زیاد کردن
+                                        </a>
+                                    </div>
+                                @endunless
+                            @endif
+                        </div>
+
                         <form action="{{ route('teacher.students.store') }}" method="POST" class="needs-validation"
                             novalidate>
                             @csrf
@@ -97,119 +131,43 @@
                                     </select>
                                 </div>
 
-                                <input type="hidden" id="rand_code" name="rand_code" value="{{ old('rand_code') }}"
-                                    readonly>
-
                             </div>
 
                             {{-- Feature Inheritance Display --}}
-                            @php
-                                $teacher = auth()->user()->teacher;
-                                $showExtra = old('role') === 'student' || request()->has('student');
-                            @endphp
-
                             @if ($teacher)
                                 <div class="alert alert-info mt-4">
                                     <h6 class="mb-2"><i class="fa-solid fa-info-circle me-2"></i>تایبەتمەندییەکانی
                                         وەرگیراو
                                     </h6>
-                                    <p class="mb-2 small">ئەم قوتابییە ئەم تایبەتمەندیانە لە تۆوە وەردەگرێت:</p>
+                                    <p class="mb-2 small">ئەمە تایبەتمەندییەکانی تۆن؛ لە خوارەوە دەتوانیت بۆ ئەم قوتابییە دیارییان بکەیت.</p>
                                     <div class="d-flex gap-3 flex-wrap">
-                                        <span class="badge {{ $teacher->ai_rank ? 'bg-success' : 'bg-secondary' }}">
+                                        <span class="badge {{ $teacher->ai_rank ? 'bg-success' : 'bg-danger' }}">
                                             <i class="fa-solid {{ $teacher->ai_rank ? 'fa-check' : 'fa-times' }} me-1"></i>
                                             ڕیزبەندی کرد بە زیرەکی دەستکرد
                                             {{ $teacher->ai_rank ? '(چالاکە)' : '(ناچالاکە)' }}
                                         </span>
-                                        <span class="badge {{ $teacher->gis ? 'bg-success' : 'bg-secondary' }}">
+                                        <span class="badge {{ $teacher->gis ? 'bg-success' : 'bg-danger' }}">
                                             <i class="fa-solid {{ $teacher->gis ? 'fa-check' : 'fa-times' }} me-1"></i>
                                             GIS {{ $teacher->gis ? '(چالاکە)' : '(ناچالاکە)' }}
                                         </span>
                                         <span
-                                            class="badge {{ $teacher->all_departments ? 'bg-success' : 'bg-secondary' }}">
+                                            class="badge {{ $teacher->all_departments ? 'bg-success' : 'bg-danger' }}">
                                             <i
                                                 class="fa-solid {{ $teacher->all_departments ? 'fa-check' : 'fa-times' }} me-1"></i>
-                                            All Departments (50)
+                                                ڕێزبەندی 50 بەش
                                             {{ $teacher->all_departments ? '(چالاکە)' : '(ناچالاکە)' }}
                                         </span>
                                     </div>
-                                    @if (!$teacher->ai_rank || !$teacher->gis || !$teacher->all_departments)
-                                        <div class="card bg-soft-info border-info-soft border-dashed mt-3 shadow-none">
-                                            <div class="card-body p-3">
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <div class="avatar-xs flex-shrink-0 me-2">
-                                                        <span class="avatar-title bg-info rounded-circle fs-13">
-                                                            <i class="fa-solid fa-lightbulb text-white"></i>
-                                                        </span>
-                                                    </div>
-                                                    <h6 class="mb-0 text-info fw-bold"> ڕێنمایی چالاککردنی تایبەتمەندی </h6>
-                                                </div>
-                                                <div class="ms-1">
-                                                    @php
-                                                        $defaultFeaturePrices = [
-                                                            '1' => 3000,
-                                                            '2' => 5000,
-                                                            '3' => 6000,
-                                                        ];
-                                                        $baseFeaturePrices = json_decode(
-                                                            $appSettings['feature_prices'] ?? '',
-                                                            true,
-                                                        );
-                                                        if (!is_array($baseFeaturePrices)) {
-                                                            $baseFeaturePrices = $defaultFeaturePrices;
-                                                        }
 
-                                                        $featureMultiplier = 3; // teacher
-                                                        $featurePrices = [];
-                                                        foreach ($defaultFeaturePrices as $tier => $defaultPrice) {
-                                                            $featurePrices[$tier] = (int) ($baseFeaturePrices[$tier] ?? $defaultPrice) * $featureMultiplier;
-                                                        }
-                                                    @endphp
-                                                    <p class="mb-2 small text-muted lh-lg">
-                                                        بۆ هەر تایبەتمەندیەک پێویستە بڕی
-                                                        <span
-                                                            class="badge bg-soft-info text-info border border-info-soft fw-bold fx-text fx-gradient">{{ number_format($featurePrices['1'] ?? 3000) }}</span>
-                                                        دینار بۆ ئەم ژمارەیە
-                                                        <span
-                                                            class="badge bg-soft-primary text-primary border border-primary-soft fw-bold">07504342452</span>
-                                                        بنێریت لە ڕێگای <span class="fx-text fx-glitch"
-                                                            data-text="FastPay">FastPay</span> یان <span
-                                                            class="fx-text fx-extrude">FIB</span>.
-                                                    </p>
-                                                    <div class="d-flex flex-wrap gap-2 mb-2">
-                                                        <span class="badge bg-light text-dark border">1 =>
-                                                            {{ number_format($featurePrices['1'] ?? 3000) }}</span>
-                                                        <span class="badge bg-light text-dark border">2 =>
-                                                            {{ number_format($featurePrices['2'] ?? 5000) }}</span>
-                                                        <span class="badge bg-light text-dark border">3 =>
-                                                            {{ number_format($featurePrices['3'] ?? 6000) }}</span>
-                                                    </div>
-                                                    <div
-                                                        class="alert alert-light border-0 mb-0 py-2 px-3 small text-muted">
-                                                        <i class="fa-solid fa-camera me-1 text-primary"></i>
-                                                        وێنەی پارەدانەکەت بۆ <b><a href="https://t.me/AGHA_ACE"
-                                                                class="fx-text fx-glitch"
-                                                                data-text="Telegram">Telegram</a></b> یان <b><a
-                                                                href="https://wa.me/9647504342452"
-                                                                class="fx-text fx-glitch"
-                                                                data-text="WhatsApp">WhatsApp</a></b> یان <b><a
-                                                                href="viber://chat?number=9647504342452"
-                                                                class="fx-text fx-glitch" data-text="Viber">Viber</a></b>
-                                                        ی هەمان ژمارە
-                                                        بنێرە.
-                                                    </div>
-                                                    <div class="mt-2 text-center">
-                                                        <a href="{{ route('teacher.features.request') }}"
-                                                            class="text-decoration-none fw-bold small">
-                                                            <i class="fas fa-paper-plane me-1"></i>ناردنی داواکاری بۆ
-                                                            ئەدمین
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
                                 </div>
                             @endif
+
+                            @include('website.web.center.partials.feature-access-fields', [
+                                'center' => $teacher,
+                                'subjectLabel' => 'قوتابی',
+                                'formPrefix' => 'teacher_student_create',
+                                'ownerLabel' => 'مامۆستا',
+                            ])
 
                             @include('website.web.teacher.student.info-student', [
                                 'provinces' => $provinces,
@@ -229,7 +187,7 @@
                             </div>
 
                             <div class="d-flex justify-content-end mt-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" @disabled(!$canCreateStudent)>
                                     <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
                                 </button>
                             </div>
@@ -290,14 +248,93 @@
                 toggleNum();
             }
 
-            // Random codes
-            const $randCodeInput = $('#rand_code');
+            const $latInput = $('#lat');
+            const $lngInput = $('#lng');
+            const $form = $('form.needs-validation').first();
+            let locatingInProgress = false;
 
-            if ($randCodeInput.length) {
-                const gen2 = () => $randCodeInput.val(Math.floor(1000 + Math.random() * 9000));
-                gen2();
-                $randCodeInput.on('focus', gen2);
+            const getAiRankValue = () => {
+                const checkedVal = $('input[name="ai_rank"]:checked').val();
+                if (typeof checkedVal !== 'undefined') return String(checkedVal);
+
+                const hiddenVal = $('input[name="ai_rank"][type="hidden"]').val();
+                return typeof hiddenVal !== 'undefined' ? String(hiddenVal) : '0';
+            };
+
+            const shouldRequireLocation = () => getAiRankValue() === '1';
+            const hasLocation = () => {
+                const lat = String($latInput.val() ?? '').trim();
+                const lng = String($lngInput.val() ?? '').trim();
+                return lat !== '' && lng !== '';
+            };
+
+            const fillLocationFromBrowser = () => new Promise((resolve) => {
+                if (!$latInput.length || !$lngInput.length || !navigator.geolocation || locatingInProgress) {
+                    resolve(false);
+                    return;
+                }
+
+                locatingInProgress = true;
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        $latInput.val(Number(position.coords.latitude).toFixed(7));
+                        $lngInput.val(Number(position.coords.longitude).toFixed(7));
+                        locatingInProgress = false;
+                        resolve(true);
+                    },
+                    () => {
+                        locatingInProgress = false;
+                        resolve(false);
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0,
+                    }
+                );
+            });
+
+            const syncLocationRequirement = async () => {
+                const requireLocation = shouldRequireLocation();
+                if ($latInput.length) $latInput.prop('required', requireLocation);
+                if ($lngInput.length) $lngInput.prop('required', requireLocation);
+
+                if (!requireLocation) {
+                    $latInput.val('');
+                    $lngInput.val('');
+                    return;
+                }
+
+                if (!hasLocation()) {
+                    await fillLocationFromBrowser();
+                }
+            };
+
+            $(document).on('change', 'input[name="ai_rank"]', function() {
+                void syncLocationRequirement();
+            });
+
+            if ($form.length) {
+                $form.on('submit', async function(e) {
+                    if (!shouldRequireLocation() || hasLocation()) {
+                        return;
+                    }
+
+                    e.preventDefault();
+                    const ok = await fillLocationFromBrowser();
+                    if (ok) {
+                        if (typeof this.requestSubmit === 'function') {
+                            this.requestSubmit();
+                        } else {
+                            this.submit();
+                        }
+                        return;
+                    }
+
+                    alert('نەتوانرا شوێنی قوتابی وەربگیرێت. تکایە ڕێگەبدە بە Location.');
+                });
             }
+
+            void syncLocationRequirement();
 
         });
     </script>

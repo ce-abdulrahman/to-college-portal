@@ -169,6 +169,9 @@
                                                                 class="fas fa-layer-group mb-2 d-block fa-2x text-warning"></i>
                                                             مۆڵەتی ٥٠ بەش
                                                         </label>
+                                                        <div class="small text-muted mt-2">
+                                                            دەتوانی زانیاری لەسەر هەموو بەشەکانی تری پارێزگاکان سەیر بکەیت.
+                                                        </div>
                                                     </div>
                                                     @if ($student->all_departments == 1)
                                                         <span class="badge bg-success mt-2">چالاکە</span>

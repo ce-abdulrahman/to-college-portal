@@ -1,111 +1,116 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
-    {{-- Actions bar --}}
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
-                        <li class="breadcrumb-item active">لیستی سەنتەرەکان</li>
-                    </ol>
+    <div class="container-fluid py-4">
+        {{-- Actions bar --}}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">داشبۆرد</a></li>
+                            <li class="breadcrumb-item active">لیستی سەنتەرەکان</li>
+                        </ol>
+                    </div>
+                    <h4 class="page-title">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        لیستی سەنتەرەکان
+                    </h4>
                 </div>
-                <h4 class="page-title">
-                    <i class="fas fa-chart-bar me-1"></i>
-                    لیستی سەنتەرەکان
-                </h4>
             </div>
         </div>
-    </div>
 
-    <div class="card glass fade-in">
-        <div class="card-body">
+        <div class="card glass fade-in">
+            <div class="card-body">
 
 
-            {{-- Top toolbar (length + search) --}}
-            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
-                <div class="d-flex align-items-center gap-2">
-                    <label class="small text-muted mb-0">{{ __('نیشاندانی') }}</label>
-                    <select id="page-length" class="form-select form-select-sm" style="width:auto">
-                        <option value="10" selected>10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </div>
+                {{-- Top toolbar (length + search) --}}
+                <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="small text-muted mb-0">{{ __('نیشاندانی') }}</label>
+                        <select id="page-length" class="form-select form-select-sm" style="width:auto">
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
 
-                <div class="ms-auto" style="min-width:260px">
-                    <input id="custom-search" type="search" class="form-control" placeholder="{{ __('گەڕان... (ناو)') }}">
-                </div>
-            </div>
-
-            <div class="table-wrap">
-                <div class="table-responsive table-scroll-x">
-                    <table id="datatable" class="table align-middle nowrap" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th style="width:60px">#</th>
-                                <th>ناو</th>
-                                <th>کۆد</th>
-                                <th>ژمارە</th>
-                                <th>پیشە</th>
-                                <th>کۆدی بانگکردن</th>
-                                <th>دۆخ</th>
-                                <th>بینین</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($users as $index => $user)
-                                <tr>
-                                    <td>{{ ++$index }}</td>
-                                    <td class="fw-semibold">
-                                        <i class="fa-regular fa-user me-1 text-muted"></i>
-                                        {{ $user->name }}
-                                    </td>
-                                    <td>{{ $user->code }}</td>
-                                    <td>
-                                        {{ $user->phone }}
-                                    </td>
-                                    <td>
-                                        @if ($user->role === 'center')
-                                            <span class="badge bg-info">سەنتەر</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        {{ $user->rand_code }}
-                                    </td>
-                                    <td>
-                                        @if ($user->status)
-                                            <span class="badge bg-success">چاڵاک</span>
-                                        @else
-                                            <span class="badge bg-danger">ناچاڵاک</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('admin.center.show', $user->id) }}"
-                                            class="text-decoration-none btn-outline-light">
-                                            <i class="fa fa-eye me-1"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            @if (count($users) == 0)
-                                <tr>
-                                    <td colspan="6" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-
-                    {{-- Bottom info + pager --}}
-                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-2">
-                        <div id="dt-info" class="small text-muted"></div>
-                        <div id="dt-pager"></div>
+                    <div class="ms-auto" style="min-width:260px">
+                        <input id="custom-search" type="search" class="form-control"
+                            placeholder="{{ __('گەڕان... (ناو)') }}">
                     </div>
                 </div>
-            </div>
 
+                <div class="table-wrap">
+                    <div class="table-responsive table-scroll-x">
+                        <table id="datatable" class="table align-middle nowrap" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th style="width:60px">#</th>
+                                    <th>ناو</th>
+                                    <th>کۆد</th>
+                                    <th>ژمارە</th>
+                                    <th>پارێزگا</th>
+                                    <th>پیشە</th>
+                                    <th>کۆدی بانگکردن</th>
+                                    <th>دۆخ</th>
+                                    <th>بینین</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($users as $index => $user)
+                                    <tr>
+                                        <td>{{ ++$index }}</td>
+                                        <td class="fw-semibold">
+                                            <i class="fa-regular fa-user me-1 text-muted"></i>
+                                            {{ $user->name }}
+                                        </td>
+                                        <td>{{ $user->code }}</td>
+                                        <td>
+                                            {{ $user->phone }}
+                                        </td>
+                                        <td>{{ optional($user->center)->province ?? '—' }}</td>
+                                        <td>
+                                            @if ($user->role === 'center')
+                                                <span class="badge bg-info">سەنتەر</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{ $user->rand_code }}
+                                        </td>
+                                        <td>
+                                            @if ($user->status)
+                                                <span class="badge bg-success">چاڵاک</span>
+                                            @else
+                                                <span class="badge bg-danger">ناچاڵاک</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('admin.center.show', $user->id) }}"
+                                                class="text-decoration-none btn-outline-light">
+                                                <i class="fa fa-eye me-1"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                @if (count($users) == 0)
+                                    <tr>
+                                        <td colspan="6" class="text-center">هیچ زانیاریەکی پەیوەندیدار نییە</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+
+                        {{-- Bottom info + pager --}}
+                        <div class="d-flex flex-wrap justify-content-between align-items-center mt-2">
+                            <div id="dt-info" class="small text-muted"></div>
+                            <div id="dt-pager"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 @endsection

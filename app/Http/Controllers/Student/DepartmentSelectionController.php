@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Department;
+use App\Models\Province;
 use App\Models\RequestMoreDepartments;
 use App\Models\ResultDep;
 use App\Models\System;
+use App\Support\DepartmentAccessScope;
+use App\Support\DepartmentSexScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,15 +36,33 @@ class DepartmentSelectionController extends Controller
                 ->with('error', 'زانیاریەکانی قوتابی تۆمار نەکراوە.');
         }
 
-        $maxSelections = $student->all_departments === 1 ? 50 : 20;
-        $systems = Cache::remember('departments.systems', now()->addMinutes(10), function () {
-            return System::where('status', 1)->get();
-        });
-        $provinces = Cache::remember('departments.provinces.system:all', now()->addMinutes(10), function () {
-            return \App\Models\Province::where('status', 1)->get();
-        });
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $maxSelections = (int) ($scope['max_selections'] ?? 10);
+        $allowedSystemIds = $this->allowedSystemIdsForStudent($student);
+        $systems = Cache::remember(
+            'departments.systems.student-year:' . ((int) ($student->year ?? 1) > 1 ? 'gt1' : 'y1'),
+            now()->addMinutes(10),
+            function () use ($allowedSystemIds) {
+                return System::where('status', 1)
+                    ->whereIn('id', $allowedSystemIds)
+                    ->orderBy('id')
+                    ->get();
+            }
+        );
+        if (!empty($scope['is_restricted'])) {
+            $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+            $provinces = Province::query()
+                ->where('status', 1)
+                ->when(!empty($allowedProvinceIds), fn($q) => $q->whereIn('id', $allowedProvinceIds))
+                ->get();
+        } else {
+            $provinces = Cache::remember('departments.provinces.system:all', now()->addMinutes(10), function () {
+                return Province::where('status', 1)->get();
+            });
+        }
 
         $selectedDepartments = ResultDep::where('student_id', $student->id)
+            ->whereHas('department', fn($q) => $q->visibleForSelection()->whereIn('system_id', $allowedSystemIds))
             ->with(['department.university', 'department.system', 'department.province', 'department.college'])
             ->orderBy('rank', 'asc')
             ->get();
@@ -51,7 +72,8 @@ class DepartmentSelectionController extends Controller
             'maxSelections',
             'systems',
             'provinces',
-            'selectedDepartments'
+            'selectedDepartments',
+            'scope'
         ));
     }
 
@@ -74,14 +96,19 @@ class DepartmentSelectionController extends Controller
             ], 400);
         }
 
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $allowedSystemIds = $this->allowedSystemIdsForStudent($student);
+
         // سنووری هەڵبژاردن
-        $maxSelections = $student->all_departments == 1 ? 50 : 20;
+        $maxSelections = (int) ($scope['max_selections'] ?? 10);
         $currentCount = ResultDep::where('student_id', $student->id)->count();
 
         if ($currentCount >= $maxSelections) {
             return response()->json([
                 'success' => false,
-                'message' => 'تۆ گەیشتویتە بە سنووری هەڵبژاردنەکان (' . $maxSelections . ' بەش).'
+                'message' => 'تۆ گەیشتویتە بە سنووری هەڵبژاردنەکان (' . $maxSelections . ' بەش). دەتوانیت داواکاری زیادکردنی بەش بنێریت.',
+                'can_request_more' => true,
+                'request_url' => route('student.departments.request-more'),
             ], 400);
         }
 
@@ -98,7 +125,34 @@ class DepartmentSelectionController extends Controller
         }
 
         // دڵنیایی لە گونجاوبوونی بەش
-        $department = Department::with('university')->findOrFail($request->department_id);
+        $department = Department::query()
+            ->visibleForSelection()
+            ->with('university')
+            ->find($request->department_id);
+
+        if (!$department) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ئەم بەشە بەردەست نییە.'
+            ], 400);
+        }
+
+        if (!in_array((int) $department->system_id, $allowedSystemIds, true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ئەم سیستەمەی خوێندن گونجاو نییە بۆ ساڵی تۆ.'
+            ], 400);
+        }
+
+        if (!empty($scope['is_restricted'])) {
+            $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+            if (empty($allowedProvinceIds) || !in_array((int) $department->province_id, $allowedProvinceIds, true)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ئەم بەشە لە ناو پارێزگای ڕێگەپێدراو نییە.'
+                ], 400);
+            }
+        }
 
         // پشکنینی تیپ
         if (!in_array($department->type, [$student->type, 'زانستی و وێژەیی'])) {
@@ -109,18 +163,23 @@ class DepartmentSelectionController extends Controller
         }
 
         // پشکنینی جێندەر
-        if (!in_array($department->sex, [$student->gender, 'هەردووکیان'])) {
+        if (!DepartmentSexScope::isAllowedForStudent($department->sex, $student->gender)) {
             return response()->json([
                 'success' => false,
                 'message' => 'ئەم بەشە گونجاو نییە بۆ جێندەرەکەت.'
             ], 400);
         }
 
+        $studentProvinceId = (int) ($student->province_id ?? 0);
+        $requiredScore = (int) $department->province_id === $studentProvinceId
+            ? (float) $department->local_score
+            : (float) $department->external_score;
+
         // پشکنینی نمرە
-        if ($department->local_score > $student->mark) {
+        if ($requiredScore > (float) $student->mark) {
             return response()->json([
                 'success' => false,
-                'message' => 'نمرەکەت پێویست نییە بۆ ئەم بەشە. پێویستە ' . $department->local_score . ' نمرە.'
+                'message' => 'نمرەکەت پێویست نییە بۆ ئەم بەشە. پێویستە ' . $requiredScore . ' نمرە.'
             ], 400);
         }
 
@@ -187,7 +246,8 @@ class DepartmentSelectionController extends Controller
         $resultDep->delete();
 
         // ئەندازەی ماوە
-        $maxSelections = $student->all_departments == 1 ? 50 : 20;
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $maxSelections = (int) ($scope['max_selections'] ?? 10);
         $currentCount = ResultDep::where('student_id', $student->id)->count();
 
         return response()->json([
@@ -232,7 +292,7 @@ class DepartmentSelectionController extends Controller
             'success' => true,
             'data' => $selectedDepartments,
             'count' => $selectedDepartments->count(),
-            'max' => $student->all_departments == 1 ? 50 : 20
+            'max' => (int) ((app(DepartmentAccessScope::class)->forStudent($student))['max_selections'] ?? 10)
         ]);
     }
 
@@ -359,32 +419,93 @@ class DepartmentSelectionController extends Controller
     public function availableApi(Request $request)
     {
         $student = Auth::user()->student;
+        if (!$student) {
+            return response()->json([
+                'draw' => (int) $request->draw,
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+            ]);
+        }
 
-        $query = Department::where('status', 1)
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+        $studentProvinceId = (int) ($student->province_id ?? 0);
+        $allowedSystemIds = $this->allowedSystemIdsForStudent($student);
+
+        $query = Department::query()
+            ->visibleForSelection()
+            ->whereIn('system_id', $allowedSystemIds)
             ->where(function($q) use ($student) {
                 $q->where('type', $student->type)
                   ->orWhere('type', 'زانستی و وێژەیی');
-            })
-            ->where(function($q) use ($student) {
-                $q->where('sex', $student->gender)
-                  ->orWhere('sex', 'هەردووکیان');
-            })
-            ->where('local_score', '<=', $student->mark);
+            });
+        DepartmentSexScope::applyForStudent($query, $student->gender);
+
+        if (!empty($scope['is_restricted'])) {
+            if (empty($allowedProvinceIds)) {
+                return response()->json([
+                    'draw' => (int) $request->draw,
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => [],
+                ]);
+            }
+
+            $query->whereIn('province_id', $allowedProvinceIds)
+                ->where('local_score', '<=', (float) $student->mark);
+        } elseif ($studentProvinceId > 0) {
+            $query->where(function ($q) use ($studentProvinceId, $student) {
+                $q->where(function ($x) use ($studentProvinceId, $student) {
+                    $x->where('province_id', $studentProvinceId)
+                        ->where('local_score', '<=', (float) $student->mark);
+                })->orWhere(function ($x) use ($studentProvinceId, $student) {
+                    $x->where('province_id', '!=', $studentProvinceId)
+                        ->where('external_score', '<=', (float) $student->mark);
+                });
+            });
+        } else {
+            $query->where('external_score', '<=', (float) $student->mark);
+        }
 
         // فلتەرەکان
-        if ($request->system_id) {
-            $query->where('system_id', $request->system_id);
+        if ($request->filled('system_id')) {
+            $requestedSystemId = (int) $request->system_id;
+            if (!in_array($requestedSystemId, $allowedSystemIds, true)) {
+                return response()->json([
+                    'draw' => (int) $request->draw,
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => [],
+                ]);
+            }
+            $query->where('system_id', $requestedSystemId);
         }
-        if ($request->province_id) {
-            $query->where('province_id', $request->province_id);
+
+        if ($request->filled('province_id')) {
+            $requestedProvinceId = (int) $request->province_id;
+
+            if (!empty($scope['is_restricted']) && !in_array($requestedProvinceId, $allowedProvinceIds, true)) {
+                return response()->json([
+                    'draw' => (int) $request->draw,
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => [],
+                ]);
+            }
+
+            $query->where('province_id', $requestedProvinceId);
         }
-        if ($request->university_id) {
-            $query->where('university_id', $request->university_id);
+
+        if ($request->filled('university_id')) {
+            $query->where('university_id', (int) $request->university_id);
         }
-        if ($request->college_id) {
-            $query->where('college_id', $request->college_id);
+
+        if ($request->filled('college_id')) {
+            $query->where('college_id', (int) $request->college_id);
         }
-        if ($request->search_val) {
+
+        if ($request->filled('search_val')) {
             $search = trim((string) $request->search_val);
             $driver = DB::getDriverName();
             $boolean = collect(preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY))
@@ -416,8 +537,8 @@ class DepartmentSelectionController extends Controller
 
         $departments = $query->with(['university', 'system', 'province', 'college'])
             ->orderBy('local_score', 'desc')
-            ->skip($request->start ?? 0)
-            ->take($request->length ?? 10)
+            ->skip((int) ($request->start ?? 0))
+            ->take((int) ($request->length ?? 10))
             ->get();
 
         $selectedIds = ResultDep::where('student_id', $student->id)->pluck('department_id')->toArray();
@@ -427,12 +548,12 @@ class DepartmentSelectionController extends Controller
             return [
                 'id' => $dept->id,
                 'name' => $dept->name,
-                'province' => $dept->province->name,
-                'university' => $dept->university->name,
-                'college' => $dept->college->name,
+                'province' => $dept->province->name ?? '-',
+                'university' => $dept->university->name ?? '-',
+                'college' => $dept->college->name ?? '-',
                 'local_score' => $dept->local_score,
-                'system_name' => $dept->system->name,
-                'system_id' => $dept->system->id,
+                'system_name' => $dept->system->name ?? '-',
+                'system_id' => $dept->system->id ?? null,
                 'is_selected' => $isSelected
             ];
         });
@@ -457,6 +578,72 @@ class DepartmentSelectionController extends Controller
 
         $user = Auth::user();
         $student = $user->student;
+        if (!$student) {
+            return response()->json(['success' => false, 'message' => 'زانیاریەکانی قوتابی تۆمار نەکراوە.'], 400);
+        }
+
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $maxSelections = (int) ($scope['max_selections'] ?? 10);
+        $allowedSystemIds = $this->allowedSystemIdsForStudent($student);
+        $submittedIds = collect($request->department_ids)
+            ->map(fn($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($submittedIds->count() > $maxSelections) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ناتوانیت زیاتر لە ' . $maxSelections . ' بەش ڕێزبەندی بکەیت. دەتوانیت داواکاری زیادکردنی بەش بنێریت.',
+                'can_request_more' => true,
+                'request_url' => route('student.departments.request-more'),
+            ], 422);
+        }
+
+        $studentProvinceId = (int) ($student->province_id ?? 0);
+        $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+
+        $eligibleQuery = Department::query()
+            ->visibleForSelection()
+            ->whereIn('id', $submittedIds)
+            ->whereIn('system_id', $allowedSystemIds)
+            ->where(function($q) use ($student) {
+                $q->where('type', $student->type)
+                    ->orWhere('type', 'زانستی و وێژەیی');
+            });
+        DepartmentSexScope::applyForStudent($eligibleQuery, $student->gender);
+
+        if (!empty($scope['is_restricted'])) {
+            if (empty($allowedProvinceIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'پارێزگای ڕێگەپێدراو دیاری نەکراوە بۆ ئەم هەژمارە.'
+                ], 422);
+            }
+
+            $eligibleQuery->whereIn('province_id', $allowedProvinceIds)
+                ->where('local_score', '<=', (float) $student->mark);
+        } elseif ($studentProvinceId > 0) {
+            $eligibleQuery->where(function ($q) use ($studentProvinceId, $student) {
+                $q->where(function ($x) use ($studentProvinceId, $student) {
+                    $x->where('province_id', $studentProvinceId)
+                        ->where('local_score', '<=', (float) $student->mark);
+                })->orWhere(function ($x) use ($studentProvinceId, $student) {
+                    $x->where('province_id', '!=', $studentProvinceId)
+                        ->where('external_score', '<=', (float) $student->mark);
+                });
+            });
+        } else {
+            $eligibleQuery->where('external_score', '<=', (float) $student->mark);
+        }
+
+        $eligibleCount = (clone $eligibleQuery)->count();
+        if ($eligibleCount !== $submittedIds->count()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'بەشێک لە لیستەکە گونجاو نییە بۆ یاساکانی هەڵبژاردن.'
+            ], 422);
+        }
 
         DB::beginTransaction();
         try {
@@ -467,7 +654,7 @@ class DepartmentSelectionController extends Controller
             // سڕینەوەی کۆنەکان
             ResultDep::where('student_id', $student->id)->delete();
 
-            foreach ($request->department_ids as $index => $departmentId) {
+            foreach ($submittedIds as $index => $departmentId) {
                 ResultDep::create([
                     'user_id' => $user->id,
                     'student_id' => $student->id,
@@ -547,12 +734,26 @@ class DepartmentSelectionController extends Controller
 
     public function getUniversities($province_id)
     {
+        $student = Auth::user()->student;
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $requestedProvinceId = (int) $province_id;
+        $allowedSystemIds = $this->allowedSystemIdsForStudent($student);
+
+        if (!empty($scope['is_restricted'])) {
+            $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+            if (empty($allowedProvinceIds) || !in_array($requestedProvinceId, $allowedProvinceIds, true)) {
+                return response()->json([]);
+            }
+        }
+
         $universities = Cache::remember(
-            'departments.universities.province:' . (int) $province_id,
+            'departments.universities.province:' . $requestedProvinceId . '.systems:' . implode(',', $allowedSystemIds),
             now()->addMinutes(10),
-            function () use ($province_id) {
-                return \App\Models\University::where('province_id', $province_id)
-                    ->where('status', 1)->get();
+            function () use ($requestedProvinceId, $allowedSystemIds) {
+                return \App\Models\University::where('province_id', $requestedProvinceId)
+                    ->where('status', 1)
+                    ->whereHas('departments', fn($q) => $q->visibleForSelection()->whereIn('system_id', $allowedSystemIds))
+                    ->get();
             }
         );
         return response()->json($universities);
@@ -560,14 +761,51 @@ class DepartmentSelectionController extends Controller
 
     public function getColleges($university_id)
     {
+        $student = Auth::user()->student;
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $requestedUniversityId = (int) $university_id;
+        $allowedSystemIds = $this->allowedSystemIdsForStudent($student);
+
+        if (!empty($scope['is_restricted'])) {
+            $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+            if (empty($allowedProvinceIds)) {
+                return response()->json([]);
+            }
+
+            $universityIsAllowed = \App\Models\University::query()
+                ->where('id', $requestedUniversityId)
+                ->whereIn('province_id', $allowedProvinceIds)
+                ->exists();
+
+            if (!$universityIsAllowed) {
+                return response()->json([]);
+            }
+        }
+
         $colleges = Cache::remember(
-            'departments.colleges.university:' . (int) $university_id,
+            'departments.colleges.university:' . $requestedUniversityId . '.systems:' . implode(',', $allowedSystemIds),
             now()->addMinutes(10),
-            function () use ($university_id) {
-                return \App\Models\College::where('university_id', $university_id)
-                    ->where('status', 1)->get();
+            function () use ($requestedUniversityId, $allowedSystemIds) {
+                return \App\Models\College::where('university_id', $requestedUniversityId)
+                    ->where('status', 1)
+                    ->whereHas('departments', fn($q) => $q->visibleForSelection()->whereIn('system_id', $allowedSystemIds))
+                    ->get();
             }
         );
         return response()->json($colleges);
+    }
+
+    private function allowedSystemIdsForStudent($student): array
+    {
+        if ((int) ($student->year ?? 1) === 1) {
+            return System::where('status', 1)->pluck('id')->map(fn($id) => (int) $id)->values()->all();
+        }
+
+        return System::where('status', 1)
+            ->whereIn('id', [2, 3])
+            ->pluck('id')
+            ->map(fn($id) => (int) $id)
+            ->values()
+            ->all();
     }
 }

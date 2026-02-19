@@ -26,7 +26,30 @@
             </div>
 
             <h1 class="title">تۆمارکردن سەرکەوتوو بوو</h1>
-            <p class="subtitle">هەژمارەکەت بە سەرکەوتوویی تۆمار کرا. تکایە چاوەڕێی پەسەندکردنی ئەدمین بکە.</p>
+            <p class="subtitle">هەژمارەکەت لە دۆخی چاوەڕوانییە (`status = 0`) تا ئەدمین چاڵاکی بکات.</p>
+
+            <div class="pending-box mt-3 mb-3">
+                <div class="pending-title">
+                    <i class="fas fa-hourglass-half me-1"></i>
+                    دۆخی هەژمار: چاوەڕوان
+                </div>
+
+                @if (!empty($referrer))
+                    <div class="referrer-box mt-3">
+                        <div class="referrer-label">ئەم هەژمارە لەژێر کۆدی کام کەس تۆمارکراوە؟</div>
+                        <div class="referrer-role mt-2">{{ $referrerRoleLabel ?? strtoupper($referrer->role) }}</div>
+                        <div class="referrer-name mt-2">{{ $referrer->name }}</div>
+                        <div class="referrer-phone mt-1">
+                            <i class="fas fa-phone-alt me-1"></i>
+                            {{ $referrer->phone ?: 'ژمارەی مۆبایل نییە' }}
+                        </div>
+                    </div>
+                @else
+                    <div class="alert alert-light border mt-3 mb-0">
+                        ئەم هەژمارە بە referral code تۆمار نەکراوە.
+                    </div>
+                @endif
+            </div>
 
             <div class="alert alert-info mt-3">
                 کاتێک هەژمارەکەت پەسەند کرێت دەتوانیت چوونەژوورەوە بکەیت.
@@ -68,14 +91,66 @@
             align-items: center;
             gap: 12px;
         }
+
         .social-box {
             background: #ffffff;
             border-radius: 12px;
             padding: 12px 18px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
+
         .social-links a {
             font-size: 18px;
+        }
+
+        .pending-box {
+            background: linear-gradient(135deg, #eef6ff 0%, #f7fbff 100%);
+            border: 1px solid #d8e8ff;
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .pending-title {
+            color: #0b4d9a;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .referrer-box {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e9edf3;
+            padding: 14px;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .referrer-label {
+            color: #5d6778;
+            font-size: 13px;
+        }
+
+        .referrer-role {
+            display: inline-block;
+            background: #ecf3ff;
+            color: #0d47a1;
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .referrer-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .referrer-phone {
+            color: #334155;
+            font-size: 15px;
+            font-weight: 600;
         }
     </style>
 

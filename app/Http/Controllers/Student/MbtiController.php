@@ -23,6 +23,11 @@ class MbtiController extends Controller
     {
         $user = Auth::user();
         $student = $user->student;
+
+        if (!$student) {
+            return redirect()->route('student.dashboard')
+                ->with('error', 'زانیاریەکانی قوتابی تۆمار نەکراوە.');
+        }
         
         // ئەگەر پێشتر تاقیکردنەوەی کردبێت
         if ($student->hasCompletedMbtiTest()) {

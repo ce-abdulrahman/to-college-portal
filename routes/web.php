@@ -1,15 +1,8 @@
 <?php
 
-use App\Http\Controllers\Center\CenterProfileController;
-use App\Http\Controllers\Center\DashboardCenterController;
-use App\Http\Controllers\Center\StudentInCenterController;
-use App\Http\Controllers\Center\TeacherInCenterController;
-use App\Http\Controllers\Teacher\TeacherByStudentController;
-use App\Http\Controllers\Teacher\TeacherDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\AIRankingController;
 use App\Http\Controllers\Student\FinalReportController;
-use App\Http\Controllers\Teacher\TeacherProfileController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Student\DashboardStudentController;
@@ -26,7 +19,7 @@ Route::get('/', function () {
 
 Route::get('/d', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -68,6 +61,8 @@ Route::prefix('s')->name('student.')
 
         Route::get('/departments/request-more', [DepartmentSelectionController::class, 'showRequestForm'])
             ->name('departments.request-more');
+        Route::get('/features/request', [DepartmentSelectionController::class, 'showRequestForm'])
+            ->name('features.request');
 
         Route::post('/departments/submit-request', [DepartmentSelectionController::class, 'submitRequest'])
             ->name('departments.submit-request');
@@ -150,47 +145,4 @@ Route::prefix('s')->name('student.')
             Route::get('/compare', [AIRankingController::class, 'compareRankings'])
                 ->name('ai-ranking.compare');
         });
-    });
-
-Route::prefix('center')->name('center.')->middleware(['auth','center'])
-    ->group(function () {
-        Route::get('/dashboard', [DashboardCenterController::class, 'index'])->name('dashboard');
-
-        Route::get('/departments', [DashboardCenterController::class, 'departments'])->name('departments.index');
-        Route::get('/department/{id}', [DashboardCenterController::class, 'show'])->name('departments.show');
-
-        Route::resource('teachers', TeacherInCenterController::class);
-        Route::resource('students', StudentInCenterController::class);
-        Route::get('/profile/edit/{id}', [CenterProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile/{id}', [CenterProfileController::class, 'update'])->name('profile.update');
-
-        // Feature Requests
-        Route::get('/features/request', [\App\Http\Controllers\Center\FeatureRequestController::class, 'showRequestForm'])->name('features.request');
-        Route::post('/features/submit-request', [\App\Http\Controllers\Center\FeatureRequestController::class, 'submitRequest'])->name('features.submit-request');
-        Route::delete('/features/cancel-request/{id}', [\App\Http\Controllers\Center\FeatureRequestController::class, 'cancelRequest'])->name('features.cancel-request');
-        Route::get('/features/request-history', [\App\Http\Controllers\Center\FeatureRequestController::class, 'requestHistory'])->name('features.request-history');
-    });
-
-
-Route::middleware(['auth', 'teacher'])
-    ->prefix('teacher')
-    ->as('teacher.')
-    ->group(function () {
-
-        Route::get('/dashboard', [TeacherDashboardController::class, 'index'])->name('dashboard');
-
-        Route::get('/departments', [TeacherDashboardController::class, 'departments'])->name('departments.index');
-        Route::get('/department/{id}', [TeacherDashboardController::class, 'show'])->name('departments.show');
-
-        Route::resource('/students', TeacherByStudentController::class);
-
-        Route::get('/profile/edit/{id}', [TeacherProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile/{id}', [TeacherProfileController::class, 'update'])->name('profile.update');
-
-        // Feature Requests
-        Route::get('/features/request', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'showRequestForm'])->name('features.request');
-        Route::post('/features/submit-request', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'submitRequest'])->name('features.submit-request');
-        Route::delete('/features/cancel-request/{id}', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'cancelRequest'])->name('features.cancel-request');
-        Route::get('/features/request-history', [\App\Http\Controllers\Teacher\FeatureRequestController::class, 'requestHistory'])->name('features.request-history');
-
     });

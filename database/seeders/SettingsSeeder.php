@@ -31,10 +31,16 @@ class SettingsSeeder extends Seeder
             '3' => 6000,
         ]);
 
+        Setting::setJson('limit_prices', [
+            'teacher' => 5000,
+            'student' => 1000,
+        ]);
+
+        Setting::setValue('queue_hand_department_price', '25000');
+
         $defaultSystem = System::where('status', 1)->first();
         if ($defaultSystem) {
             Setting::setValue('default_system_id', (string) $defaultSystem->id);
         }
     }
 }
-

@@ -25,6 +25,10 @@ class SettingController extends Controller
             '2' => 5000,
             '3' => 6000,
         ]);
+        $limitPrices = Setting::getJson('limit_prices', [
+            'teacher' => 5000,
+            'student' => 1000,
+        ]);
 
         $fontOptions = [
             'ku' => $this->getFontFiles('ku'),
@@ -38,6 +42,7 @@ class SettingController extends Controller
             'settings',
             'socialAccounts',
             'featurePrices',
+            'limitPrices',
             'fontOptions',
             'systems'
         ));
@@ -67,6 +72,9 @@ class SettingController extends Controller
             'price_1' => 'nullable|integer|min:0',
             'price_2' => 'nullable|integer|min:0',
             'price_3' => 'nullable|integer|min:0',
+            'limit_price_teacher' => 'nullable|integer|min:0',
+            'limit_price_student' => 'nullable|integer|min:0',
+            'queue_hand_department_price' => 'nullable|integer|min:0',
         ]);
 
         // Branding
@@ -135,6 +143,17 @@ class SettingController extends Controller
             '3' => (int) ($validated['price_3'] ?? 6000),
         ];
         Setting::setJson('feature_prices', $featurePrices);
+
+        $limitPrices = [
+            'teacher' => (int) ($validated['limit_price_teacher'] ?? 5000),
+            'student' => (int) ($validated['limit_price_student'] ?? 1000),
+        ];
+        Setting::setJson('limit_prices', $limitPrices);
+
+        Setting::setValue(
+            'queue_hand_department_price',
+            (string) ((int) ($validated['queue_hand_department_price'] ?? 0))
+        );
 
         return redirect()->back()->with('success', 'ڕێکخستنەکان بە سەرکەوتوویی پاشەکەوت کران.');
     }

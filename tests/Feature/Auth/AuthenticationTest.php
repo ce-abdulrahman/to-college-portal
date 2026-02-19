@@ -20,23 +20,29 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'role' => 'admin',
+            'status' => 1,
+        ]);
 
         $response = $this->post('/login', [
-            'email' => $user->email,
+            'code' => $user->code,
             'password' => 'password',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+        $response->assertRedirect(RouteServiceProvider::ADMIN_DASHBOARD);
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'role' => 'admin',
+            'status' => 1,
+        ]);
 
         $this->post('/login', [
-            'email' => $user->email,
+            'code' => $user->code,
             'password' => 'wrong-password',
         ]);
 

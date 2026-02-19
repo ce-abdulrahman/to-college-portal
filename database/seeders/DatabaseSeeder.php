@@ -18,11 +18,6 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
         $this->call([
             SystemSeeder::class,
             ProvinceSeeder::class,
@@ -40,6 +35,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'role' => 'admin',
             'rand_code' => 0,
+            'phone' => '07504342452',
+            'status' => 1,
         ]);
 
         $this->updateDepartmentWeights();

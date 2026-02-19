@@ -30,6 +30,7 @@
     {{-- App CSS --}}
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/nav.css') }}">
+    @stack('styles')
 
     @php
         $fontKu = $appSettings['font_ku'] ?? null;
@@ -82,7 +83,7 @@
     @include('layouts.toasts')
     @include('website.web.admin.layouts.header')
 
-    <main class="flex-grow-1 container mt-4">
+    <main class="flex-grow-1 @yield('main_container_class', 'container') mt-4">
         @yield('content')
     </main>
 

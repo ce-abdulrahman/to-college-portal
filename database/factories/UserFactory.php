@@ -25,20 +25,21 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'code' => fake()->unique()->numerify('######'),
+            'phone' => null,
             'password' => static::$password ??= Hash::make('password'),
+            'role' => 'student',
+            'status' => 1,
+            'rand_code' => (string) fake()->unique()->numerify('######'),
             'remember_token' => Str::random(10),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Additional state placeholder for compatibility with older tests.
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
+        return $this->state(fn (array $attributes) => []);
     }
 }

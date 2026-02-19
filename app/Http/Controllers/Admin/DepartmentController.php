@@ -118,6 +118,51 @@ class DepartmentController extends Controller
         return view('website.web.admin.department.index');
     }
 
+    public function compareDescriptions()
+    {
+        $departments = Department::query()
+            ->with([
+                'system:id,name',
+                'province:id,name',
+                'university:id,name',
+                'college:id,name',
+            ])
+            ->where('status', 1)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'system_id',
+                'province_id',
+                'university_id',
+                'college_id',
+                'name',
+                'description',
+            ]);
+
+        $departmentsForCompare = $departments
+            ->map(function ($department) {
+                return [
+                    'id' => $department->id,
+                    'name' => $department->name,
+                    'description' => (string) ($department->description ?? ''),
+                    'system' => $department->system->name ?? '-',
+                    'province' => $department->province->name ?? '-',
+                    'university' => $department->university->name ?? '-',
+                    'college' => $department->college->name ?? '-',
+                ];
+            })
+            ->values();
+
+        return view('website.web.admin.department.compare-descriptions', [
+            'departments' => $departments,
+            'departmentsForCompare' => $departmentsForCompare,
+            'dashboardRoute' => route('admin.dashboard'),
+            'departmentsIndexRoute' => route('admin.departments.index'),
+            'canCreateDepartment' => true,
+            'createDepartmentRoute' => route('admin.departments.create'),
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

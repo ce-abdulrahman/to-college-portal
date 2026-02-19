@@ -75,6 +75,7 @@
                                     <th>کۆد چوونەژوورەوە</th>
                                     <th>کۆد بانگێشت</th>
                                     <th>ژمارە</th>
+                                    <th>پارێزگا</th>
                                     <th>پیشە</th>
                                     <th style="width:120px">دۆخ</th>
                                     <th style="width:160px">کردار</th>
@@ -93,6 +94,7 @@
                                             <td>{{ $teacher->user->code }}</td>
                                             <td>{{ $teacher->user->rand_code }}</td>
                                             <td>{{ $teacher->user->phone }}</td>
+                                            <td>{{ $teacher->province ?? '—' }}</td>
                                             <td>
                                                 @if ($teacher->user->role === 'teacher')
                                                     <span class="badge bg-dark">مامۆستا</span>

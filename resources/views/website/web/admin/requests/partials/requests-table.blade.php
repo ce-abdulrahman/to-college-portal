@@ -47,6 +47,15 @@
                         @if ($request->request_gis)
                             <span class="badge bg-info" title="Request GIS Map">GIS</span>
                         @endif
+                        @if ($request->request_queue_hand_department)
+                            <span class="badge bg-primary" title="ڕیزبەندی بەشەکان">ڕیز</span>
+                        @endif
+                        @if ((int) $request->request_limit_teacher > 0)
+                            <span class="badge bg-dark" title="Limit Teacher">T+{{ (int) $request->request_limit_teacher }}</span>
+                        @endif
+                        @if ((int) $request->request_limit_student > 0)
+                            <span class="badge bg-secondary" title="Limit Student">S+{{ (int) $request->request_limit_student }}</span>
+                        @endif
                     </div>
                 </td>
                 <td>
@@ -90,7 +99,7 @@
             </tr>
         @empty
             <tr>
-                <td colspan="8" class="text-center py-4">
+                <td colspan="9" class="text-center py-4">
                     <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                     <h5 class="text-muted">هیچ داواکاریەک نییە</h5>
                     <p class="text-muted">هێشتا هیچ داواکاریەک نەنێردراوە.</p>

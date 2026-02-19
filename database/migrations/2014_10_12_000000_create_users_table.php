@@ -14,14 +14,15 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('code')->unique();   // instead of email
+            $table->string('code')->unique();
             $table->string('password');
             $table->string('phone')->nullable();
             $table->enum('role', ['admin', 'center', 'teacher', 'student'])->default('student');
-            $table->string('rand_code')->unique()->default(0)->comment('Relation to Student column to referral_code and Teacher column to referral_code');   // instead of email
-            $table->boolean('status')->default(1);
+            $table->string('rand_code')->unique()->comment('Relation to Student column to referral_code and Teacher column to rand_code');
+            $table->boolean('status')->default(0);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

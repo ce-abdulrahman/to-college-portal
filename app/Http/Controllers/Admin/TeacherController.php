@@ -4,15 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
-use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Teacher;
 
 class TeacherController extends Controller
 {
     public function index()
     {
-        $users = User::where('role', 'teacher')->get();
+        $users = User::with('teacher')->where('role', 'teacher')->get();
         return view('website.web.admin.user.teacher.index', compact('users'));
     }
 
@@ -20,10 +18,12 @@ class TeacherController extends Controller
     {
         $user = User::with('student')->findOrFail($id);
 
-        $students = Student::where('referral_code', $user->rand_code)->get();
+        $students = Student::with('user')->where('referral_code', $user->rand_code)->get();
 
-        //dd($students);
-        return view('website.web.admin.user.teacher.show', compact( 'user', 'students'));
+        return view('website.web.admin.user.teacher.show', compact(
+            'user',
+            'students'
+        ));
 
     }
 }

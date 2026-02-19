@@ -11,7 +11,9 @@
                                            request()->routeIs('admin.provinces.index') ||
                                            request()->routeIs('admin.universities.index') ||
                                            request()->routeIs('admin.colleges.index') ||
-                                           request()->routeIs('admin.departments.index');
+                                           request()->routeIs('admin.departments.index') ||
+                                           request()->routeIs('admin.departments.compare-descriptions') ||
+                                           request()->routeIs('admin.queue-hand-departments.index');
                 @endphp
 
                 <a href="#sidebarGeneralData" class="drawer-nav-item {{ $isGeneralDataActive ? '' : 'collapsed' }}"
@@ -49,8 +51,19 @@
                             <i class="bi bi-dot"></i>
                             <span>بەشەکانی</span>
                         </a>
+                        <a href="{{ route('admin.departments.compare-descriptions') }}"
+                            class="drawer-nav-item {{ navActive('admin.departments.compare-descriptions') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>بەراوردی وەسف</span>
+                        </a>
                     </div>
                 </div>
+
+                <a href="{{ route('admin.queue-hand-departments.index') }}"
+                    class="drawer-nav-item back-btn {{ navActive('admin.queue-hand-departments.index') }}">
+                    <i class="bi bi-patch-check-fill"></i>
+                    <span>ڕێزبەندی قوتابیان</span>
+                </a>
 
                 <a href="{{ route('admin.mbti.questions.index') }}"
                     class="drawer-nav-item back-btn {{ navActive('admin.mbti.questions.index') }}">
@@ -135,7 +148,9 @@
                     $isUsersActive = request()->routeIs('admin.centers.index') ||
                                            request()->routeIs('admin.teachers.index') ||
                                            request()->routeIs('admin.students.index') ||
-                                           request()->routeIs('admin.users.index');
+                                           request()->routeIs('admin.users.index') ||
+                                           request()->routeIs('admin.users.deleted') ||
+                                           request()->routeIs('admin.users.admin-referrals');
                 @endphp
 
                 <a href="#sidebarUsers" class="drawer-nav-item {{ $isUsersActive ? '' : 'collapsed' }}"
@@ -169,6 +184,16 @@
                             class="drawer-nav-item {{ navActive('admin.users.index') }}">
                             <i class="bi bi-dot"></i>
                             <span>بەکارهێنەر</span>
+                        </a>
+                        <a href="{{ route('admin.users.deleted') }}"
+                            class="drawer-nav-item {{ navActive('admin.users.deleted') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>سڕاوەکان</span>
+                        </a>
+                        <a href="{{ route('admin.users.admin-referrals') }}"
+                            class="drawer-nav-item {{ navActive('admin.users.admin-referrals') }}">
+                            <i class="bi bi-dot"></i>
+                            <span>سەر بە ئەدمین</span>
                         </a>
                     </div>
                 </div>

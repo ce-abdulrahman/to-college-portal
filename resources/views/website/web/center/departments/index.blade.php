@@ -21,7 +21,11 @@
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <div></div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('center.departments.compare-descriptions') }}" class="btn btn-outline-info">
+                    <i class="fa-solid fa-code-compare me-1"></i> بەراوردکردنی وەسف
+                </a>
+            </div>
             <div></div>
         </div>
 

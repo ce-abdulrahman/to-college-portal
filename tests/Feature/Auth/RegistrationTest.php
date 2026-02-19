@@ -2,7 +2,8 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Providers\RouteServiceProvider;
+use App\Models\Province;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,14 +20,43 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
+        User::factory()->create([
+            'role' => 'admin',
+            'status' => 1,
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+        Province::query()->create([
+            'name' => 'هەولێر',
+            'name_en' => 'Erbil',
+            'status' => 1,
+        ]);
+
+        $response = $this->post('/register', [
+            'name' => 'Test User',
+            'code' => '123456',
+            'phone' => '07500000000',
+            'password' => 'password',
+            'mark' => 90,
+            'province' => 'هەولێر',
+            'type' => 'زانستی',
+            'gender' => 'نێر',
+            'year' => 1,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertViewIs('auth.register-waiting');
+
+        $this->assertDatabaseHas('users', [
+            'code' => '123456',
+            'role' => 'student',
+            'status' => 0,
+        ]);
+
+        $user = User::query()->where('code', '123456')->firstOrFail();
+        $this->assertDatabaseHas('students', [
+            'user_id' => $user->id,
+            'province' => 'هەولێر',
+            'status' => 0,
+        ]);
     }
 }

@@ -7,6 +7,8 @@ use App\Models\Department;
 use App\Models\ResultDep;
 use App\Models\University;
 use App\Models\Province;
+use App\Support\DepartmentAccessScope;
+use App\Support\DepartmentSexScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -43,22 +45,51 @@ class GISController extends Controller
             }])
             ->get();
 
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+        $studentProvinceId = (int) ($student->province_id ?? 0);
+
         // پارێزگاکان
         $provinces = Province::whereHas('departments', function($query) use ($student) {
-            $query->where('status', 1)
+            $query->visibleForSelection()
                 ->where(function($q) use ($student) {
                     $q->where('type', $student->type)
                       ->orWhere('type', 'زانستی و وێژەیی');
-                })
+                });
+            DepartmentSexScope::applyForStudent($query, $student->gender);
+        })->when(!empty($scope['is_restricted']), function ($q) use ($allowedProvinceIds) {
+            if (empty($allowedProvinceIds)) {
+                $q->whereRaw('1 = 0');
+            } else {
+                $q->whereIn('id', $allowedProvinceIds);
+            }
+        })->get()->filter(function ($province) use ($scope, $student, $studentProvinceId) {
+            $deptQuery = Department::query()
+                ->visibleForSelection()
+                ->where('province_id', $province->id)
                 ->where(function($q) use ($student) {
-                    $q->where('sex', $student->gender)
-                      ->orWhere('sex', 'هەردووکیان');
-                })
-                ->where('local_score', '<=', $student->mark);
-        })->get();
+                    $q->where('type', $student->type)
+                        ->orWhere('type', 'زانستی و وێژەیی');
+                });
+            DepartmentSexScope::applyForStudent($deptQuery, $student->gender);
+
+            if (!empty($scope['is_restricted'])) {
+                $deptQuery->where('local_score', '<=', (float) $student->mark);
+            } elseif ($studentProvinceId > 0) {
+                if ((int) $province->id === $studentProvinceId) {
+                    $deptQuery->where('local_score', '<=', (float) $student->mark);
+                } else {
+                    $deptQuery->where('external_score', '<=', (float) $student->mark);
+                }
+            } else {
+                $deptQuery->where('external_score', '<=', (float) $student->mark);
+            }
+
+            return $deptQuery->exists();
+        })->values();
 
         // سنووری هەڵبژاردن
-        $maxSelections = $student->all_departments == 1 ? 50 : 20;
+        $maxSelections = (int) ($scope['max_selections'] ?? 10);
         $currentCount = $selectedDepartments->count();
 
         return view('website.web.student.gis.index', compact(
@@ -82,30 +113,48 @@ class GISController extends Controller
             return response()->json(['error' => 'مۆڵەت نییە'], 403);
         }
 
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+        $studentProvinceId = (int) ($student->province_id ?? 0);
+        $requestedProvinceId = (int) $provinceId;
+
+        if (!empty($scope['is_restricted'])) {
+            if (empty($allowedProvinceIds) || !in_array($requestedProvinceId, $allowedProvinceIds, true)) {
+                return response()->json(['error' => 'تەنها پارێزگای خۆت دەتوانیت ببینیت.'], 403);
+            }
+        }
+
         // بەشە هەڵبژێردراوەکان
         $selectedIds = ResultDep::where('student_id', $student->id)
             ->pluck('department_id')
             ->toArray();
 
+        $requiredScoreColumn = $studentProvinceId > 0 && $requestedProvinceId === $studentProvinceId
+            ? 'local_score'
+            : 'external_score';
+
         // بەشەکانی پارێزگا
-        $departments = Department::where('province_id', $provinceId)
-            ->where('status', 1)
+        $departmentsQuery = Department::query()
+            ->visibleForSelection()
+            ->where('province_id', $provinceId)
             ->where(function($query) use ($student) {
                 $query->where('type', $student->type)
                       ->orWhere('type', 'زانستی و وێژەیی');
-            })
-            ->where(function($query) use ($student) {
-                $query->where('sex', $student->gender)
-                      ->orWhere('sex', 'هەردووکیان');
-            })
-            ->where('local_score', '<=', $student->mark)
+            });
+        DepartmentSexScope::applyForStudent($departmentsQuery, $student->gender);
+
+        $departments = $departmentsQuery
+            ->where($requiredScoreColumn, '<=', (float) $student->mark)
             ->whereNotNull('lat')
             ->whereNotNull('lng')
             ->with(['university', 'college', 'system'])
             ->get()
-            ->map(function ($department) use ($selectedIds, $student) {
+            ->map(function ($department) use ($selectedIds, $student, $requiredScoreColumn) {
                 $isSelected = in_array($department->id, $selectedIds);
-                $isEligible = $student->mark >= $department->local_score;
+                $requiredScore = $requiredScoreColumn === 'local_score'
+                    ? (float) $department->local_score
+                    : (float) $department->external_score;
+                $isEligible = (float) $student->mark >= $requiredScore;
                 
                 return [
                     'id' => $department->id,
@@ -124,14 +173,15 @@ class GISController extends Controller
             });
 
         // زانکۆکان
-        $universities = University::whereHas('departments', function($query) use ($provinceId, $student) {
-            $query->where('province_id', $provinceId)
-                ->where('status', 1)
+        $universities = University::whereHas('departments', function($query) use ($provinceId, $student, $requiredScoreColumn) {
+            $query->visibleForSelection()
+                ->where('province_id', $provinceId)
                 ->where(function($q) use ($student) {
                     $q->where('type', $student->type)
                       ->orWhere('type', 'زانستی و وێژەیی');
                 })
-                ->where('local_score', '<=', $student->mark);
+                ->where($requiredScoreColumn, '<=', (float) $student->mark);
+            DepartmentSexScope::applyForStudent($query, $student->gender);
         })
         ->whereNotNull('lat')
         ->whereNotNull('lng')
@@ -152,6 +202,7 @@ class GISController extends Controller
         $request->validate([
             'query' => 'required|string|min:2',
         ]);
+        $searchTerm = trim((string) $request->input('query', ''));
 
         $user = Auth::user();
         $student = $user->student;
@@ -160,19 +211,48 @@ class GISController extends Controller
             return response()->json(['error' => 'مۆڵەت نییە'], 403);
         }
 
-        $departments = Department::where('status', 1)
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+        $studentProvinceId = (int) ($student->province_id ?? 0);
+
+        $departmentsQuery = Department::query()
+            ->visibleForSelection()
             ->where(function($query) use ($student) {
                 $query->where('type', $student->type)
                       ->orWhere('type', 'زانستی و وێژەیی');
+            });
+        DepartmentSexScope::applyForStudent($departmentsQuery, $student->gender);
+
+        $departments = $departmentsQuery
+            ->when(!empty($scope['is_restricted']), function ($query) use ($allowedProvinceIds, $student) {
+                if (empty($allowedProvinceIds)) {
+                    $query->whereRaw('1 = 0');
+                } else {
+                    $query->whereIn('province_id', $allowedProvinceIds)
+                        ->where('local_score', '<=', (float) $student->mark);
+                }
+            }, function ($query) use ($student, $studentProvinceId) {
+                if ($studentProvinceId > 0) {
+                    $query->where(function ($q) use ($student, $studentProvinceId) {
+                        $q->where(function ($x) use ($student, $studentProvinceId) {
+                            $x->where('province_id', $studentProvinceId)
+                                ->where('local_score', '<=', (float) $student->mark);
+                        })->orWhere(function ($x) use ($student, $studentProvinceId) {
+                            $x->where('province_id', '!=', $studentProvinceId)
+                                ->where('external_score', '<=', (float) $student->mark);
+                        });
+                    });
+                } else {
+                    $query->where('external_score', '<=', (float) $student->mark);
+                }
             })
-            ->where('local_score', '<=', $student->mark)
-            ->where(function($q) use ($request) {
-                $q->where('name', 'like', "%{$request->query}%")
-                    ->orWhereHas('university', function($query) use ($request) {
-                        $query->where('name', 'like', "%{$request->query}%");
+            ->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('university', function($query) use ($searchTerm) {
+                        $query->where('name', 'like', "%{$searchTerm}%");
                     })
-                    ->orWhereHas('province', function($query) use ($request) {
-                        $query->where('name', 'like', "%{$request->query}%");
+                    ->orWhereHas('province', function($query) use ($searchTerm) {
+                        $query->where('name', 'like', "%{$searchTerm}%");
                     });
             })
             ->whereNotNull('lat')
@@ -206,14 +286,19 @@ class GISController extends Controller
             ], 403);
         }
 
+        $scope = app(DepartmentAccessScope::class)->forStudent($student);
+        $allowedProvinceIds = $scope['allowed_province_ids'] ?? [];
+
         // سنووری هەڵبژاردن
-        $maxSelections = $student->all_departments == 1 ? 50 : 20;
+        $maxSelections = (int) ($scope['max_selections'] ?? 10);
         $currentCount = ResultDep::where('student_id', $student->id)->count();
 
         if ($currentCount >= $maxSelections) {
             return response()->json([
                 'success' => false,
-                'message' => 'تۆ گەیشتویتە بە سنووری هەڵبژاردنەکان (' . $maxSelections . ' بەش).'
+                'message' => 'تۆ گەیشتویتە بە سنووری هەڵبژاردنەکان (' . $maxSelections . ' بەش). دەتوانیت داواکاری زیادکردنی بەش بنێریت.',
+                'can_request_more' => true,
+                'request_url' => route('student.departments.request-more'),
             ], 400);
         }
 
@@ -230,7 +315,26 @@ class GISController extends Controller
         }
 
         // دڵنیایی لە گونجاوبوونی بەش
-        $department = Department::with(['university', 'system'])->findOrFail($request->department_id);
+        $department = Department::query()
+            ->visibleForSelection()
+            ->with(['university', 'system'])
+            ->find($request->department_id);
+
+        if (!$department) {
+            return response()->json([
+                'success' => false,
+                'message' => 'ئەم بەشە بەردەست نییە.'
+            ], 400);
+        }
+
+        if (!empty($scope['is_restricted'])) {
+            if (empty($allowedProvinceIds) || !in_array((int) $department->province_id, $allowedProvinceIds, true)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ئەم بەشە لە ناو پارێزگای ڕێگەپێدراو نییە.'
+                ], 400);
+            }
+        }
         
         if (!in_array($department->type, [$student->type, 'زانستی و وێژەیی'])) {
             return response()->json([
@@ -239,14 +343,19 @@ class GISController extends Controller
             ], 400);
         }
 
-        if (!in_array($department->sex, [$student->gender, 'هەردووکیان'])) {
+        if (!DepartmentSexScope::isAllowedForStudent($department->sex, $student->gender)) {
             return response()->json([
                 'success' => false,
                 'message' => 'ئەم بەشە گونجاو نییە بۆ جێندەرەکەت.'
             ], 400);
         }
 
-        if ($department->local_score > $student->mark) {
+        $studentProvinceId = (int) ($student->province_id ?? 0);
+        $requiredScore = (int) $department->province_id === $studentProvinceId
+            ? (float) $department->local_score
+            : (float) $department->external_score;
+
+        if ($requiredScore > (float) $student->mark) {
             return response()->json([
                 'success' => false,
                 'message' => 'نمرەکەت پێویست نییە بۆ ئەم بەشە.'
@@ -307,7 +416,7 @@ class GISController extends Controller
         $resultDep->delete();
 
         $currentCount = ResultDep::where('student_id', $student->id)->count();
-        $maxSelections = $student->all_departments == 1 ? 50 : 20;
+        $maxSelections = (int) ((app(DepartmentAccessScope::class)->forStudent($student))['max_selections'] ?? 10);
 
         return response()->json([
             'success' => true,

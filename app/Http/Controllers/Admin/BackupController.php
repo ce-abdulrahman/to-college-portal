@@ -16,7 +16,7 @@ class BackupController extends Controller
 {
     public function index()
     {
-        $backups = Backup::orderBy('created_at', 'desc')->paginate(10);
+        $backups = Backup::orderByDesc('created_at')->paginate(15);
         return view('website.web.admin.backups.index', compact('backups'));
     }
 
@@ -47,8 +47,8 @@ class BackupController extends Controller
         $backup = Backup::create([
             'name' => $request->name . '_' . $timestamp,
             'file_path' => $fileName, // تەنها ناوی فایل!
-            'database_type' => 'mysql',
-            'source_db' => config('database.connections.mysql.database'),
+            'database_type' => DB::connection()->getDriverName(),
+            'source_db' => DB::connection()->getDatabaseName(),
             'target_db' => $request->target_db,
             'status' => 'pending',
             'notes' => $request->notes
@@ -64,44 +64,21 @@ class BackupController extends Controller
 private function createBackup(Backup $backup)
 {
     try {
-        // دیاریکردنی پارامەترەکان
-        $isSQLite = ($backup->target_db === 'sqlite');
-        $timestamp = now()->format('Y-m-d_H-i-s');
-        $fileName = "backup_{$timestamp}_" . ($isSQLite ? 'sqlite.sqlite' : 'mysql.sql');
-        $storagePath = storage_path("app/backups/{$fileName}");
-        
-        // دڵنیابوونەوە لە دایرەکتۆری
         $this->ensureBackupDirectory();
-        
-        // نوێکردنەوەی Backup
-        $backup->update([
-            'file_path' => $fileName,
-            'status' => 'processing'
-        ]);
-        
-        // دروستکردنی Backup
-            if ($isSQLite) {
-                $this->createSQLiteBackup($backup);
-            } else {
-                $this->createMySQLBackup($backup);
-            }
-        
-        // کۆپیکردن بۆ public
-        $publicPath = public_path("storage/backups/{$fileName}");
-        if (file_exists($storagePath)) {
-            copy($storagePath, $publicPath);
+
+        if ($backup->target_db === 'sqlite') {
+            $this->createSQLiteBackup($backup);
+        } else {
+            $this->createMySQLBackup($backup);
         }
-        
-        \Log::info("Backup تەواو بوو: {$fileName}");
-        
     } catch (\Exception $e) {
         \Log::error("Backup هەڵە: " . $e->getMessage());
-        
+
         $backup->update([
             'status' => 'failed',
-            'notes' => 'هەڵە: ' . $e->getMessage()
+            'notes' => 'هەڵە: ' . $e->getMessage(),
         ]);
-        
+
         throw $e;
     }
 }
@@ -413,54 +390,66 @@ private function createSQLiteBackup(Backup $backup)
 
 private function convertMySQLToSQLite(string $mysqlSQL): string
 {
-    // 1. لابردنی MySQL-specific clauses
+    $sqliteSQL = str_replace(["\r\n", "\r"], "\n", $mysqlSQL);
+    $sqliteSQL = str_replace('`', '"', $sqliteSQL);
+
+    // remove MySQL table options and clauses that SQLite does not support
+    $sqliteSQL = preg_replace('/\)\s*ENGINE=.*$/is', ')', $sqliteSQL);
+    $sqliteSQL = preg_replace('/\)\s*DEFAULT CHARSET=.*$/is', ')', $sqliteSQL);
+    $sqliteSQL = preg_replace('/\)\s*CHARSET=.*$/is', ')', $sqliteSQL);
+    $sqliteSQL = preg_replace('/\s+COLLATE\s*=\s*[\w\d_]+/i', '', $sqliteSQL);
+    $sqliteSQL = preg_replace('/\s+AUTO_INCREMENT=\d+/i', '', $sqliteSQL);
+
+    // remove secondary keys/constraints to avoid MySQL-specific syntax errors
+    $sqliteSQL = preg_replace('/,\s*(UNIQUE\s+)?KEY\s+"[^"]+"\s*\([^)]+\)/i', '', $sqliteSQL);
+    $sqliteSQL = preg_replace('/,\s*CONSTRAINT\s+"[^"]+"\s+FOREIGN KEY\s*\([^)]+\)\s+REFERENCES\s+"[^"]+"\s*\([^)]+\)(?:\s+ON DELETE [A-Z ]+)?(?:\s+ON UPDATE [A-Z ]+)?/i', '', $sqliteSQL);
+
     $patterns = [
-        // Engine و charset
-        '/\s*ENGINE\s*=\s*\w+/i' => '',
-        '/\s*DEFAULT\s+CHARSET\s*=\s*\w+/i' => '',
-        '/\s*COLLATE\s*=\s*\w+/i' => '',
-        
-        // Data types
-        '/INT\(\d+\)/i' => 'INTEGER',
-        '/TINYINT(\(\d+\))?/i' => 'INTEGER',
-        '/SMALLINT(\(\d+\))?/i' => 'INTEGER',
-        '/MEDIUMINT(\(\d+\))?/i' => 'INTEGER',
-        '/BIGINT(\(\d+\))?/i' => 'INTEGER',
-        '/VARCHAR\(\d+\)/i' => 'TEXT',
-        '/CHAR\(\d+\)/i' => 'TEXT',
-        '/TEXT(\(\d+\))?/i' => 'TEXT',
-        '/MEDIUMTEXT/i' => 'TEXT',
-        '/LONGTEXT/i' => 'TEXT',
-        '/DATETIME/i' => 'TEXT',
-        '/TIMESTAMP/i' => 'TEXT',
-        
-        // AUTO_INCREMENT → AUTOINCREMENT
-        '/AUTO_INCREMENT/i' => 'AUTOINCREMENT',
-        
-        // UNSIGNED
-        '/UNSIGNED/i' => '',
-        
-        // Comments
-        '/COMMENT\s+\'.*?\'/i' => '',
-        
-        // Backticks → Double quotes
-        '/`/i' => '"',
+        '/\bBIGINT\(\d+\)\b/i' => 'INTEGER',
+        '/\bINT\(\d+\)\b/i' => 'INTEGER',
+        '/\bMEDIUMINT\(\d+\)\b/i' => 'INTEGER',
+        '/\bSMALLINT\(\d+\)\b/i' => 'INTEGER',
+        '/\bTINYINT\(\d+\)\b/i' => 'INTEGER',
+        '/\bDECIMAL\([^)]+\)\b/i' => 'NUMERIC',
+        '/\bDOUBLE\([^)]+\)\b/i' => 'REAL',
+        '/\bFLOAT\([^)]+\)\b/i' => 'REAL',
+        '/\bVARCHAR\(\d+\)\b/i' => 'TEXT',
+        '/\bCHAR\(\d+\)\b/i' => 'TEXT',
+        '/\bLONGTEXT\b/i' => 'TEXT',
+        '/\bMEDIUMTEXT\b/i' => 'TEXT',
+        '/\bTEXT\b/i' => 'TEXT',
+        '/\bDATETIME\b/i' => 'TEXT',
+        '/\bTIMESTAMP\b/i' => 'TEXT',
+        '/\bUNSIGNED\b/i' => '',
+        '/\bCOMMENT\s+\'[^\']*\'/i' => '',
+        '/\s+ON UPDATE CURRENT_TIMESTAMP(?:\(\))?/i' => '',
+        '/\bAUTO_INCREMENT\b/i' => 'AUTOINCREMENT',
     ];
-    
+
     foreach ($patterns as $pattern => $replacement) {
-        $mysqlSQL = preg_replace($pattern, $replacement, $mysqlSQL);
+        $sqliteSQL = preg_replace($pattern, $replacement, $sqliteSQL);
     }
-    
-    // 2. پاککردنەوەی فەرازەکان
-    $mysqlSQL = preg_replace('/\s+/', ' ', $mysqlSQL);
-    $mysqlSQL = trim($mysqlSQL);
-    
-    // 3. لابردنی کۆمای زیاد لە پێویست لە کۆتاییدا
-    if (substr($mysqlSQL, -1) === ',') {
-        $mysqlSQL = substr($mysqlSQL, 0, -1);
+
+    // SQLite requires: INTEGER PRIMARY KEY AUTOINCREMENT (single column)
+    if (preg_match('/"([^"]+)"\s+INTEGER[^,]*AUTOINCREMENT/i', $sqliteSQL, $matches)) {
+        $columnName = $matches[1];
+        $escapedColumn = preg_quote($columnName, '/');
+
+        $sqliteSQL = preg_replace(
+            '/"' . $escapedColumn . '"\s+INTEGER[^,]*AUTOINCREMENT/i',
+            '"' . $columnName . '" INTEGER PRIMARY KEY AUTOINCREMENT',
+            $sqliteSQL,
+            1
+        );
+
+        $sqliteSQL = preg_replace('/,\s*PRIMARY KEY\s*\(\s*"' . $escapedColumn . '"\s*\)/i', '', $sqliteSQL, 1);
     }
-    
-    return $mysqlSQL;
+
+    // clean up final SQL formatting
+    $sqliteSQL = preg_replace('/,\s*\)/', ')', $sqliteSQL);
+    $sqliteSQL = preg_replace('/\s+/', ' ', trim($sqliteSQL));
+
+    return rtrim($sqliteSQL, ';') . ';';
 }
 private function createSQLiteDatabase(string $filePath)
 {
@@ -591,6 +580,69 @@ private function createSQLiteDatabase(string $filePath)
         ]);
     }
 
+    private function resolveBackupStoragePath(Backup $backup): string
+    {
+        $fileName = basename((string) $backup->file_path);
+        return storage_path("app/backups/{$fileName}");
+    }
+
+    private function resolveSQLiteDatabasePath(): string
+    {
+        $configuredPath = config('database.connections.sqlite.database');
+
+        if (!$configuredPath || $configuredPath === ':memory:') {
+            return database_path('database.sqlite');
+        }
+
+        // absolute unix path or absolute windows path
+        if (str_starts_with($configuredPath, DIRECTORY_SEPARATOR) || preg_match('/^[A-Za-z]:\\\\/', $configuredPath)) {
+            return $configuredPath;
+        }
+
+        return base_path($configuredPath);
+    }
+
+    private function splitSqlStatements(string $sql): array
+    {
+        // remove single-line comments generated by backup builder
+        $sql = preg_replace('/^\s*--.*$/m', '', $sql);
+
+        $statements = [];
+        $buffer = '';
+        $inSingleQuote = false;
+        $inDoubleQuote = false;
+        $length = strlen($sql);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $sql[$i];
+            $prev = $i > 0 ? $sql[$i - 1] : '';
+
+            if ($char === "'" && !$inDoubleQuote && $prev !== '\\') {
+                $inSingleQuote = !$inSingleQuote;
+            } elseif ($char === '"' && !$inSingleQuote && $prev !== '\\') {
+                $inDoubleQuote = !$inDoubleQuote;
+            }
+
+            if ($char === ';' && !$inSingleQuote && !$inDoubleQuote) {
+                $statement = trim($buffer);
+                if ($statement !== '') {
+                    $statements[] = $statement;
+                }
+                $buffer = '';
+                continue;
+            }
+
+            $buffer .= $char;
+        }
+
+        $statement = trim($buffer);
+        if ($statement !== '') {
+            $statements[] = $statement;
+        }
+
+        return $statements;
+    }
+
     
 
     public function restore($id)
@@ -630,7 +682,7 @@ private function createSQLiteDatabase(string $filePath)
 
     private function restoreSQLiteToMySQL(Backup $backup)
     {
-        $sqlitePath = storage_path("app/{$backup->file_path}");
+        $sqlitePath = $this->resolveBackupStoragePath($backup);
         
         if (!file_exists($sqlitePath)) {
             throw new Exception("فایلەکەی SQLite نەدۆزرایەوە");
@@ -644,25 +696,133 @@ private function createSQLiteDatabase(string $filePath)
         $tablesQuery = $sqliteDb->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
         $tables = $tablesQuery->fetchAll(PDO::FETCH_COLUMN);
         
-        foreach ($tables as $table) {
-            // دروستکردنی تابل لە MySQL
-            $createTable = $sqliteDb->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$table}'")->fetchColumn();
-            
-            // گۆڕینی SQLite بۆ MySQL
-            $createTable = $this->convertSQLiteToMySQL($createTable);
-            
-            // دروستکردنی تابل
-            DB::statement("DROP TABLE IF EXISTS `{$table}`");
-            DB::statement($createTable);
-            
-            // وەرگرتنی داتا
-            $rows = $sqliteDb->query("SELECT * FROM `{$table}`")->fetchAll(PDO::FETCH_ASSOC);
-            
-            if (count($rows) > 0) {
-                foreach ($rows as $row) {
-                    DB::table($table)->insert($row);
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            foreach ($tables as $table) {
+                // دروستکردنی تابل لە MySQL
+                $createTable = $sqliteDb->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$table}'")->fetchColumn();
+                if (!$createTable) {
+                    continue;
+                }
+
+                // گۆڕینی SQLite بۆ MySQL
+                $createTable = $this->convertSQLiteToMySQL($createTable);
+
+                // دروستکردنی تابل
+                DB::statement("DROP TABLE IF EXISTS `{$table}`");
+                DB::statement($createTable);
+
+                // وەرگرتنی داتا
+                $rows = $sqliteDb->query("SELECT * FROM `{$table}`")->fetchAll(PDO::FETCH_ASSOC);
+
+                if (count($rows) > 0) {
+                    foreach ($rows as $row) {
+                        DB::table($table)->insert($row);
+                    }
                 }
             }
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+    }
+
+    private function restoreMySQLToSQLite(Backup $backup)
+    {
+        $sqlPath = $this->resolveBackupStoragePath($backup);
+
+        if (!file_exists($sqlPath)) {
+            throw new Exception("فایلەکەی MySQL نەدۆزرایەوە");
+        }
+
+        $sqlitePath = $this->resolveSQLiteDatabasePath();
+        $sqliteDirectory = dirname($sqlitePath);
+
+        if (!is_dir($sqliteDirectory)) {
+            mkdir($sqliteDirectory, 0755, true);
+        }
+
+        DB::purge('sqlite');
+
+        if (file_exists($sqlitePath)) {
+            unlink($sqlitePath);
+        }
+
+        $sqliteDb = new PDO('sqlite:' . $sqlitePath);
+        $sqliteDb->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $sqlContent = file_get_contents($sqlPath);
+        if ($sqlContent === false) {
+            throw new Exception("ناتوانرێت فایلەکەی backup بخوێندرێتەوە");
+        }
+
+        $statements = $this->splitSqlStatements($sqlContent);
+
+        foreach ($statements as $statement) {
+            $statement = trim($statement);
+
+            if ($statement === '' || str_starts_with($statement, '--')) {
+                continue;
+            }
+
+            if (stripos($statement, 'CREATE TABLE') === 0) {
+                $statement = $this->convertMySQLToSQLite($statement);
+            } else {
+                $statement = str_replace('`', '"', $statement);
+            }
+
+            $sqliteDb->exec($statement);
+        }
+
+        $sqliteDb = null;
+        DB::reconnect('sqlite');
+    }
+
+    private function restoreSameType(Backup $backup, string $targetDatabase)
+    {
+        if ($targetDatabase === 'sqlite') {
+            $sqliteBackupPath = $this->resolveBackupStoragePath($backup);
+            if (!file_exists($sqliteBackupPath)) {
+                throw new Exception("فایلەکەی SQLite نەدۆزرایەوە");
+            }
+
+            $sqliteTargetPath = $this->resolveSQLiteDatabasePath();
+            $sqliteDirectory = dirname($sqliteTargetPath);
+
+            if (!is_dir($sqliteDirectory)) {
+                mkdir($sqliteDirectory, 0755, true);
+            }
+
+            DB::purge('sqlite');
+            if (!copy($sqliteBackupPath, $sqliteTargetPath)) {
+                throw new Exception("کۆپی کردنی backup بۆ SQLite سەرکەوتوو نەبوو");
+            }
+            DB::reconnect('sqlite');
+            return;
+        }
+
+        $sqlPath = $this->resolveBackupStoragePath($backup);
+        if (!file_exists($sqlPath)) {
+            throw new Exception("فایلەکەی MySQL نەدۆزرایەوە");
+        }
+
+        $sqlContent = file_get_contents($sqlPath);
+        if ($sqlContent === false) {
+            throw new Exception("ناتوانرێت فایلەکەی backup بخوێندرێتەوە");
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        try {
+            foreach ($this->splitSqlStatements($sqlContent) as $statement) {
+                if (str_starts_with(trim($statement), '--')) {
+                    continue;
+                }
+
+                DB::unprepared($statement);
+            }
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
         }
     }
 
@@ -679,17 +839,15 @@ private function createSQLiteDatabase(string $filePath)
             $sql = preg_replace($pattern, $replacement, $sql);
         }
         
-        return $sql . ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+        return rtrim($sql, ';') . ' ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
     }
 
     public function download($id)
     {
         $backup = Backup::findOrFail($id);
         
-        // دیاریکردنی ڕێگەی ڕاستەقینەی فایل
-        // file_path تەنها ناوی فایلە، پێویستە بگەڕێینەوە بۆ storage/app/backups/
-        $fileName = basename($backup->file_path);
-        $storagePath = storage_path("app/backups/{$fileName}");
+        $fileName = basename((string) $backup->file_path);
+        $storagePath = $this->resolveBackupStoragePath($backup);
         
         if (!file_exists($storagePath)) {
             abort(404, 'فایلەکە نەدۆزرایەوە');
@@ -698,18 +856,19 @@ private function createSQLiteDatabase(string $filePath)
         return response()->download($storagePath, $fileName);
     }
 
-    public function destroy($id)
+public function destroy($id)
 {
     $backup = Backup::findOrFail($id);
+    $fileName = basename((string) $backup->file_path);
     
     // سڕینەوەی فایل لە storage/app/backups/
-    $storagePath = storage_path("app/backups/{$backup->file_path}");
+    $storagePath = storage_path("app/backups/{$fileName}");
     if (file_exists($storagePath)) {
         unlink($storagePath);
     }
     
     // سڕینەوەی فایل لە public/storage/backups/ (ئەگەر بوونی هەبوو)
-    $publicPath = public_path("storage/backups/{$backup->file_path}");
+    $publicPath = public_path("storage/backups/{$fileName}");
     if (file_exists($publicPath)) {
         unlink($publicPath);
     }

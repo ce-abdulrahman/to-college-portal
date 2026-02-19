@@ -20,6 +20,11 @@ class RequestMoreDepartments extends Model
         'request_all_departments',
         'request_ai_rank',
         'request_gis',
+        'request_queue_hand_department',
+        'request_limit_teacher',
+        'request_limit_student',
+        'approved_limit_teacher',
+        'approved_limit_student',
         'reason',
         'receipt_image',
         'status',
@@ -32,6 +37,11 @@ class RequestMoreDepartments extends Model
         'request_all_departments' => 'boolean',
         'request_ai_rank' => 'boolean',
         'request_gis' => 'boolean',
+        'request_queue_hand_department' => 'boolean',
+        'request_limit_teacher' => 'integer',
+        'request_limit_student' => 'integer',
+        'approved_limit_teacher' => 'integer',
+        'approved_limit_student' => 'integer',
         'approved_at' => 'datetime',
     ];
 
@@ -91,6 +101,18 @@ class RequestMoreDepartments extends Model
         if ($this->request_gis) {
             $types[] = 'نەخشە (GIS)';
         }
+
+        if ($this->request_queue_hand_department) {
+            $types[] = 'ڕیزبەندی بەشەکان';
+        }
+
+        if ((int) $this->request_limit_teacher > 0) {
+            $types[] = 'زیادکردنی سنووری مامۆستا +' . (int) $this->request_limit_teacher;
+        }
+
+        if ((int) $this->request_limit_student > 0) {
+            $types[] = 'زیادکردنی سنووری قوتابی +' . (int) $this->request_limit_student;
+        }
         
         return $types;
     }
@@ -103,6 +125,11 @@ class RequestMoreDepartments extends Model
     // پشکنین ئەگەر هیچ جۆرێک دیاری نەکرابێت
     public function getHasRequestTypesAttribute()
     {
-        return $this->request_all_departments || $this->request_ai_rank || $this->request_gis;
+        return $this->request_all_departments
+            || $this->request_ai_rank
+            || $this->request_gis
+            || $this->request_queue_hand_department
+            || (int) $this->request_limit_teacher > 0
+            || (int) $this->request_limit_student > 0;
     }
 }

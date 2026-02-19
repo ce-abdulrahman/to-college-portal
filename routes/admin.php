@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\MbtiAdminController;
 use App\Http\Controllers\Admin\AIQuestionController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Shared\QueueHandDepartmentController;
 
 Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
     ->prefix('sadm')
@@ -34,7 +35,19 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
 
         Route::resource('colleges', CollegeController::class);
 
+        Route::get('/departments/compare-descriptions', [DepartmentController::class, 'compareDescriptions'])
+            ->name('departments.compare-descriptions');
         Route::resource('departments', DepartmentController::class);
+        Route::get('/queue-hand-departments', [QueueHandDepartmentController::class, 'index'])
+            ->name('queue-hand-departments.index');
+        Route::get('/queue-hand-departments/data', [QueueHandDepartmentController::class, 'data'])
+            ->name('queue-hand-departments.data');
+        Route::post('/queue-hand-departments/students', [QueueHandDepartmentController::class, 'storeStudent'])
+            ->name('queue-hand-departments.students.store');
+        Route::get('/queue-hand-departments/student-selection', [QueueHandDepartmentController::class, 'studentSelection'])
+            ->name('queue-hand-departments.student-selection');
+        Route::post('/queue-hand-departments/save-result-deps', [QueueHandDepartmentController::class, 'saveResultDeps'])
+            ->name('queue-hand-departments.save-result-deps');
         Route::get('/export', [DepartmentController::class, 'export'])->name('departments.export');
         Route::get('/download-template', [DepartmentController::class, 'downloadTemplate'])->name('departments.download-template');
         Route::post('/import', [DepartmentController::class, 'import'])->name('departments.import');
@@ -44,8 +57,17 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
         Route::get('/api/colleges', [DepartmentController::class, 'getColleges'])->name('api.colleges');
 
         // users routes will be here
+        Route::get('/users/admin-referrals', [UserProfileController::class, 'adminReferredUsers'])
+            ->name('users.admin-referrals');
+        Route::get('/users/deleted', [UserProfileController::class, 'deleted'])
+            ->name('users.deleted');
+        Route::post('/users/{id}/restore', [UserProfileController::class, 'restore'])
+            ->name('users.restore');
+        Route::delete('/users/{id}/force-destroy', [UserProfileController::class, 'forceDestroy'])
+            ->name('users.force-destroy');
         Route::resource('users', UserProfileController::class)->names('users');
         Route::post('/users/search-by-code', [UserProfileController::class, 'searchByCode'])->name('users.searchByCode');
+        Route::post('/users/{user}/activate', [UserProfileController::class, 'activate'])->name('users.activate');
 
         Route::get('/centers', [CenterController::class, 'index'])->name('centers.index');
         Route::get('/center/{id}/teachers', [CenterController::class, 'show'])->name('center.show');

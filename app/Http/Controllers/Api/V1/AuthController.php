@@ -11,7 +11,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $cred = $request->validate([
-            'code'     => ['required','string'], // یان 'email'
+            'code'     => ['required','string'],
             'password' => ['required','string'],
             'device'   => ['nullable','string']
         ]);

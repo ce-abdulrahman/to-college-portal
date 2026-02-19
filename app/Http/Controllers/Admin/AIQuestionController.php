@@ -17,7 +17,7 @@ class AIQuestionController extends Controller
     {
         $questions = AIQuestion::orderBy('category')
             ->orderBy('order')
-            ->paginate(15);
+            ->get();
 
         $categories = [
             'personality' => 'کەسایەتی',
@@ -152,7 +152,7 @@ class AIQuestionController extends Controller
             ->with(['aiAnswers' => function($query) {
                 $query->with('question');
             }])
-            ->paginate(20);
+            ->get();
 
         return view('website.web.admin.ai.answers.index', compact('students'));
     }

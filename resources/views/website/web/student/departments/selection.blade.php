@@ -3,6 +3,10 @@
 @section('title', 'هەڵبژاردنی بەشەکان')
 
 @section('content')
+    @php
+        $isProvinceRestricted = !empty($scope['is_restricted']);
+        $lockedProvinceId = $scope['primary_province_id'] ?? null;
+    @endphp
     <div class="container-fluid py-4">
         <!-- Page Title & Breadcrumb -->
         <div class="row mb-4">
@@ -56,7 +60,7 @@
                     <div class="col-6 col-md-3">
                         <div class="p-3 border-soft rounded-4 bg-light shadow-none">
                             <div class="fs-4 fw-bold {{ $student->all_departments ? 'text-danger' : 'text-info' }}">
-                                {{ $student->all_departments ? '٥٠ بەش' : '٢٠ بەش' }}
+                                {{ $student->all_departments ? '٥٠ بەش' : '١٠ بەش' }}
                             </div>
                             <small class="text-muted fw-bold"> جۆری هەڵبژاردن</small>
                         </div>
@@ -115,9 +119,14 @@
                             <div class="col-md-4">
                                 <label class="form-label small fw-bold text-muted"> پارێزگا</label>
                                 <select id="filter-province" class="form-select border-soft">
-                                    <option value=""> هەموو پارێزگاکان</option>
+                                    @if (!$isProvinceRestricted)
+                                        <option value=""> هەموو پارێزگاکان</option>
+                                    @endif
                                     @foreach ($provinces as $province)
-                                        <option value="{{ $province->id }}">{{ $province->name }}</option>
+                                        <option value="{{ $province->id }}"
+                                            @selected($isProvinceRestricted && (int) $lockedProvinceId === (int) $province->id)>
+                                            {{ $province->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -322,7 +331,10 @@
     <script>
         $(document).ready(function() {
             const maxSelections = {{ $maxSelections }};
+            const requestMoreUrl = @json(route('student.departments.request-more'));
             const studentId = {{ $student->id }};
+            const isProvinceRestricted = @json($isProvinceRestricted);
+            const lockedProvinceId = @json($lockedProvinceId);
             let unsavedChanges = false;
             let selectedIds = @json($selectedDepartments->pluck('department_id'));
 
@@ -417,6 +429,14 @@
                 }
             });
 
+            if (isProvinceRestricted) {
+                if (lockedProvinceId) {
+                    $('#filter-province').val(String(lockedProvinceId));
+                }
+                $('#filter-province').prop('disabled', true);
+                $('#filter-province').trigger('change');
+            }
+
             // Sortable implementation
             const sortable = new Sortable(document.getElementById('selected-list'), {
                 animation: 150,
@@ -431,7 +451,18 @@
             // Add Department logic
             $(document).on('click', '.add-dept-btn', function() {
                 if (selectedIds.length >= maxSelections) {
-                    Swal.fire('هەڵە', `تۆ ناتوانیت زیاتر لە ${maxSelections} بەش هەڵبژێریت.`, 'error');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'سنووری هەڵبژاردن تەواو بوو',
+                        text: `تۆ ناتوانیت زیاتر لە ${maxSelections} بەش هەڵبژێریت. دەتوانیت داواکاری زیادکردنی بەش بنێریت.`,
+                        showCancelButton: true,
+                        confirmButtonText: 'ناردنی داواکاری',
+                        cancelButtonText: 'باشە'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = requestMoreUrl;
+                        }
+                    });
                     return;
                 }
 

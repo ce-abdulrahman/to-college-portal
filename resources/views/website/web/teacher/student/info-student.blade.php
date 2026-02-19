@@ -86,6 +86,9 @@
             @enderror
         </div>
 
+        <input type="hidden" id="lat" name="lat" value="{{ old('lat') }}">
+        <input type="hidden" id="lng" name="lng" value="{{ old('lng') }}">
+
 
 
 
