@@ -1,6 +1,10 @@
 @extends('website.web.admin.layouts.app')
 
 @section('content')
+    @php
+        $studentProvinceId = (int) ($student->province_id ?? 0);
+    @endphp
+
     <div class="container-fluid py-4">
         {{-- Top Bar --}}
         <div class="row mb-4">
@@ -118,10 +122,17 @@
                 {{-- Departments Table --}}
                 <div class="card glass fade-in shadow-sm">
                     <div class="card-body">
-                        <h4 class="card-title mb-4">
-                            <i class="fa-solid fa-building-columns me-2 text-success"></i> بەشە هەڵبژێدراوەکان لە کۆلێژ و
-                            پەیمانگا
-                        </h4>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="card-title mb-0">
+                                <i class="fa-solid fa-building-columns me-2 text-success"></i> بەشە هەڵبژێدراوەکان لە کۆلێژ و
+                                پەیمانگا
+                            </h4>
+                            @if ((int) ($student->ai_rank ?? 0) === 1)
+                                <a href="#aiRankingSection" class="btn btn-outline-info btn-sm">
+                                    <i class="fa-solid fa-robot me-1"></i> بەکارهێنانی AI Ranking
+                                </a>
+                            @endif
+                        </div>
 
                         <div class="table-responsive table-scroll-x">
                             <table class="table table-hover align-middle">
@@ -180,6 +191,68 @@
                         </div>
                     </div>
                 </div>
+
+                @if ((int) ($student->ai_rank ?? 0) === 1)
+                    <div id="aiRankingSection" class="card glass fade-in shadow-sm mt-4">
+                        <div class="card-body">
+                            <h4 class="card-title mb-4">
+                                <i class="fa-solid fa-robot me-2 text-info"></i> AI ڕێزبەندی (Auto Ranking)
+                            </h4>
+
+                            <div class="table-responsive table-scroll-x">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>ناو</th>
+                                            <th>سیستەم</th>
+                                            <th>جۆری نمرە</th>
+                                            <th>نمرەی پێویست</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($ai_rankings as $index => $ai_ranking)
+                                            @php
+                                                $isLocal = (int) $ai_ranking->department->province_id === $studentProvinceId;
+                                                $requiredScore = $isLocal
+                                                    ? (float) $ai_ranking->department->local_score
+                                                    : (float) $ai_ranking->department->external_score;
+                                                $systemName = $ai_ranking->department->system->name ?? '—';
+                                            @endphp
+                                            <tr>
+                                                <td>{{ $ai_ranking->rank ?? ++$index }}</td>
+                                                <td>
+                                                    <div class="fw-semibold">{{ $ai_ranking->department->name ?? '—' }}</div>
+                                                    <div class="text-muted small">
+                                                        {{ $ai_ranking->department->province->name ?? '—' }} /
+                                                        {{ $ai_ranking->department->university->name ?? '—' }} /
+                                                        {{ $ai_ranking->department->college->name ?? '—' }}
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info text-dark">{{ $systemName }}</span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge {{ $isLocal ? 'bg-success' : 'bg-warning text-dark' }}">
+                                                        {{ $isLocal ? 'local_score' : 'external_score' }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ rtrim(rtrim(number_format($requiredScore, 3, '.', ''), '0'), '.') }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">
+                                                    <i class="fa-solid fa-circle-info me-1"></i>
+                                                    هیچ AI ڕێزبەندییەک نەدۆزرایەوە
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
             </div>
         </div>

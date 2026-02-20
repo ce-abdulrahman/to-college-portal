@@ -22,7 +22,7 @@
         </div>
 
         <div class="mb-4">
-            <a href="{{ route('center.students.index') }}" class="btn btn-outline">
+            <a href="{{ route('center.students.index') }}" class="btn btn-outline-secondary">
                 <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
             </a>
         </div>
@@ -32,6 +32,9 @@
                 <h4 class="card-title mb-4">
                     <i class="fa-solid fa-user-pen me-2"></i> دەستکاریکردنی زانیاری قوتابی
                 </h4>
+                <p class="text-muted small mb-4">
+                    زانیاری قوتابی نوێ بکەرەوە و دڵنیابە لە دۆخ و تایبەتمەندییەکان.
+                </p>
 
                 {{-- Validation errors --}}
                 @if ($errors->any())
@@ -48,7 +51,10 @@
                 @php
                     $center = auth()->user()->center;
                     $canActivateStudent = $canActivateStudent ?? true;
-                    $currentStatusValue = (string) old('status', (string) ((int) data_get($student, 'status', data_get($student, 'user.status', 0))));
+                    $currentStatusValue = (string) old(
+                        'status',
+                        (string) ((int) data_get($student, 'status', data_get($student, 'user.status', 0))),
+                    );
                 @endphp
 
                 <form action="{{ route('center.students.update', $student->id) }}" method="POST" class="needs-validation"
@@ -57,7 +63,11 @@
                     @method('PUT')
 
                     {{-- Basic (User) --}}
-                    <div class="row g-3">
+                    <div class="border rounded-3 p-3 mb-4 bg-light-subtle">
+                        <div class="fw-semibold mb-3">
+                            <i class="fa-solid fa-address-card me-1"></i> زانیاری سەرەکی
+                        </div>
+                        <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <label for="name" class="form-label">ناو</label>
                             <div class="input-group">
@@ -90,11 +100,14 @@
                             </div>
                         </div>
                     </div>
-
-                    <hr class="my-4">
+                    </div>
 
                     {{-- Student fields --}}
-                    <div class="row g-3">
+                    <div class="border rounded-3 p-3 mb-4 bg-light-subtle">
+                        <div class="fw-semibold mb-3">
+                            <i class="fa-solid fa-user-graduate me-1"></i> زانیاری قوتابی
+                        </div>
+                        <div class="row g-3">
                         <div class="col-12 col-md-6">
                             <label for="mark" class="form-label">نمرە</label>
                             <div class="input-group">
@@ -124,18 +137,29 @@
                         </div>
 
                         <div class="col-12 col-md-6">
-                            <label for="year" class="form-label">ساڵ</label>
+                            @php
+                                $selectedYear = (int) old('year', $student->year) > 1 ? '2' : '1';
+                            @endphp
+                            <label for="year" class="form-label">پڕکردنەوەی فۆرم</label>
                             <select id="year" name="year" class="form-select @error('year') is-invalid @enderror"
                                 required>
                                 <option value="">— هەلبژاردن —</option>
-                                @for ($y = 1; $y <= 5; $y++)
-                                    <option value="{{ $y }}" @selected((int) old('year', $student->year) === $y)>
-                                        {{ $y }}</option>
-                                @endfor
+                                <option value="1" @selected($selectedYear === '1')>1</option>
+                                <option value="2" @selected($selectedYear === '2')>زیاتر لە ٢</option>
                             </select>
                             @error('year')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
+                            <div id="year-system-tip" class="mt-2 small">
+                                @if ($selectedYear === '1')
+                                    دەتوانی سیستەمی <span class="badge bg-success">زانکۆلاین</span> و <span
+                                        class="badge bg-danger">پاڕالێل</span> و <span class="badge bg-dark">ئێواران</span>
+                                    هەڵبژێری
+                                @else
+                                    بەس سیستەمی <span class="badge bg-danger">پاڕالێل</span> و <span
+                                        class="badge bg-dark">ئێواران</span> هەڵبژێری
+                                @endif
+                            </div>
                         </div>
 
                         <div class="col-12 col-md-6">
@@ -173,7 +197,8 @@
                                 <option value="0" @selected($currentStatusValue === '0')>ناچاڵاک</option>
                             </select>
                             @if (!$canActivateStudent)
-                                <input type="hidden" name="status" value="{{ $currentStatusValue === '1' ? '1' : '0' }}">
+                                <input type="hidden" name="status"
+                                    value="{{ $currentStatusValue === '1' ? '1' : '0' }}">
                                 <small class="text-danger d-block mt-1">
                                     سنووری قبوڵکردنی قوتابی تەواو بووە. هەتا سنوور زیاد نەکرێت چاڵاککردن ناچالاکە.
                                 </small>
@@ -186,6 +211,7 @@
                         <input type="hidden" id="lat" name="lat" value="{{ old('lat') }}">
                         <input type="hidden" id="lng" name="lng" value="{{ old('lng') }}">
                     </div>
+                    </div>
 
                     @include('website.web.center.partials.feature-access-fields', [
                         'center' => $center,
@@ -194,7 +220,10 @@
                         'formPrefix' => 'student_edit',
                     ])
 
-                    <div class="d-flex justify-content-end mt-4">
+                    <div class="d-flex justify-content-end mt-4 gap-2">
+                        <a href="{{ route('center.students.index') }}" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-xmark me-1"></i> هەڵوەشاندنەوە
+                        </a>
                         <button type="submit" class="btn btn-primary">
                             <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
                         </button>
@@ -226,8 +255,25 @@
         (function() {
             const latInput = document.getElementById('lat');
             const lngInput = document.getElementById('lng');
+            const yearSelect = document.getElementById('year');
+            const yearSystemTip = document.getElementById('year-system-tip');
             const form = document.querySelector('form.needs-validation');
             let locatingInProgress = false;
+
+            function syncYearSystemTip() {
+                if (!yearSelect || !yearSystemTip) {
+                    return;
+                }
+
+                if (String(yearSelect.value) === '1') {
+                    yearSystemTip.innerHTML =
+                        'دەتوانی سیستەمی <span class="badge bg-success">زانکۆلاین</span> و <span class="badge bg-danger">پاڕالێل</span> و <span class="badge bg-dark">ئێواران</span> هەڵبژێری';
+                    return;
+                }
+
+                yearSystemTip.innerHTML =
+                    'بەس سیستەمی <span class="badge bg-danger">پاڕالێل</span> و <span class="badge bg-dark">ئێواران</span> هەڵبژێری';
+            }
 
             function getAiRankValue() {
                 const checked = document.querySelector('input[name="ai_rank"]:checked');
@@ -296,6 +342,10 @@
                 });
             });
 
+            if (yearSelect) {
+                yearSelect.addEventListener('change', syncYearSystemTip);
+            }
+
             if (form) {
                 form.addEventListener('submit', async function(event) {
                     if (!shouldRequireLocation() || hasLocation()) {
@@ -318,6 +368,7 @@
             }
 
             void syncLocationRequirement();
+            syncYearSystemTip();
         })();
     </script>
 @endpush

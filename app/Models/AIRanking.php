@@ -15,16 +15,13 @@ class AIRanking extends Model
     protected $fillable = [
         'student_id',
         'department_id',
-        'score',
         'rank',
-        'reason',
-        'match_factors'
+        'result_rank',
     ];
 
     protected $casts = [
-        'score' => 'float',
         'rank' => 'integer',
-        'match_factors' => 'array',
+        'result_rank' => 'integer',
     ];
 
     public function student()

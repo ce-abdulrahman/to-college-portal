@@ -21,7 +21,7 @@
         </div>
 
         <div class="mb-4">
-            <a href="{{ route('center.students.index') }}" class="btn btn-outline">
+            <a href="{{ route('center.students.index') }}" class="btn btn-outline-secondary">
                 <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
             </a>
         </div>
@@ -33,6 +33,9 @@
                         <h4 class="card-title mb-4">
                             <i class="fa-solid fa-user-plus me-2"></i> زیادکردنی قوتابی
                         </h4>
+                        <p class="text-muted small mb-4">
+                            زانیاری سەرەکی و تایبەتمەندییەکان پڕ بکەرەوە بۆ دروستکردنی هەژماری قوتابی.
+                        </p>
 
                         {{-- Validation Errors --}}
                         @if ($errors->any())
@@ -85,7 +88,11 @@
                             @csrf
 
                             {{-- زانیاری سەرەکی --}}
-                            <div class="row g-3">
+                            <div class="border rounded-3 p-3 mb-4 bg-light-subtle">
+                                <div class="fw-semibold mb-3">
+                                    <i class="fa-solid fa-address-card me-1"></i> زانیاری سەرەکی
+                                </div>
+                                <div class="row g-3">
                                 <div class="col-md-6">
                                     <label for="code" class="form-label">کۆدی داخیل بوون</label>
                                     <div class="input-group">
@@ -150,6 +157,7 @@
                                 </div>
 
                             </div>
+                            </div>
 
                             {{-- Feature Inheritance Display --}}
                             @if ($center)
@@ -189,19 +197,25 @@
                                 'showExtra' => $showExtra,
                             ])
 
-                            <hr class="my-4">
-
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="status" class="form-label">دۆخ</label>
-                                    <select class="form-select" id="status" name="status" required>
-                                        <option value="1" @selected(old('status') === '1')>چاڵاک</option>
-                                        <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
-                                    </select>
+                            <div class="border rounded-3 p-3 mt-4 bg-light-subtle">
+                                <div class="fw-semibold mb-3">
+                                    <i class="fa-solid fa-toggle-on me-1"></i> دۆخی هەژمار
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="status" class="form-label">دۆخ</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <option value="1" @selected(old('status') === '1')>چاڵاک</option>
+                                            <option value="0" @selected(old('status') === '0')>ناچاڵاک</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-end mt-4">
+                            <div class="d-flex justify-content-end mt-4 gap-2">
+                                <a href="{{ route('center.students.index') }}" class="btn btn-outline-secondary">
+                                    <i class="fa-solid fa-xmark me-1"></i> هەڵوەشاندنەوە
+                                </a>
                                 <button type="submit" class="btn btn-primary" @disabled(!$canCreateStudent)>
                                     <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
                                 </button>

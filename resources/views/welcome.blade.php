@@ -44,7 +44,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Google Fonts - Vazirmatn for Kurdish/Arabic -->
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
     <!-- Remix Icon -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
@@ -79,11 +80,11 @@
             --gradient-3: linear-gradient(45deg, {{ $primaryColor }}, {{ $accentColor }});
             --gradient-4: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.03);
-            --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.02);
-            --shadow-lg: 0 20px 35px -8px rgba(0,0,0,0.1), 0 10px 15px -6px rgba(0,0,0,0.02);
-            --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.15);
-            --shadow-inner: inset 0 2px 4px 0 rgba(0,0,0,0.03);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.1), 0 10px 15px -6px rgba(0, 0, 0, 0.02);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.03);
 
             --radius-sm: 8px;
             --radius-md: 12px;
@@ -269,12 +270,10 @@
         .hero-video-overlay {
             position: absolute;
             inset: 0;
-            background: linear-gradient(
-                135deg,
-                rgba(15, 23, 42, 0.65) 0%,
-                rgba(15, 23, 42, 0.45) 45%,
-                rgba(15, 23, 42, 0.72) 100%
-            );
+            background: linear-gradient(135deg,
+                    rgba(15, 23, 42, 0.65) 0%,
+                    rgba(15, 23, 42, 0.45) 45%,
+                    rgba(15, 23, 42, 0.72) 100%);
         }
 
         .hero-particles {
@@ -284,7 +283,7 @@
             right: 0;
             bottom: 0;
             background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
             z-index: 1;
         }
 
@@ -347,8 +346,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
         }
 
         /* Stats Section */
@@ -459,8 +465,17 @@
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.1); opacity: 0.1; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 0.1;
+            }
         }
 
         .feature-title {
@@ -494,13 +509,18 @@
             right: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
             animation: rotate 20s linear infinite;
         }
 
         @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .gradient-card-content {
@@ -519,7 +539,7 @@
             align-items: center;
             gap: 1rem;
             padding: 1rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .feature-list-modern li:last-child {
@@ -529,7 +549,7 @@
         .feature-list-icon {
             width: 40px;
             height: 40px;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
@@ -577,7 +597,7 @@
         .social-link-modern {
             width: 50px;
             height: 50px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
@@ -586,7 +606,7 @@
             font-size: 1.3rem;
             transition: all 0.3s ease;
             text-decoration: none;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .social-link-modern:hover {
@@ -607,6 +627,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -617,9 +638,17 @@
             animation: fadeInUp 0.8s ease forwards;
         }
 
-        .delay-1 { animation-delay: 0.2s; }
-        .delay-2 { animation-delay: 0.4s; }
-        .delay-3 { animation-delay: 0.6s; }
+        .delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.6s;
+        }
 
         /* Responsive */
         @media (max-width: 991px) {
@@ -742,7 +771,8 @@
                 @if ($siteLogo)
                     <img src="{{ asset($siteLogo) }}" alt="{{ $siteName }}" class="logo-img">
                 @else
-                    <div class="logo-img d-flex align-items-center justify-content-center" style="background: var(--gradient-1); color: white; width: 45px;">
+                    <div class="logo-img d-flex align-items-center justify-content-center"
+                        style="background: var(--gradient-1); color: white; width: 45px;">
                         <i class="ri-graduation-cap-fill"></i>
                     </div>
                 @endif
@@ -802,16 +832,18 @@
                             ڕێگای تۆ بۆ <span>داهاتوویەکی ڕوون</span>
                         </h1>
                         <p class="hero-description animate-fade-up delay-1">
-                            سیستەمی زیرەکی هەڵبژاردنی بەشەکانی زانکۆ، یارمەتی قوتابیان دەدات بۆ دۆزینەوەی گونجاوترین بەش لەسەر بنەمای تواناکان و ئارەزووەکانیان.
+                            سیستەمی زیرەکی هەڵبژاردنی بەشەکانی زانکۆ، یارمەتی قوتابیان دەدات بۆ دۆزینەوەی گونجاوترین بەش
+                            لەسەر بنەمای تواناکان و ئارەزووەکانیان.
                         </p>
                         <div class="d-flex gap-3 animate-fade-up delay-2">
-                            <a href="{{ route('register') }}" class="nav-btn btn-register" style="padding: 1rem 2.5rem;">
+                            <a href="{{ route('register') }}" class="nav-btn btn-register"
+                                style="padding: 1rem 2.5rem;">
                                 <i class="ri-rocket-line me-2"></i>
                                 دەستپێبکە
                             </a>
                             <a href="#features" class="nav-btn btn-login">
                                 <i class="ri-information-line me-2"></i>
-                زانیاری زیاتر
+                                زانیاری زیاتر
                             </a>
                         </div>
                     </div>
@@ -872,7 +904,8 @@
                         <i class="ri-map-pin-line"></i>
                     </div>
                     <h3 class="feature-title">سیستەمی نەخشە</h3>
-                    <p class="feature-description">نیشاندانی شوێنی زانکۆ و بەشەکان لەسەر نەخشەی ڕاستەقینە بە تەکنەلۆژیای GIS</p>
+                    <p class="feature-description">نیشاندانی شوێنی زانکۆ و بەشەکان لەسەر نەخشەی ڕاستەقینە بە
+                        تەکنەلۆژیای GIS</p>
                     <a href="#" class="text-decoration-none" style="color: var(--primary); font-weight: 600;">
                         زیاتر بزانە <i class="ri-arrow-left-line me-1"></i>
                     </a>
@@ -884,7 +917,8 @@
                         <i class="ri-brain-line"></i>
                     </div>
                     <h3 class="feature-title">زیرەکی دەستکرد</h3>
-                    <p class="feature-description">سیستەمی AI پێشنیاری گونجاوترین بەشەکان دەکات بەپێی تواناکانی قوتابی</p>
+                    <p class="feature-description">سیستەمی AI پێشنیاری گونجاوترین بەشەکان دەکات بەپێی تواناکانی قوتابی
+                    </p>
                     <a href="#" class="text-decoration-none" style="color: var(--primary); font-weight: 600;">
                         زیاتر بزانە <i class="ri-arrow-left-line me-1"></i>
                     </a>
@@ -924,7 +958,7 @@
                                 <div class="feature-list-icon">
                                     <i class="ri-check-line text-center"></i>
                                 </div>
-                                <span>زیاتر لە ٢٥٠٠ قوتابی سوودمەند بوون</span>
+                                <span>زیاتر لە 2٥٠٠ قوتابی سوودمەند بوون</span>
                             </li>
                             <li>
                                 <div class="feature-list-icon">
@@ -969,11 +1003,13 @@
                     <h2 class="display-6 fw-bold mb-3">ئامادەیت بۆ دەستپێکردن؟</h2>
                     <p class="fs-5 mb-4 opacity-90">تۆمار بکە و دەستبکە بە دیاریکردنی ڕێگای داهاتووت</p>
                     <div class="d-flex gap-3 justify-content-center">
-                        <a href="{{ route('register') }}" class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold" style="color: var(--primary);">
+                        <a href="{{ route('register') }}" class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold"
+                            style="color: var(--primary);">
                             <i class="ri-user-add-line me-2"></i>
                             تۆمارکردن
                         </a>
-                        <a href="{{ route('login') }}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold">
+                        <a href="{{ route('login') }}"
+                            class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold">
                             <i class="ri-login-box-line me-2"></i>
                             چوونەژوورەوە
                         </a>
@@ -995,8 +1031,8 @@
                         $socialUrl = trim($social['url'] ?? '');
                     @endphp
                     @if ($socialUrl !== '' && $socialIcon !== '')
-                        <a href="{{ $socialUrl }}" class="social-link-modern" target="_blank" rel="noopener noreferrer"
-                            title="{{ $socialName ?: 'Social' }}">
+                        <a href="{{ $socialUrl }}" class="social-link-modern" target="_blank"
+                            rel="noopener noreferrer" title="{{ $socialName ?: 'Social' }}">
                             <i class="{{ $socialIcon }}"></i>
                         </a>
                     @endif
@@ -1064,7 +1100,7 @@
 
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            anchor.addEventListener('click', function(e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {

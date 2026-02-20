@@ -14,7 +14,6 @@ use App\Http\Controllers\Admin\UserProfileController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\Admin\MbtiAdminController;
-use App\Http\Controllers\Admin\AIQuestionController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Shared\QueueHandDepartmentController;
 
@@ -93,17 +92,6 @@ Route::middleware(['auth', 'admin']) // 'admin' middlewareی خۆمان
             Route::delete('results/user/{user}', [MbtiAdminController::class, 'deleteUserResult'])->name('results.delete');
             Route::get('statistics', [MbtiAdminController::class, 'statistics'])->name('statistics');
             Route::get('export', [MbtiAdminController::class, 'exportResults'])->name('export');
-        });
-
-        // AI Ranking Management
-        Route::prefix('ai')->name('ai.')->group(function () {
-            // پرسیارەکان - CRUD
-            Route::resource('questions', AIQuestionController::class);
-
-            // وەڵامەکانی قوتابیان
-            Route::get('/results', [AIQuestionController::class, 'results'])->name('results');
-            Route::get('/results/{studentId}', [AIQuestionController::class, 'showStudentAnswers'])->name('results.show');
-            Route::delete('/results/{studentId}', [AIQuestionController::class, 'deleteStudentAnswers'])->name('results.delete');
         });
 
         // [file name]: web.php (لە بەشی Admin)

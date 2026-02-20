@@ -21,6 +21,22 @@
             <h1 class="title">هەژمارەکەت ناچاڵاکە</h1>
             <p class="subtitle">تا پەسەندکردن (چاڵاک) ناتوانیت چوونەژوورەوە بکەیت.</p>
 
+            @php
+                $resolvedReferrer = $inactiveAccount['referrer'] ?? null;
+
+                if ($resolvedReferrer === null && !empty($referrer)) {
+                    $resolvedReferrer = [
+                        'name' => data_get($referrer, 'name'),
+                        'phone' => data_get($referrer, 'phone'),
+                        'role' => data_get($referrer, 'role'),
+                        'roleLabel' => $referrerRoleLabel ?? null,
+                        'randCode' => data_get($referrer, 'rand_code'),
+                    ];
+                }
+
+                $showReferralOwnerContact = in_array($resolvedReferrer['role'] ?? null, ['center', 'teacher'], true);
+            @endphp
+
             <div class="inactive-box mt-3 mb-3">
                 <div class="inactive-badge">
                     <i class="fas fa-hourglass-half me-1"></i>
@@ -32,24 +48,24 @@
                     <span class="meta-value">{{ $inactiveAccount['accountRoleLabel'] ?? '—' }}</span>
                 </div>
 
-                @if (!empty($inactiveAccount['referrer']))
+                @if ($showReferralOwnerContact)
                 <div class="owner-title mt-3">خاوەنی کۆدی تۆمارکردن</div>
 
-                <div class="account-name mt-2">{{ $inactiveAccount['referrer']['name'] }}</div>
+                <div class="account-name mt-2">{{ $resolvedReferrer['name'] ?: '—' }}</div>
 
                 <div class="meta-row">
                     <span class="meta-label">پیشە :</span>
-                    <span class="meta-value">{{ $inactiveAccount['referrer']['roleLabel'] }}</span>
+                    <span class="meta-value">{{ $resolvedReferrer['roleLabel'] ?: '—' }}</span>
                 </div>
 
                 <div class="meta-row">
                     <span class="meta-label">Referral Code :</span>
-                    <span class="meta-value">{{ $inactiveAccount['referrer']['randCode'] }}</span>
+                    <span class="meta-value">{{ $resolvedReferrer['randCode'] ?: '—' }}</span>
                 </div>
 
                 <div class="meta-row">
                     <span class="meta-label">مۆبایل :</span>
-                    <span class="meta-value">{{ $inactiveAccount['referrer']['phone'] ?: '—' }}</span>
+                    <span class="meta-value">{{ $resolvedReferrer['phone'] ?: '—' }}</span>
                 </div>
                 @else
                 @php

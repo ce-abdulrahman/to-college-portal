@@ -2,6 +2,11 @@
 
 @section('content')
     <div class="container-fluid py-4">
+        @php
+            $totalStudents = $students->count();
+            $activeStudents = $students->where('status', 1)->count();
+            $inactiveStudents = $totalStudents - $activeStudents;
+        @endphp
         <div class="row mb-4">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
@@ -23,7 +28,36 @@
             <a href="{{ route('teacher.students.create') }}" class="btn btn-outline-primary">
                 <i class="fa-solid fa-user-plus me-1"></i> زیادکردنی قوتابی نوێ
             </a>
-            {{--  <span class="chip"><i class="fa-solid fa-database"></i> کۆی گشتی: {{ count($users) }}</span>  --}}
+            <span class="badge bg-light text-dark border">
+                <i class="fa-solid fa-database me-1"></i> کۆی گشتی: {{ $totalStudents }}
+            </span>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="small text-muted mb-1">کۆی قوتابیەکان</div>
+                        <div class="h4 mb-0 fw-bold">{{ $totalStudents }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="small text-muted mb-1">قوتابیی چالاک</div>
+                        <div class="h4 mb-0 fw-bold text-success">{{ $activeStudents }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="small text-muted mb-1">قوتابیی ناچالاک</div>
+                        <div class="h4 mb-0 fw-bold text-danger">{{ $inactiveStudents }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="card glass mb-3">
@@ -60,13 +94,16 @@
 
         <div class="card glass fade-in">
             <div class="card-body">
-                <h4 class="card-title mb-3">
-                    <i class="fa-solid fa-users me-2"></i> قوتابییەکان
-                </h4>
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h4 class="card-title mb-0">
+                        <i class="fa-solid fa-users me-2"></i> قوتابییەکان
+                    </h4>
+                    <span class="small text-muted">نوێترین لیست</span>
+                </div>
 
                 <div class="table-wrap">
                     <div class="table-responsive table-scroll-x">
-                        <table id="datatable" class="table align-middle nowrap" style="width:100%">
+                        <table id="datatable" class="table table-hover align-middle nowrap" style="width:100%">
                             <thead>
                                 <tr>
                                     <th style="width:60px">#</th>
@@ -102,8 +139,9 @@
                                             </td>
                                             <td class="actions">
                                                 <a href="{{ route('teacher.students.show', $student->id) }}"
-                                                    class="text-decoration-none btn-outline-light">
-                                                    <i class="fa fa-eye me-1"></i>
+                                                    class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip"
+                                                    data-bs-title="بینین">
+                                                    <i class="fa-solid fa-eye"></i>
                                                 </a>
                                                 <a href="{{ route('teacher.students.edit', $student->id) }}"
                                                     class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip"

@@ -49,6 +49,10 @@ class UserProfileController extends Controller
     {
         $data = $this->validatePayload($request);
 
+        if (($data['role'] ?? null) === 'student' && isset($data['student_year'])) {
+            $data['student_year'] = (int) $data['student_year'] > 1 ? 2 : 1;
+        }
+
         try {
             DB::transaction(function () use ($data, $request) {
                 $user = User::create([
@@ -153,6 +157,9 @@ class UserProfileController extends Controller
     {
         $user = User::with(['center', 'teacher', 'student'])->findOrFail($id);
         $data = $this->validatePayload($request, $user);
+        if (($data['role'] ?? null) === 'student' && isset($data['student_year'])) {
+            $data['student_year'] = (int) $data['student_year'] > 1 ? 2 : 1;
+        }
         $oldRandCode = (string) ($user->rand_code ?? '');
         $wasAdmin = $user->role === 'admin';
 

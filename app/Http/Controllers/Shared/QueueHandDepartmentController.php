@@ -501,10 +501,12 @@ class QueueHandDepartmentController extends Controller
             'province' => ['required', 'string', 'max:255', 'exists:provinces,name'],
             'type' => ['required', 'in:زانستی,وێژەیی'],
             'gender' => ['required', 'in:نێر,مێ'],
-            'year' => ['required', 'integer', 'min:1', 'max:5'],
+            'year' => ['required', 'integer', 'min:1'],
             'lat' => [\Illuminate\Validation\Rule::requiredIf((int) ($featureFlags['ai_rank'] ?? 0) === 1), 'nullable', 'numeric', 'between:-90,90'],
             'lng' => [\Illuminate\Validation\Rule::requiredIf((int) ($featureFlags['ai_rank'] ?? 0) === 1), 'nullable', 'numeric', 'between:-180,180'],
         ]);
+
+        $normalizedYear = (int) $data['year'] > 1 ? 2 : 1;
 
         $this->ensureStudentLimitNotReached($user);
 
@@ -512,7 +514,7 @@ class QueueHandDepartmentController extends Controller
             ? (string) $user->rand_code
             : null;
 
-        $student = DB::transaction(function () use ($data, $featureFlags, $referralCode) {
+        $student = DB::transaction(function () use ($data, $featureFlags, $referralCode, $normalizedYear) {
             $newUser = User::query()->create([
                 'name' => $data['name'],
                 'code' => $data['code'],
@@ -529,7 +531,7 @@ class QueueHandDepartmentController extends Controller
                 'province' => $data['province'],
                 'type' => $data['type'],
                 'gender' => $data['gender'],
-                'year' => (int) $data['year'],
+                'year' => $normalizedYear,
                 'referral_code' => $referralCode,
                 'status' => (int) ($data['status'] ?? 1),
                 'ai_rank' => (int) ($featureFlags['ai_rank'] ?? 0),

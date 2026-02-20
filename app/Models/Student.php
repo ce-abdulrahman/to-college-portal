@@ -55,11 +55,6 @@ class Student extends Model
         return $this->hasMany(MbtiAnswer::class);
     }
 
-    public function aiAnswers()
-    {
-        return $this->hasMany(AIAnswer::class);
-    }
-
     public function aiRankings()
     {
         return $this->hasMany(AIRanking::class);

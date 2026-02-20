@@ -246,6 +246,12 @@
                                 </table>
                             </div>
                         @elseif ($user->role === 'student')
+                            @php
+                                $studentYearRaw = (int) data_get($user, 'student.year', 0);
+                                $studentYearDisplay =
+                                    $studentYearRaw === 1 ? '1' : ($studentYearRaw > 1 ? 'زیاتر لە ٢' : '—');
+                                $isStudentYearOne = $studentYearRaw === 1;
+                            @endphp
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <tbody>
@@ -273,9 +279,29 @@
                                             <td>{{ data_get($user, 'student.gender') ?: '—' }}</td>
                                         </tr>
                                         <tr>
-                                            <th class="ps-4 text-muted"><i class="fa-regular fa-calendar me-2"></i> Year
+                                            <th class="ps-4 text-muted"><i class="fa-regular fa-calendar me-2"></i>
+                                                پڕکردنەوەی فۆرم
                                             </th>
-                                            <td>{{ data_get($user, 'student.year') ?: '—' }}</td>
+                                            <td>{{ $studentYearDisplay }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="ps-4 text-muted"><i class="fa-solid fa-circle-info me-2"></i>
+                                                سیستەمی هەڵبژاردن
+                                            </th>
+                                            <td>
+                                                @if ($studentYearDisplay !== '—')
+                                                    @if ($isStudentYearOne)
+                                                        دەتوانی سیستەمی <span class="badge bg-success">زانکۆلاین</span>
+                                                        و <span class="badge bg-danger">پاڕالێل</span> و
+                                                        <span class="badge bg-dark">ئێواران</span> هەڵبژێری
+                                                    @else
+                                                        بەس سیستەمی <span class="badge bg-danger">پاڕالێل</span> و
+                                                        <span class="badge bg-dark">ئێواران</span> هەڵبژێری
+                                                    @endif
+                                                @else
+                                                    —
+                                                @endif
+                                            </td>
                                         </tr>
                                         <tr>
                                             <th class="ps-4 text-muted"><i class="fa-solid fa-users me-2"></i> Referral

@@ -111,7 +111,7 @@ class StudentInCenterController extends Controller
             'province' => ['required_if:role,student', 'string', 'max:255', Rule::exists('provinces', 'name')],
             'type' => ['required_if:role,student', 'string', Rule::in(['زانستی', 'وێژەیی'])],
             'gender' => ['required_if:role,student', 'string', Rule::in(['نێر', 'مێ'])],
-            'year' => ['required_if:role,student', 'integer', 'min:1', 'max:5'],
+            'year' => ['required_if:role,student', 'integer', 'min:1'],
 
             // ـــــــــــ Queue-only (تەنها کاتێک queue=yes)
             'queue' => ['nullable', 'in:yes,no'],
@@ -128,6 +128,8 @@ class StudentInCenterController extends Controller
             'lng' => ['required_if:ai_rank,1', 'nullable', 'numeric', 'between:-180,180'],
         ]);
 
+        $normalizedYear = (int) $data['year'] > 1 ? 2 : 1;
+
         $featureFlags = $this->resolveFeatureFlags($data);
         $center = auth()->user()?->center;
         $studentLimit = $center?->limit_student;
@@ -140,7 +142,7 @@ class StudentInCenterController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($data, $selector, $featureFlags) {
+            DB::transaction(function () use ($data, $selector, $featureFlags, $normalizedYear) {
                 // 2) User
                 $user = User::create([
                     'name' => $data['name'],
@@ -161,7 +163,7 @@ class StudentInCenterController extends Controller
                             'province' => $data['province'] ?? null,
                             'type' => $data['type'] ?? null,
                             'gender' => $data['gender'] ?? null,
-                            'year' => isset($data['year']) ? (int) $data['year'] : null,
+                            'year' => $normalizedYear,
                             'referral_code' => auth()->user()->rand_code,
                             'status' => (int) ($data['status'] ?? 1),
                             'ai_rank' => $featureFlags['ai_rank'],
@@ -174,7 +176,7 @@ class StudentInCenterController extends Controller
 
                     // 5) Queue build
                     if (($data['queue'] ?? 'no') === 'yes') {
-                        $selector->build($user->id, $data['province'] ?? null, $data['type'] ?? null, $data['gender'] ?? null, isset($data['year']) ? (int) $data['year'] : null, isset($data['mark']) ? (float) $data['mark'] : null, $data['zankoline_num'] ?? null, $data['parallel_num'] ?? null, $data['evening_num'] ?? null);
+                        $selector->build($user->id, $data['province'] ?? null, $data['type'] ?? null, $data['gender'] ?? null, $normalizedYear, isset($data['mark']) ? (float) $data['mark'] : null, $data['zankoline_num'] ?? null, $data['parallel_num'] ?? null, $data['evening_num'] ?? null);
                     }
                 }
             });
@@ -211,7 +213,22 @@ class StudentInCenterController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('website.web.center.student.show', compact('user', 'student', 'result_deps'));
+        $ai_rankings = collect();
+        if ((int) ($student->ai_rank ?? 0) === 1) {
+            $ai_rankings = $student->aiRankings()
+                ->with([
+                    'department.system:id,name',
+                    'department.province:id,name',
+                    'department.university:id,name',
+                    'department.college:id,name',
+                ])
+                ->orderByRaw('CASE WHEN rank IS NULL THEN 1 ELSE 0 END')
+                ->orderBy('rank')
+                ->orderBy('id')
+                ->get();
+        }
+
+        return view('website.web.center.student.show', compact('user', 'student', 'result_deps', 'ai_rankings'));
     }
 
     public function edit(Student $student)
@@ -256,7 +273,7 @@ class StudentInCenterController extends Controller
             // students table
             'mark'      => ['required','numeric','min:0','max:100'],
             'type'      => ['required', Rule::in(['زانستی','وێژەیی'])],
-            'year'      => ['required','integer','min:1','max:5'],
+            'year'      => ['required','integer','min:1'],
             'province'  => ['required', 'string', 'max:255', Rule::exists('provinces', 'name')],
             'ai_rank' => ['nullable', 'in:0,1'],
             'gis' => ['nullable', 'in:0,1'],
@@ -264,6 +281,8 @@ class StudentInCenterController extends Controller
             'lat' => ['required_if:ai_rank,1', 'nullable', 'numeric', 'between:-90,90'],
             'lng' => ['required_if:ai_rank,1', 'nullable', 'numeric', 'between:-180,180'],
         ]);
+
+        $normalizedYear = (int) $data['year'] > 1 ? 2 : 1;
 
         $featureFlags = $this->resolveFeatureFlags($data);
         $requestedStatus = (int) ($data['status'] ?? 0);
@@ -284,7 +303,7 @@ class StudentInCenterController extends Controller
             }
         }
 
-        DB::transaction(function () use ($student, $data, $featureFlags, $requestedStatus) {
+        DB::transaction(function () use ($student, $data, $featureFlags, $requestedStatus, $normalizedYear) {
             // Update user fields
             $student->user->update([
                 'name'  => $data['name'],
@@ -296,7 +315,7 @@ class StudentInCenterController extends Controller
             $student->update([
                 'mark'     => (float)$data['mark'],
                 'type'     => $data['type'],
-                'year'     => (int)$data['year'],
+                'year'     => $normalizedYear,
                 'province' => $data['province'],
                 'status' => $requestedStatus,
                 'ai_rank' => $featureFlags['ai_rank'],

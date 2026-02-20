@@ -1,377 +1,588 @@
 @extends('website.web.admin.layouts.app')
 
-@section('title', 'تایبەتمەندیەکانی ڕیزبەندی')
+@section('title', 'AI - ڕێزبەندی ئۆتۆماتیکی')
 
 @section('content')
-    <div class="container-fluid py-4">
-        <!-- Page Title & Breadcrumb -->
+    @php
+        $selectedSystemsInput = old('systems', $defaultSystemIds ?? []);
+        $selectedSystemIds = collect((array) $selectedSystemsInput)
+            ->map(fn($id) => (int) $id)
+            ->values()
+            ->all();
+        $provinceScopeInput = old('province_scope', 'local_only');
+        $studentMark = rtrim(rtrim(number_format((float) $student->mark, 3, '.', ''), '0'), '.');
+    @endphp
+
+    <div class="container-fluid py-4 ai-pref-page">
         <div class="row mb-4">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
                     <div class="page-title-right">
-                        <ol class="breadcrumb m-0 text-muted">
+                        <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="{{ route('student.dashboard') }}">داشبۆرد</a></li>
-                            <li class="breadcrumb-item active">تایبەتمەندیەکان</li>
+                            <li class="breadcrumb-item active">AI ڕێزبەندی</li>
                         </ol>
                     </div>
-                    <h4 class="page-title fw-bold font-primary">
-                        <i class="fas fa-sliders-h me-2 text-primary"></i>
-                        دیاریکردنی فیلتەرەکان
+                    <h4 class="page-title mb-0">
+                        <i class="fas fa-robot me-1"></i>
+                        ڕێزبەندی بە سیستەمی ژیری دەستکرد AI
                     </h4>
                 </div>
             </div>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-10 col-xl-9">
-                @if (!empty($aiRestricted))
-                    <div class="card glass border-0 shadow-lg mb-4 overflow-hidden fade-in-up">
-                        <div class="card-header bg-warning text-white p-4">
-                            <h5 class="mb-0">
-                                <i class="fas fa-lock me-2"></i>
-                                سیستەمی AI بۆت چالاک نییە
-                            </h5>
+        <div class="card border-0 shadow-sm mb-4 ai-hero-card">
+            <div class="card-body p-4 p-lg-5">
+                <div class="row align-items-center g-3">
+                    <div class="col-lg-8">
+                        <span class="hero-kicker">
+                            <i class="fas fa-wand-magic-sparkles me-1"></i>
+                            ڕێزبەندی ئۆتۆماتیکی
+                        </span>
+                        <h3 class="hero-title mt-2 mb-2">باشترین 50 بەش بۆت ڕێزدەکرێت</h3>
+                        <p class="hero-subtitle mb-0">
+                            ئەم پەیجە بە پێی نمرە و تایبەتمەندییەکانی تۆ بەشەکان فلتەر دەکات و دواتر لە نمرەی بەرز بۆ نزم
+                            ڕیزدەکات.
+                        </p>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="hero-count-box">
+                            <div class="hero-count">{{ $rankedRows->count() }}</div>
+                            <div class="hero-count-label">ئەنجامی ئامادە / 50</div>
                         </div>
-                        <div class="card-body p-5 text-center">
-                            <div class="mb-4">
-                                <div class="icon-box-lg bg-soft-warning rounded-circle mx-auto mb-3">
-                                    <i class="fas fa-lock text-warning fa-2x"></i>
-                                </div>
-                                <h5 class="fw-bold">تایبەتمەندی AI چالاک نییە</h5>
-                                <p class="text-muted px-4">
-                                    بۆ ئەوەی بتوانیت AI Ranking بەکاربهێنیت، پێویستە داواکاری بنێریت بۆ بەڕێوەبەر.
-                                </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (session('success'))
+            <div class="alert alert-success border-0 shadow-sm">
+                <i class="fas fa-circle-check me-1"></i> {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger border-0 shadow-sm">
+                <i class="fas fa-circle-xmark me-1"></i> {{ session('error') }}
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="alert alert-warning border-0 shadow-sm">
+                <div class="fw-bold mb-2"><i class="fas fa-triangle-exclamation me-1"></i> هەندێک هەڵە هەیە:</div>
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div class="row g-4 mb-4">
+            <div class="col-xl-8">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0 pb-0">
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-circle-info me-1 text-primary"></i> چۆنیەتی کارکردنی ڕێزبەندی</h6>
+                    </div>
+                    <div class="card-body">
+                        <ol class="rule-list mb-0">
+                            <li>
+                                ئەگەر <code class="badge bg-warning">ناو پارێزگا</code> هەڵبژێریت، تەنها بەشەکانی هەمان پارێزگات هەڵدەبژێردرێن و
+                                <code class="badge bg-warning">نمرەی ناو پارێزگا</code> حیساب دەکرێت.
+                            </li>
+                            <li>
+                                ئەگەر <code class="badge bg-warning">لەگەڵ دەرەوەی پارێزگا</code> هەڵبژێریت، ناو پارێزگا بە
+                                <code class="badge bg-warning">نمرەی ناو پارێزگا</code> و دەرەوەی پارێزگا بە <code class="badge bg-warning">نمرەی دەرەوەی پارێزگا</code> حیساب دەکرێت.
+                            </li>
+                            <li>
+                                بۆ <code class="badge bg-warning">لق</code>: ئەگەر زانستی بیت، تەنها <code class="badge bg-warning">زانستی</code> و
+                                <code class="badge bg-warning">زانستی و وێژەیی</code>. ئەگەر وێژەیی بیت، تەنها <code class="badge bg-warning">وێژەیی</code> و
+                                <code class="badge bg-warning">زانستی و وێژەیی</code>.
+                            </li>
+                            <li>
+                                بۆ <code class="badge bg-warning">ڕەگەز</code>: ئەگەر <code class="badge bg-warning">مێ</code> بیت دەتوانیت هەموو هەڵبژێریت، ئەگەر
+                                <code class="badge bg-warning">نێر</code> بیت تەنها بەشەکانی <code class="badge bg-warning">نێر</code>.
+                            </li>
+                            <li>
+                                بۆ <code class="badge bg-warning">پڕکردنەوەی فۆرم</code>: ئەگەر <code class="badge bg-warning">1</code> بێت هەموو سیستەمەکان؛ ئەگەر
+                                <code class="badge bg-warning">گەورەتر لە 1</code> بێت تەنها <span class="badge bg-danger">پاراڵیل</span> و <span class="badge bg-dark">ئێواران</span>.
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0 pb-0">
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-user-graduate me-1 text-success"></i> زانیاری قوتابی</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="student-info-grid">
+                            <div class="student-info-item">
+                                <span class="label">ناوی قوتابی</span>
+                                <span class="value">{{ $student->user->name ?? '-' }}</span>
                             </div>
-                            <div class="d-flex gap-2 justify-content-center flex-wrap">
-                                <a href="{{ route('student.departments.request-more') }}"
-                                    class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm">
-                                    <i class="fas fa-paper-plane me-1"></i> ناردنی داواکاری بۆ چالاککردن
-                                </a>
-                                <a href="{{ route('student.dashboard') }}"
-                                    class="btn btn-outline-secondary px-4 rounded-pill">
-                                    <i class="fas fa-arrow-left me-1"></i> گەڕانەوە
-                                </a>
+                            <div class="student-info-item">
+                                <span class="label">کۆد</span>
+                                <span class="value">{{ $student->user->code ?? '-' }}</span>
+                            </div>
+                            <div class="student-info-item">
+                                <span class="label">نمرە</span>
+                                <span class="value">{{ $studentMark }}</span>
+                            </div>
+                            <div class="student-info-item">
+                                <span class="label">لق</span>
+                                <span class="value">{{ $student->type }}</span>
+                            </div>
+                            <div class="student-info-item">
+                                <span class="label">ڕەگەز</span>
+                                <span class="value">{{ $student->gender }}</span>
+                            </div>
+                            <div class="student-info-item">
+                                <span class="label">پڕکردنەوەی فۆرم</span>
+                                <span class="value">{{ $student->year }}</span>
+                            </div>
+                            <div class="student-info-item full">
+                                <span class="label">پارێزگا</span>
+                                <span class="value">{{ $student->province ?? '-' }}</span>
                             </div>
                         </div>
                     </div>
-                @else
-                    <!-- Instructions Card -->
-                    <div class="alert alert-info border-0 rounded-3 mb-4 fade-in-up" role="alert">
-                        <div class="d-flex align-items-start">
-                            <i class="fas fa-info-circle text-info me-3 mt-1 flex-shrink-0"></i>
-                            <div>
-                                <h5 class="alert-heading">بۆ خوێندن!</h5>
-                                <p class="mb-0">لەمانە هەڵبژێرە کاتێک AI ئەنجامی ڕیزبەندیت دەکات. ئەم فیلتەرانە
-                                    توانایی دەدات بەشەکانی مناسیب بە تۆ بۆ پیشاندار کات.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-sliders me-1 text-primary"></i> فۆرمی ڕێزبەندی</h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ route('student.ai-ranking.generate') }}">
+                    @csrf
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <label class="form-label fw-semibold mb-2">سنووری پارێزگا</label>
+                            <div class="option-wrap">
+                                <label class="option-item">
+                                    <input class="d-none" type="radio" name="province_scope" value="local_only"
+                                        {{ $provinceScopeInput === 'local_only' ? 'checked' : '' }}>
+                                    <span class="option-body">
+                                        <strong>تەنها ناو پارێزگای خۆم</strong>
+                                        <small>تەنها بەشە ناوخۆییەکان هەڵدەبژێردرێن.</small>
+                                    </span>
+                                </label>
+                                <label class="option-item">
+                                    <input class="d-none" type="radio" name="province_scope" value="include_outside"
+                                        {{ $provinceScopeInput === 'include_outside' ? 'checked' : '' }}>
+                                    <span class="option-body">
+                                        <strong>ناو + دەرەوەی پارێزگا</strong>
+                                        <small>بەشەکانی دەرەوەش لە ڕێزبەندی تێدایە.</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label class="form-label fw-semibold mb-2">سیستەمەکانی تێکەڵبوون</label>
+                            <div class="system-wrap">
+                                @foreach ($systems as $system)
+                                    @php
+                                        $allowed = in_array((int) $system->id, $allowedSystemIdsByYear, true);
+                                        $checked = $allowed && in_array((int) $system->id, $selectedSystemIds, true);
+                                    @endphp
+
+                                    <label class="system-item {{ !$allowed ? 'is-disabled' : '' }}">
+                                        <input class="d-none" type="checkbox" name="systems[]"
+                                            value="{{ $system->id }}" {{ $checked ? 'checked' : '' }}
+                                            {{ $allowed ? '' : 'disabled' }}>
+                                        <span class="system-body">
+                                            <span class="system-name">{{ $system->name }}</span>
+                                            <span class="system-status {{ $allowed ? 'ok' : 'no' }}">
+                                                {{ $allowed ? 'تێدایە' : 'ڕێگەپێنەدراو بۆ ساڵەکەت' }}
+                                            </span>
+                                        </span>
+                                    </label>
+                                @endforeach
                             </div>
                         </div>
                     </div>
 
-                    <!-- Preferences Form Card -->
-                    <div class="card glass border-0 shadow-lg mb-4 overflow-hidden fade-in-up">
-                        <div class="card-header bg-gradient-primary p-4">
-                            <h5 class="mb-0 text-white">
-                                <i class="fas fa-cogs me-2"></i>
-                                تایبەتمەندیەکانی ڕیزبەندی
-                            </h5>
-                        </div>
-
-                        <form id="preferencesForm" class="card-body p-4">
-                            @csrf
-
-                            <!-- Personal Considerations Section -->
-                            <div class="section-divider mb-4">
-                                <h6 class="fw-bold text-dark mb-3">
-                                    <i class="fas fa-user me-2 text-primary"></i>
-                                    تایبەتمەندیەکانی کەسی
-                                </h6>
-
-                                <div class="form-check form-switch mb-3 p-3 bg-light rounded-2 transition-all hover-shadow">
-                                    <input class="form-check-input" type="checkbox" id="personality"
-                                        name="consider_personality" value="1"
-                                        @if($preference->consider_personality) checked @endif>
-                                    <label class="form-check-label" for="personality">
-                                        <strong>جۆری کەسی (MBTI) بە هیچ بگرە</strong>
-                                        <br>
-                                        <small class="text-muted">ئایە AI جۆری کەسیتی (ئەگەر بتێپۆی) بە بڕوام بگرێت بۆ
-                                            باشترین بەشەکان بۆ پیشاندار بکات</small>
-                                    </label>
-                                </div>
-
-                                <div class="form-check form-switch mb-3 p-3 bg-light rounded-2 transition-all hover-shadow">
-                                    <input class="form-check-input" type="checkbox" id="markBonus" name="use_mark_bonus"
-                                        value="1" @if($preference->use_mark_bonus) checked @endif>
-                                    <label class="form-check-label" for="markBonus">
-                                        <strong>بۆنەسی نمرەی خوێندن بەکاربێنە</strong>
-                                        <br>
-                                        <small class="text-muted">ئایە بۆنەسی نمرە بۆ بەشەکانت زیاد بکات بەپێی نمرەی
-                                            ئیمتیحان</small>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <!-- Geographic Preferences Section -->
-                            <div class="section-divider mb-4">
-                                <h6 class="fw-bold text-dark mb-3">
-                                    <i class="fas fa-map-marker-alt me-2 text-primary"></i>
-                                    پیشتری شوێنگەل
-                                </h6>
-
-                                <div class="form-check form-switch mb-3 p-3 bg-light rounded-2 transition-all hover-shadow">
-                                    <input class="form-check-input" type="checkbox" id="nearby"
-                                        name="prefer_nearby_departments" value="1"
-                                        @if($preference->prefer_nearby_departments || (int) ($student->all_departments ?? 0) !== 1) checked @endif
-                                        @if((int) ($student->all_departments ?? 0) !== 1) disabled @endif
-                                        onchange="toggleProvinceSelect()">
-                                    <label class="form-check-label" for="nearby">
-                                        <strong>بەشەکانی نزیکترین پاریزگا</strong>
-                                        <br>
-                                        <small class="text-muted">بەشەکانی نزیکترین بە پاریزگای تۆ بۆ پریویت کات</small>
-                                        @if ((int) ($student->all_departments ?? 0) !== 1)
-                                            <br><small class="text-warning">ئەم فیلتەرە بۆ تۆ هەمیشە چالاکە.</small>
-                                        @endif
-                                    </label>
-                                </div>
-
-                                <div id="provinceSelectGroup" class="ms-4 mb-3"
-                                    style="@if(!$preference->prefer_nearby_departments && (int) ($student->all_departments ?? 0) === 1) display: none; @endif">
-                                    <label for="province" class="form-label fw-5 text-muted">پاریزگای پریویت</label>
-                                    <select id="province" name="province_filter"
-                                        class="form-select form-select-lg rounded-2">
-                                        <option value="">-- پاریزگای تۆی نوێنە --</option>
-                                        @foreach ($provinces as $province)
-                                            <option value="{{ $province->id }}"
-                                                @if($preference->province_filter == $province->id) selected @endif>
-                                                {{ $province->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <hr>
-
-                            <!-- System Preferences Section -->
-                            <div class="section-divider mb-4">
-                                <h6 class="fw-bold text-dark mb-3">
-                                    <i class="fas fa-layer-group me-2 text-primary"></i>
-                                    سیستەمەکانی خوێندن
-                                </h6>
-
-                                @if ((int) ($student->year ?? 1) > 1)
-                                    <small class="text-muted d-block mb-3">
-                                        بەپێی ساڵی تۆ، تەنها سیستەمی پاراڵیل و ئێواران بەردەستن.
-                                    </small>
-                                @else
-                                    <small class="text-muted d-block mb-3">کام سیستەمی خوێندن پریویتی تۆیە؟</small>
-                                @endif
-
-                                @forelse ($systems as $system)
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="checkbox"
-                                            id="system{{ $system->id }}" name="preferred_systems[]"
-                                            value="{{ $system->id }}"
-                                            @if(in_array($system->id, $preference->preferred_systems ?? [])) checked @endif>
-                                        <label class="form-check-label" for="system{{ $system->id }}">
-                                            {{ $system->name }}
-                                        </label>
-                                    </div>
-                                @empty
-                                    <small class="text-danger">هیچ سیستەمێکی خوێندن بەردەست نییە.</small>
-                                @endforelse
-                            </div>
-
-                            <hr>
-
-                            <!-- Action Buttons -->
-                            <div class="d-flex gap-3 mt-5 print-hide">
-                                <button type="submit" class="btn btn-primary btn-lg flex-grow-1 rounded-2">
-                                    <i class="fas fa-check me-2"></i>
-                                    پاشەکشانی و بۆ پرسیارەکان بڕۆ
-                                </button>
-                                <a href="{{ route('student.dashboard') }}"
-                                    class="btn btn-outline-secondary btn-lg rounded-2">
-                                    <i class="fas fa-arrow-left me-2"></i>
-                                    گەڕاوە
-                                </a>
-                            </div>
-                        </form>
+                    <div class="mt-4 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary w-100 px-4 py-2">
+                            <i class="fas fa-gears me-1"></i>
+                            ئەنجامدانی ڕێزبەندی (50)
+                        </button>
                     </div>
-                @endif
+                </form>
+            </div>
+        </div>
+
+        @if ($summary)
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0 fw-bold"><i class="fas fa-chart-simple me-1 text-success"></i> کورتەی ئەنجامی ڕێزبەندی</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="summary-item">
+                                <span class="summary-label">سنووری پارێزگا</span>
+                                <span
+                                    class="summary-value">{{ $summary['province_scope'] === 'local_only' ? 'تەنها ناو پارێزگا' : 'ناو + دەرەوەی پارێزگا' }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="summary-item">
+                                <span class="summary-label">نمرەی کارپێکراو</span>
+                                <span
+                                    class="summary-value">{{ rtrim(rtrim(number_format((float) $summary['mark_with_bonus'], 3, '.', ''), '0'), '.') }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="summary-item">
+                                <span class="summary-label">ئەنجام</span>
+                                <span class="summary-value">{{ (int) $summary['count'] }} / 50</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach ($systems as $system)
+                            @php
+                                $included = in_array((int) $system->id, $summary['selected_system_ids'], true);
+                            @endphp
+                            <span class="badge {{ $included ? 'bg-success' : 'bg-secondary' }} px-3 py-2">
+                                {{ $system->name }}: {{ $included ? 'تێدایە' : 'تێدا نییە' }}
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <div class="card border-0 shadow-sm result-card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold"><i class="fas fa-list-ol me-1 text-primary"></i> ئەنجامی ڕێزبەندی (بەرز بۆ نزم)</h6>
+                <span class="badge bg-primary px-3 py-2">{{ $rankedRows->count() }} / 50</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 ai-result-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 72px;" class="text-center">ڕیز</th>
+                                <th>بەش</th>
+                                <th class="text-center">جۆری نمرە</th>
+                                <th class="text-center">نمرەی پێویست</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($rankedRows as $row)
+                                <tr>
+                                    <td class="text-center">
+                                        <span class="rank-badge">{{ $row['rank'] }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-wrap align-items-center gap-1 text-muted small mb-1">
+                                            <span
+                                                class="badge {{ $row['department']->system->id == 1 ? 'bg-success' : ($row['department']->system->id == 2 ? 'bg-danger' : 'bg-dark') }}">
+                                                {{ $row['department']->system->name ?? '-' }}
+                                            </span>
+                                            <span>/ {{ $row['department']->province->name ?? '-' }}</span>
+                                            <span>/ {{ $row['department']->university->name ?? '-' }}</span>
+                                            <span>/ {{ $row['department']->college->name ?? '-' }}</span>/
+                                            <strong style="font-weight: bold; color:#000 !important"> {{ $row['department']->name }}</strong>
+                                            <span class="badge {{ $row['is_local'] ? 'bg-warning' : 'bg-warning text-dark' }}">
+                                                {{ $row['is_local'] ? 'ناو پارێزگا' : 'دەرەوەی پارێزگا' }}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-white px-3 py-2">
+                                            {{ $row['score_type'] === 'local_score' ? 'نمرەی ناوخۆیی' : 'نمرەی دەرەکی' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center fw-bold score-cell">
+                                        {{ rtrim(rtrim(number_format((float) $row['required_score'], 3, '.', ''), '0'), '.') }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block opacity-50"></i>
+                                        هێشتا هیچ ئەنجامێکی ڕێزبەندی نەبوو. فۆرمەکە پڕبکەوە و دگمەی ئەنجامدان دابگرە.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+@endsection
 
+@push('styles')
     <style>
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
+        .ai-pref-page {
+            background:
+                radial-gradient(circle at 6% 8%, rgba(59, 130, 246, 0.10), transparent 35%),
+                radial-gradient(circle at 92% 4%, rgba(16, 185, 129, 0.10), transparent 28%);
+            border-radius: 1rem;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .ai-hero-card {
+            background: linear-gradient(125deg, #0f172a, #1d4ed8);
+            color: #fff;
+            overflow: hidden;
         }
 
-        .transition-all {
-            transition: all 0.3s ease;
+        .hero-kicker {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            display: inline-flex;
+            align-items: center;
         }
 
-        .hover-shadow:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        .hero-title {
+            font-weight: 800;
+            letter-spacing: 0.2px;
         }
 
-        .section-divider {
-            padding: 1.5rem 0;
+        .hero-subtitle {
+            opacity: 0.92;
+            line-height: 1.8;
+            max-width: 58ch;
         }
 
-        .form-check-input:checked {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
+        .hero-count-box {
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            text-align: center;
+            padding: 1rem 0.75rem;
         }
 
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .hero-count {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
         }
 
-        .bg-soft-warning {
-            background: rgba(255, 193, 7, 0.1);
+        .hero-count-label {
+            margin-top: 0.4rem;
+            font-size: 0.85rem;
+            opacity: 0.9;
         }
 
-        .icon-box-lg {
-            width: 80px;
-            height: 80px;
+        .rule-list {
+            counter-reset: ai-rules;
+            padding-inline-start: 0;
+        }
+
+        .rule-list li {
+            list-style: none;
+            counter-increment: ai-rules;
+            position: relative;
+            padding: 0.7rem 0.8rem 0.7rem 3.1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.8rem;
+            margin-bottom: 0.6rem;
+            background: #fff;
+            line-height: 1.7;
+        }
+
+        .ai-pref-page code {
+            font-family: "NizarNastaliqKurdish", "Wafeq", "Noto Sans Arabic", Tahoma, sans-serif;
+            font-size: 0.83rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            background: #e0ecff;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.45rem;
+            padding: 0.08rem 0.42rem;
+        }
+
+        .rule-list li::before {
+            content: counter(ai-rules);
+            position: absolute;
+            left: 0.85rem;
+            top: 0.7rem;
+            width: 1.55rem;
+            height: 1.55rem;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #1e3a8a;
+            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 0.8rem;
         }
 
-        @media print {
-            body {
-                background: #fff !important;
-            }
+        .student-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.65rem;
+        }
 
-            .page-title-right,
-            .breadcrumb,
-            .btn,
-            .print-hide {
-                display: none !important;
-            }
+        .student-info-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.7rem;
+            padding: 0.65rem 0.7rem;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
 
-            .card,
-            .glass {
-                box-shadow: none !important;
-                border: 1px solid #ddd !important;
+        .student-info-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .student-info-item .label {
+            font-size: 0.74rem;
+            color: #64748b;
+        }
+
+        .student-info-item .value {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.92rem;
+        }
+
+        .option-wrap,
+        .system-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .option-item,
+        .system-item {
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .option-body,
+        .system-body {
+            display: block;
+            border: 1px solid #dbe3ee;
+            border-radius: 0.8rem;
+            padding: 0.8rem 0.9rem;
+            background: #fff;
+            transition: all 0.18s ease;
+        }
+
+        .option-body strong,
+        .system-name {
+            display: block;
+            color: #0f172a;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+        }
+
+        .option-body small {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .system-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .system-status {
+            font-size: 0.75rem;
+            padding: 0.22rem 0.55rem;
+            border-radius: 999px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .system-status.ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .system-status.no {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .option-item input:checked + .option-body,
+        .system-item input:checked + .system-body {
+            border-color: #2563eb;
+            background: #eff6ff;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+
+        .system-item.is-disabled {
+            cursor: not-allowed;
+            opacity: 0.78;
+        }
+
+        .summary-item {
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 0.8rem;
+            padding: 0.75rem 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            height: 100%;
+        }
+
+        .summary-label {
+            font-size: 0.74rem;
+            color: #64748b;
+        }
+
+        .summary-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .result-card .card-header {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .ai-result-table thead th {
+            background: #f8fafc;
+            font-size: 0.82rem;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: #3730a3;
+            font-weight: 800;
+        }
+
+        .score-cell {
+            color: #0f766e;
+        }
+
+        @media (max-width: 768px) {
+            .student-info-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
-
-    <script>
-        function toggleProvinceSelect() {
-            const checkbox = document.getElementById('nearby');
-            const provinceGroup = document.getElementById('provinceSelectGroup');
-            if (!checkbox || !provinceGroup) {
-                return;
-            }
-            provinceGroup.style.display = checkbox.checked ? 'block' : 'none';
-        }
-
-        function getBrowserLocation() {
-            return new Promise((resolve, reject) => {
-                if (!('geolocation' in navigator)) {
-                    reject(new Error('Geolocation is not supported'));
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0,
-                });
-            });
-        }
-
-        const preferencesForm = document.getElementById('preferencesForm');
-        const nearbyCheckbox = document.getElementById('nearby');
-        const isNearbyForced = @json((int) ($student->all_departments ?? 0) !== 1);
-        if (preferencesForm) {
-            // Handle form submission
-            preferencesForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-                const data = Object.fromEntries(formData);
-
-                // Convert checkboxes to proper format
-                data.consider_personality = document.getElementById('personality').checked ? 1 : 0;
-                data.use_mark_bonus = document.getElementById('markBonus').checked ? 1 : 0;
-                data.prefer_nearby_departments = (isNearbyForced || (nearbyCheckbox && nearbyCheckbox.checked)) ? 1 : 0;
-                data.mark_bonus_enabled = 1; // Default to enabled
-                data.preferred_systems = Array.from(document.querySelectorAll(
-                    'input[name="preferred_systems[]"]:checked'
-                )).map(cb => cb.value);
-                const provinceElement = document.getElementById('province');
-                data.province_filter = provinceElement ? (provinceElement.value || null) : null;
-
-                if (data.prefer_nearby_departments === 1) {
-                    try {
-                        const position = await getBrowserLocation();
-                        data.lat = Number(position.coords.latitude);
-                        data.lng = Number(position.coords.longitude);
-                    } catch (geoError) {
-                        alert('تکایە مۆڵەتی شوێن بدە بۆ بەکارهێنانی "بەشەکانی نزیکترین پاریزگا".');
-                        return;
-                    }
-                }
-
-                try {
-                    const response = await fetch('{{ route('student.ai-ranking.save-preferences') }}', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok && result.success) {
-                        // Show success message
-                        const alert = document.createElement('div');
-                        alert.className = 'alert alert-success alert-dismissible fade show';
-                        alert.innerHTML = `
-                            ${result.message}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        `;
-                        const container = document.querySelector('.container-fluid');
-                        if (container) {
-                            container.prepend(alert);
-                        } else {
-                            document.body.prepend(alert);
-                        }
-
-                        // Redirect after 1 second
-                        setTimeout(() => {
-                            window.location.href = result.redirect;
-                        }, 1500);
-                    } else {
-                        const firstError = result?.errors ? Object.values(result.errors)[0]?.[0] : null;
-                        alert('ھێڵە: ' + (firstError || result.message || 'هەڵەیەک ڕوویدا'));
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('ھێڵە لە دەست کەوتن');
-                }
-            });
-        }
-    </script>
-@endsection
+@endpush

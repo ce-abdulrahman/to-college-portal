@@ -21,7 +21,7 @@
         </div>
 
         <div class="mb-4">
-            <a href="{{ route('center.teachers.index') }}" class="btn btn-outline">
+            <a href="{{ route('center.teachers.index') }}" class="btn btn-outline-secondary">
                 <i class="fa-solid fa-arrow-right-long me-1"></i> گەڕانەوە
             </a>
         </div>
@@ -33,6 +33,9 @@
                         <h4 class="card-title mb-4">
                             <i class="fa-solid fa-user-pen me-2"></i> نوێکردنەوەی مامۆستا
                         </h4>
+                        <p class="text-muted small mb-4">
+                            زانیاری مامۆستا نوێ بکەرەوە و دڵنیابە لە سنوور و دۆخی هەژمار.
+                        </p>
 
                         {{-- هەڵەکان --}}
                         @if ($errors->any())
@@ -56,7 +59,11 @@
                             @csrf
                             @method('PUT')
 
-                            <div class="row g-3">
+                            <div class="border rounded-3 p-3 mb-4 bg-light-subtle">
+                                <div class="fw-semibold mb-3">
+                                    <i class="fa-solid fa-address-card me-1"></i> زانیاری سەرەکی
+                                </div>
+                                <div class="row g-3">
                                 {{-- Name --}}
                                 <div class="col-12 col-md-6">
                                     <label for="name" class="form-label">ناوی مامۆستا</label>
@@ -142,31 +149,38 @@
                                         <div class="form-text">تەنها سەنتەر دەتوانێت پیشە دیاری بکات.</div>
                                     @enderror
                                 </div>
-
-                                <div class="col-md-6">
-                                    <label for="limit_student" class="form-label">سنووری قوتابی بۆ مامۆستا</label>
-                                    <input type="number" min="0"
-                                        class="form-control @error('limit_student') is-invalid @enderror"
-                                        id="limit_student" name="limit_student"
-                                        value="{{ old('limit_student', $teacher->limit_student) }}">
-                                    @error('limit_student')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @else
-                                        <div class="form-text">
-                                            سنووری سەنتەر:
-                                            {{ is_null($center?->limit_student) ? 'بێ سنوور' : $center->limit_student }}
-                                        </div>
-                                    @enderror
                                 </div>
+                            </div>
 
-                                <div class="col-md-6">
-                                    <label for="status" class="form-label">دۆخ</label>
-                                    <select class="form-select" id="status" name="status" required>
-                                        <option value="1" @selected((string) old('status', $teacher->user->status) === '1')>چاڵاک</option>
-                                        <option value="0" @selected((string) old('status', $teacher->user->status) === '0')>ناچاڵاک</option>
-                                    </select>
+                            <div class="border rounded-3 p-3 mb-4 bg-light-subtle">
+                                <div class="fw-semibold mb-3">
+                                    <i class="fa-solid fa-sliders me-1"></i> سنوور و دۆخ
                                 </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="limit_student" class="form-label">سنووری قوتابی بۆ مامۆستا</label>
+                                        <input type="number" min="0"
+                                            class="form-control @error('limit_student') is-invalid @enderror"
+                                            id="limit_student" name="limit_student"
+                                            value="{{ old('limit_student', $teacher->limit_student) }}" readonly>
+                                        @error('limit_student')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @else
+                                            <div class="form-text">
+                                                سنووری سەنتەر:
+                                                {{ is_null($center?->limit_student) ? 'بێ سنوور' : $center->limit_student }}
+                                            </div>
+                                        @enderror
+                                    </div>
 
+                                    <div class="col-md-6">
+                                        <label for="status" class="form-label">دۆخ</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <option value="1" @selected((string) old('status', $teacher->user->status) === '1')>چاڵاک</option>
+                                            <option value="0" @selected((string) old('status', $teacher->user->status) === '0')>ناچاڵاک</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             @include('website.web.center.partials.feature-access-fields', [
@@ -184,7 +198,10 @@
 
                             <hr class="my-4">
 
-                            <div class="d-flex justify-content-end mt-4">
+                            <div class="d-flex justify-content-end mt-4 gap-2">
+                                <a href="{{ route('center.teachers.index') }}" class="btn btn-outline-secondary">
+                                    <i class="fa-solid fa-xmark me-1"></i> هەڵوەشاندنەوە
+                                </a>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fa-solid fa-floppy-disk me-1"></i> پاشەکەوتکردن
                                 </button>

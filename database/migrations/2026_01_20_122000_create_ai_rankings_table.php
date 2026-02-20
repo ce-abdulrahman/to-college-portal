@@ -12,10 +12,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
             $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
-            $table->float('score', 5, 2)->default(0);
-            $table->integer('rank')->default(0);
-            $table->text('reason')->nullable();
-            $table->json('match_factors')->nullable();
+            $table->integer('rank')->nullable();
+            $table->integer('result_rank')->nullable();
             $table->timestamps();
             
             $table->unique(['student_id', 'department_id']);

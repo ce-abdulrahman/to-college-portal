@@ -41,6 +41,9 @@
         $activeFeaturesCount = (int) ($dashboard['active_features_count'] ?? collect($features)->where('active', true)->count());
         $featuresCount = (int) ($dashboard['features_count'] ?? count($features));
         $missingFeatures = collect($features)->where('active', false)->values();
+        $aiEnabled = (int) ($student?->ai_rank ?? 0) === 1;
+        $aiActionRoute = $aiEnabled ? route('student.ai-ranking.preferences') : route('student.departments.request-more');
+        $aiActionLabel = $aiEnabled ? 'ڕێزبەندی AI ئۆتۆماتیکی' : 'داوای چالاککردنی AI';
     @endphp
 
     <div class="container-fluid py-4 dashboard-simple-page dashboard-student">
@@ -171,9 +174,9 @@
                                 </a>
                             </div>
                             <div class="col-sm-6">
-                                <a href="{{ route('student.ai-ranking.preferences') }}" class="quick-action qa-success">
+                                <a href="{{ $aiActionRoute }}" class="quick-action qa-success">
                                     <i class="fas fa-robot"></i>
-                                    <span>ڕێزبەندی AI</span>
+                                    <span>{{ $aiActionLabel }}</span>
                                 </a>
                             </div>
                             <div class="col-sm-6">

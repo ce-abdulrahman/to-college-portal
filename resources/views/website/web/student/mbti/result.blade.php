@@ -220,11 +220,11 @@
                         <i class="fas fa-rocket fa-3x mb-4 opacity-50 pulse-animation"></i>
                         <h2 class="fw-bold mb-3 font-primary">ئامادەی بۆ هەنگاوی داهاتوو؟</h2>
                         <p class="fs-5 opacity-80 mb-4 mx-auto" style="max-width: 700px;">ئێستا کە جۆری کەسایەتی خۆت
-                            دەزانیت، دەتوانیت بە زیرەکی دەستکرد (AI) باشترین بەشی زانکۆ هەڵبژێریت کە لەگەڵ کەسایەتیت
+                            دەزانیت، دەتوانیت بە ڕێزبەندیی خۆت باشترین بەشی زانکۆ هەڵبژێریت کە لەگەڵ کەسایەتیت
                             دەگونجێت.</p>
-                        <a href="{{ route('student.ai-ranking.questionnaire') }}"
+                        <a href="{{ (int) ($student->ai_rank ?? 0) === 1 ? route('student.ai-ranking.preferences') : route('student.departments.selection') }}"
                             class="btn btn-white btn-lg rounded-pill px-5 fw-bold shadow-lg">
-                            هەڵبژاردنی بەش بە زیرەکی دەستکرد <i class="fas fa-arrow-left ms-2 scale-rtl"></i>
+                            {{ (int) ($student->ai_rank ?? 0) === 1 ? 'ڕێزبەندی AI' : 'هەڵبژاردنی بەش' }} <i class="fas fa-arrow-left ms-2 scale-rtl"></i>
                         </a>
                     </div>
                 </div>

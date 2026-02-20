@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\ResultDep;
+use App\Models\AIRanking;
 
 class StudentController extends Controller
 {
@@ -37,7 +38,17 @@ class StudentController extends Controller
             })
             ->get();
 
-        return view('website.web.admin.user.student.show', compact('user', 'student', 'result_deps'));
+        $ai_rankings = collect();
+        if ((int) ($student->ai_rank ?? 0) === 1) {
+            $ai_rankings = AIRanking::query()
+                ->with(['department.system', 'department.university', 'department.college', 'department.province'])
+                ->where('student_id', $student->id)
+                ->orderBy('rank')
+                ->take(50)
+                ->get();
+        }
+
+        return view('website.web.admin.user.student.show', compact('user', 'student', 'result_deps', 'ai_rankings'));
     }
 
 

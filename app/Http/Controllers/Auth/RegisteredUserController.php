@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Center;
+use App\Models\Teacher;
 use App\Models\User;
 use App\Models\Student;
 use App\Models\Province;
@@ -45,11 +47,37 @@ class RegisteredUserController extends Controller
             'code' => ['required', 'string', 'unique:users,code'],
             'phone' => ['nullable', 'string', 'max:11'],
             'password' => ['required', Rules\Password::defaults()],
-            'mark' => ['required', 'numeric', 'min:0', 'max:100'],
-            'province' => ['required', 'string', 'max:255', Rule::exists('provinces', 'name')->where('status', 1)],
-            'type' => ['required', Rule::in(['زانستی', 'وێژەیی'])],
-            'gender' => ['required', Rule::in(['نێر', 'مێ'])],
-            'year' => ['required', 'integer', 'min:1', 'max:12'],
+            'role' => ['required', Rule::in(['center', 'teacher', 'student'])],
+
+            'center_province' => [
+                Rule::requiredIf(fn() => $request->input('role') === 'center'),
+                'nullable',
+                'string',
+                'max:255',
+                Rule::exists('provinces', 'name')->where('status', 1),
+            ],
+            'center_address' => ['nullable', 'string', 'max:3000'],
+            'center_description' => ['nullable', 'string', 'max:5000'],
+
+            'teacher_province' => [
+                Rule::requiredIf(fn() => $request->input('role') === 'teacher'),
+                'nullable',
+                'string',
+                'max:255',
+                Rule::exists('provinces', 'name')->where('status', 1),
+            ],
+
+            'student_mark' => [Rule::requiredIf(fn() => $request->input('role') === 'student'), 'nullable', 'numeric', 'min:0', 'max:100'],
+            'student_province' => [
+                Rule::requiredIf(fn() => $request->input('role') === 'student'),
+                'nullable',
+                'string',
+                'max:255',
+                Rule::exists('provinces', 'name')->where('status', 1),
+            ],
+            'student_type' => [Rule::requiredIf(fn() => $request->input('role') === 'student'), 'nullable', Rule::in(['زانستی', 'وێژەیی'])],
+            'student_gender' => [Rule::requiredIf(fn() => $request->input('role') === 'student'), 'nullable', Rule::in(['نێر', 'مێ'])],
+            'student_year' => [Rule::requiredIf(fn() => $request->input('role') === 'student'), 'nullable', 'integer', 'min:1'],
             'referral_code' => [
                 'nullable',
                 'integer',
@@ -60,9 +88,11 @@ class RegisteredUserController extends Controller
             ? (string) ((int) $data['referral_code'])
             : null;
 
-        // ئەگەر referral_code بۆ center/teacher نەبێت، خۆکارانە هەژمار دەکرێت بۆ admin.
-        $referrer = $this->resolveCenterOrTeacherReferrer($submittedReferralCode)
-            ?? $this->resolvePrimaryAdminReferrer();
+        $referrer = $this->resolveReferrerForRole($data['role'], $submittedReferralCode);
+
+        $normalizedStudentYear = isset($data['student_year'])
+            ? ((int) $data['student_year'] > 1 ? 2 : 1)
+            : null;
 
         if (!$referrer) {
             return back()
@@ -70,30 +100,57 @@ class RegisteredUserController extends Controller
                 ->withInput();
         }
 
-        DB::transaction(function () use ($data, $referrer) {
+        DB::transaction(function () use ($data, $referrer, $normalizedStudentYear) {
             $user = User::create([
                 'name' => $data['name'],
                 'code' => $data['code'],
                 'phone' => $data['phone'] ?? null,
                 'password' => Hash::make($data['password']),
                 'rand_code' => $this->generateRandCode(),
-                'role' => 'student',
+                'role' => $data['role'],
                 'status' => 0,
             ]);
 
-            Student::create([
-                'user_id' => $user->id,
-                'mark' => $data['mark'],
-                'province' => $data['province'],
-                'type' => $data['type'],
-                'gender' => $data['gender'],
-                'year' => $data['year'],
-                'referral_code' => (string) $referrer->rand_code,
-                'status' => 0,
-                'ai_rank' => 0,
-                'gis' => 0,
-                'all_departments' => 0,
-            ]);
+            if ($data['role'] === 'center') {
+                Center::create([
+                    'user_id' => $user->id,
+                    'address' => $data['center_address'] ?? null,
+                    'province' => $data['center_province'],
+                    'description' => $data['center_description'] ?? null,
+                    'ai_rank' => 0,
+                    'gis' => 0,
+                    'all_departments' => 0,
+                    'queue_hand_department' => 0,
+                    'limit_teacher' => 0,
+                    'limit_student' => 0,
+                    'referral_code' => (string) $referrer->rand_code,
+                ]);
+            } elseif ($data['role'] === 'teacher') {
+                Teacher::create([
+                    'user_id' => $user->id,
+                    'referral_code' => (string) $referrer->rand_code,
+                    'province' => $data['teacher_province'],
+                    'ai_rank' => 0,
+                    'gis' => 0,
+                    'all_departments' => 0,
+                    'queue_hand_department' => 0,
+                    'limit_student' => 0,
+                ]);
+            } else {
+                Student::create([
+                    'user_id' => $user->id,
+                    'mark' => $data['student_mark'],
+                    'province' => $data['student_province'],
+                    'type' => $data['student_type'],
+                    'gender' => $data['student_gender'],
+                    'year' => $normalizedStudentYear,
+                    'referral_code' => (string) $referrer->rand_code,
+                    'status' => 0,
+                    'ai_rank' => 0,
+                    'gis' => 0,
+                    'all_departments' => 0,
+                ]);
+            }
         });
 
         return view('auth.register-waiting', [
@@ -106,10 +163,12 @@ class RegisteredUserController extends Controller
     {
         $data = $request->validate([
             'code' => ['nullable', 'string'],
+            'role' => ['nullable', Rule::in(['center', 'teacher', 'student'])],
         ]);
 
         $code = isset($data['code']) ? trim((string) $data['code']) : null;
-        $referrer = $this->resolveReferrerUser($code);
+        $role = $data['role'] ?? 'student';
+        $referrer = $this->resolveReferrerForRoleLookup($role, $code);
 
         if (!$referrer) {
             return response()->json([
@@ -149,7 +208,7 @@ class RegisteredUserController extends Controller
             ->first();
     }
 
-    private function resolveCenterOrTeacherReferrer(?string $code): ?User
+    private function resolveAdminReferrer(?string $code): ?User
     {
         if (!$code || !is_numeric($code)) {
             return null;
@@ -158,8 +217,41 @@ class RegisteredUserController extends Controller
         return User::query()
             ->select('id', 'name', 'phone', 'role', 'rand_code')
             ->where('rand_code', (int) $code)
-            ->whereIn('role', ['center', 'teacher'])
+            ->where('role', 'admin')
             ->first();
+    }
+
+    private function resolveAdminOrCenterReferrer(?string $code): ?User
+    {
+        if (!$code || !is_numeric($code)) {
+            return null;
+        }
+
+        return User::query()
+            ->select('id', 'name', 'phone', 'role', 'rand_code')
+            ->where('rand_code', (int) $code)
+            ->whereIn('role', ['admin', 'center'])
+            ->first();
+    }
+
+    private function resolveReferrerForRole(string $role, ?string $code): ?User
+    {
+        return match ($role) {
+            'center' => $this->resolveAdminReferrer($code) ?? $this->resolvePrimaryAdminReferrer(),
+            'teacher' => $this->resolveAdminOrCenterReferrer($code) ?? $this->resolvePrimaryAdminReferrer(),
+            'student' => $this->resolveReferrerUser($code) ?? $this->resolvePrimaryAdminReferrer(),
+            default => $this->resolvePrimaryAdminReferrer(),
+        };
+    }
+
+    private function resolveReferrerForRoleLookup(string $role, ?string $code): ?User
+    {
+        return match ($role) {
+            'center' => $this->resolveAdminReferrer($code),
+            'teacher' => $this->resolveAdminOrCenterReferrer($code),
+            'student' => $this->resolveReferrerUser($code),
+            default => $this->resolveReferrerUser($code),
+        };
     }
 
     private function resolvePrimaryAdminReferrer(): ?User
@@ -177,6 +269,7 @@ class RegisteredUserController extends Controller
             'admin' => 'ئەدمین',
             'center' => 'سەنتەر',
             'teacher' => 'مامۆستا',
+            'student' => 'قوتابی',
             default => $role,
         };
     }

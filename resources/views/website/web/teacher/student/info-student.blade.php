@@ -64,16 +64,31 @@
         </div>
 
         <div class="col-12 col-md-6">
-            <label for="year" class="form-label">ساڵ</label>
+            @php
+                $selectedYear = (int) old('year', 1) > 1 ? '2' : '1';
+                $isYearOne = $selectedYear === '1';
+            @endphp
+            <label for="year" class="form-label">پڕکردنەوەی فۆرم</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-regular fa-calendar"></i></span>
-                <input type="number" class="form-control @error('year') is-invalid @enderror" id="year"
-                    name="year" value="1" required placeholder="{{ now()->year }}">
+                <select class="form-select @error('year') is-invalid @enderror" id="year" name="year" required>
+                    <option value="1" @selected($selectedYear === '1')>1</option>
+                    <option value="2" @selected($selectedYear === '2')>زیاتر لە ٢</option>
+                </select>
                 @error('year')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @else
-                    <div class="invalid-feedback">ساڵ پێویستە (٢٠٠٠ تا {{ now()->year }}).</div>
+                    <div class="invalid-feedback">هەڵبژاردنی پڕکردنەوەی فۆرم پێویستە.</div>
                 @enderror
+            </div>
+            <div id="year-system-tip" class="mt-2 small">
+                @if ($isYearOne)
+                    دەتوانی سیستەمی <span class="badge bg-success">زانکۆلاین</span> و <span
+                        class="badge bg-danger">پاڕالێل</span> و <span class="badge bg-dark">ئێواران</span> هەڵبژێری
+                @else
+                    بەس سیستەمی <span class="badge bg-danger">پاڕالێل</span> و <span
+                        class="badge bg-dark">ئێواران</span> هەڵبژێری
+                @endif
             </div>
         </div>
 
@@ -102,8 +117,9 @@
 <div id="choose-num" class="{{ $showNum ? '' : 'd-none' }}">
     <hr class="my-4">
 
-    <h5 class="mb-4">هەڵبژاردنەی ژمارەی <b class="text-primary">زانکۆلاین</b> و <b class="text-success">پارالیل</b> و
-        <b class="text-danger">ئیواران</b> بۆ ڕێزبەندی کردن.
+    <h5 class="mb-4">هەڵبژاردنەی ژمارەی <span class="badge bg-success">زانکۆلاین</span> و <span
+            class="badge bg-danger">پاڕالێل</span> و
+        <span class="badge bg-dark">ئێواران</span> بۆ ڕێزبەندی کردن.
     </h5>
 
     <div class="row g-3">
@@ -113,8 +129,8 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-star-half-stroke"></i></span>
                 <input type="number" class="form-control @error('zankoline_num') is-invalid @enderror"
-                    id="zankoline_num" name="zankoline_num" value="{{ old('zankoline_num') }}" required min="0"
-                    step="0.01" placeholder="نموونە: 89.50">
+                    id="zankoline_num" name="zankoline_num" value="{{ old('zankoline_num') }}" required
+                    min="0" step="0.01" placeholder="نموونە: 89.50">
                 @error('zankoline_num')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @else
@@ -124,7 +140,7 @@
         </div>
 
         <div class="col-12 col-md-4">
-            <label for="parallel_num" class="form-label">پارالیل</label>
+            <label for="parallel_num" class="form-label">پاڕالێل</label>
             <div class="input-group">
                 <span class="input-group-text"><i class="fa-solid fa-star-half-stroke"></i></span>
                 <input type="number" class="form-control @error('parallel_num') is-invalid @enderror"
@@ -155,3 +171,30 @@
 
     </div>
 </div>
+
+@once
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearSelect = document.getElementById('year');
+            const tipBox = document.getElementById('year-system-tip');
+
+            if (!yearSelect || !tipBox) {
+                return;
+            }
+
+            function renderYearTip() {
+                if (String(yearSelect.value) === '1') {
+                    tipBox.innerHTML =
+                        'دەتوانی سیستەمی <span class="badge bg-success">زانکۆلاین</span> و <span class="badge bg-danger">پاڕالێل</span> و <span class="badge bg-dark">ئێواران</span> هەڵبژێری';
+                    return;
+                }
+
+                tipBox.innerHTML =
+                    'بەس سیستەمی <span class="badge bg-danger">پاڕالێل</span> و <span class="badge bg-dark">ئێواران</span> هەڵبژێری';
+            }
+
+            yearSelect.addEventListener('change', renderYearTip);
+            renderYearTip();
+        });
+    </script>
+@endonce

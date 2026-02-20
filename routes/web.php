@@ -46,6 +46,13 @@ Route::prefix('s')->name('student.')
             Route::post('/retake', [MbtiController::class, 'retake'])->name('retake');
         });
 
+        Route::prefix('ai-ranking')->name('ai-ranking.')->group(function () {
+            Route::get('/preferences', [AIRankingController::class, 'preferences'])
+                ->name('preferences');
+            Route::post('/generate', [AIRankingController::class, 'generate'])
+                ->name('generate');
+        });
+
         Route::get('/departments/selection', [DepartmentSelectionController::class, 'index'])
             ->name('departments.selection');
 
@@ -102,47 +109,4 @@ Route::prefix('s')->name('student.')
                 ->name('gis.remove');
         });
 
-        // AI Ranking
-        Route::prefix('ai-ranking')->group(function () {
-            // پێشتر: بەڕێزی هەڵبژاردنی فیلتەرەکان
-            Route::get('/preferences', [AIRankingController::class, 'preferencesForm'])
-                ->name('ai-ranking.preferences');
-
-            Route::post('/save-preferences', [AIRankingController::class, 'savePreferences'])
-                ->name('ai-ranking.save-preferences');
-
-            Route::get('/questionnaire', [AIRankingController::class, 'questionnaire'])
-                ->name('ai-ranking.questionnaire');
-
-            Route::post('/submit', [AIRankingController::class, 'submitQuestionnaire'])
-                ->name('ai-ranking.submit');
-
-            Route::get('/results', [AIRankingController::class, 'results'])
-                ->name('ai-ranking.results');
-
-            Route::post('/retake', [AIRankingController::class, 'retake'])
-                ->name('ai-ranking.retake');
-
-            Route::post('/add-to-selection', [AIRankingController::class, 'addToSelection'])
-                ->name('ai-ranking.add');
-
-            // نوێ Routes
-            Route::get('/check-status', [AIRankingController::class, 'checkAIStatus'])
-                ->name('ai-ranking.check-status');
-
-            Route::get('/export/excel', [AIRankingController::class, 'exportExcel'])
-                ->name('export-excel');
-
-            Route::get('/export/pdf', [AIRankingController::class, 'exportPDF'])
-                ->name('export-pdf');
-
-            Route::get('/department/{id}/details', [AIRankingController::class, 'departmentDetails'])
-                ->name('ai-ranking.department-details');
-
-            Route::post('/reorder', [AIRankingController::class, 'reorderByFactor'])
-                ->name('reorder');
-
-            Route::get('/compare', [AIRankingController::class, 'compareRankings'])
-                ->name('ai-ranking.compare');
-        });
     });

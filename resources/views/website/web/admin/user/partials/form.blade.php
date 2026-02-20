@@ -29,7 +29,8 @@
         <div class="input-group">
             <input type="number" id="rand_code" name="rand_code" class="form-control"
                 value="{{ old('rand_code', $isEdit ? $user->rand_code : '') }}" required>
-            <button class="btn btn-outline-secondary" type="button" id="generate-rand-code" title="دروستکردنی کۆدی نوێ">
+            <button class="btn btn-outline-secondary" type="button" id="generate-rand-code"
+                title="دروستکردنی کۆدی نوێ">
                 <i class="fa-solid fa-rotate"></i>
             </button>
         </div>
@@ -68,7 +69,7 @@
             @endif
         </label>
         <input type="password" id="password" name="password" class="form-control"
-            @if (! $isEdit) required @endif>
+            @if (!$isEdit) required @endif>
     </div>
 
     <div class="col-md-6">
@@ -80,7 +81,7 @@
             @endif
         </label>
         <input type="password" id="password_confirmation" name="password_confirmation" class="form-control"
-            @if (! $isEdit) required @endif>
+            @if (!$isEdit) required @endif>
     </div>
 </div>
 
@@ -109,14 +110,14 @@
 
         <div class="col-md-2">
             <label for="center_limit_teacher" class="form-label">سنووری مامۆستا</label>
-            <input type="number" min="0" id="center_limit_teacher" name="center_limit_teacher" class="form-control"
-                value="{{ old('center_limit_teacher', data_get($center, 'limit_teacher', 0)) }}">
+            <input type="number" min="0" id="center_limit_teacher" name="center_limit_teacher"
+                class="form-control" value="{{ old('center_limit_teacher', data_get($center, 'limit_teacher', 0)) }}">
         </div>
 
         <div class="col-md-2">
             <label for="center_limit_student" class="form-label">سنووری قوتابی</label>
-            <input type="number" min="0" id="center_limit_student" name="center_limit_student" class="form-control"
-                value="{{ old('center_limit_student', data_get($center, 'limit_student', 0)) }}">
+            <input type="number" min="0" id="center_limit_student" name="center_limit_student"
+                class="form-control" value="{{ old('center_limit_student', data_get($center, 'limit_student', 0)) }}">
         </div>
 
         <div class="col-md-6">
@@ -143,13 +144,13 @@
                     <label class="form-check-label" for="center_gis">GIS</label>
                 </div>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="center_all_departments" name="center_all_departments"
-                        value="1" @checked((int) old('center_all_departments', data_get($center, 'all_departments', 0)) === 1)>
+                    <input class="form-check-input" type="checkbox" id="center_all_departments"
+                        name="center_all_departments" value="1" @checked((int) old('center_all_departments', data_get($center, 'all_departments', 0)) === 1)>
                     <label class="form-check-label" for="center_all_departments">All Departments</label>
                 </div>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="center_queue_hand_department" name="center_queue_hand_department"
-                        value="1" @checked((int) old('center_queue_hand_department', data_get($center, 'queue_hand_department', 0)) === 1)>
+                    <input class="form-check-input" type="checkbox" id="center_queue_hand_department"
+                        name="center_queue_hand_department" value="1" @checked((int) old('center_queue_hand_department', data_get($center, 'queue_hand_department', 0)) === 1)>
                     <label class="form-check-label" for="center_queue_hand_department">Queue Hand Department</label>
                 </div>
             </div>
@@ -182,7 +183,8 @@
 
         <div class="col-md-4">
             <label for="teacher_limit_student" class="form-label">سنووری قوتابی</label>
-            <input type="number" min="0" id="teacher_limit_student" name="teacher_limit_student" class="form-control"
+            <input type="number" min="0" id="teacher_limit_student" name="teacher_limit_student"
+                class="form-control"
                 value="{{ old('teacher_limit_student', data_get($teacher, 'limit_student', 0)) }}">
         </div>
 
@@ -200,13 +202,13 @@
                     <label class="form-check-label" for="teacher_gis">GIS</label>
                 </div>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="teacher_all_departments" name="teacher_all_departments"
-                        value="1" @checked((int) old('teacher_all_departments', data_get($teacher, 'all_departments', 0)) === 1)>
+                    <input class="form-check-input" type="checkbox" id="teacher_all_departments"
+                        name="teacher_all_departments" value="1" @checked((int) old('teacher_all_departments', data_get($teacher, 'all_departments', 0)) === 1)>
                     <label class="form-check-label" for="teacher_all_departments">All Departments</label>
                 </div>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="teacher_queue_hand_department" name="teacher_queue_hand_department"
-                        value="1" @checked((int) old('teacher_queue_hand_department', data_get($teacher, 'queue_hand_department', 0)) === 1)>
+                    <input class="form-check-input" type="checkbox" id="teacher_queue_hand_department"
+                        name="teacher_queue_hand_department" value="1" @checked((int) old('teacher_queue_hand_department', data_get($teacher, 'queue_hand_department', 0)) === 1)>
                     <label class="form-check-label" for="teacher_queue_hand_department">Queue Hand Department</label>
                 </div>
             </div>
@@ -221,14 +223,27 @@
     <div class="row g-3">
         <div class="col-md-3">
             <label for="student_mark" class="form-label">نمرە <span class="text-danger">*</span></label>
-            <input type="number" step="0.01" min="0" max="100" id="student_mark" name="student_mark" class="form-control"
+            <input type="number" step="0.01" min="0" max="100" id="student_mark"
+                name="student_mark" class="form-control"
                 value="{{ old('student_mark', data_get($student, 'mark')) }}">
         </div>
 
         <div class="col-md-3">
-            <label for="student_year" class="form-label">ساڵ <span class="text-danger">*</span></label>
-            <input type="number" min="1" id="student_year" name="student_year" class="form-control"
-                value="{{ old('student_year', data_get($student, 'year')) }}">
+            @php
+                $studentYearValue = old('student_year', data_get($student, 'year'));
+                $selectedStudentYear =
+                    $studentYearValue === null || $studentYearValue === ''
+                        ? ''
+                        : ((int) $studentYearValue > 1
+                            ? '2'
+                            : '1');
+            @endphp
+            <label for="student_year" class="form-label">پڕکردنەوەی فۆرم <span class="text-danger">*</span></label>
+            <select id="student_year" name="student_year" class="form-select">
+                <option value="" @selected($selectedStudentYear === '')>هەڵبژێرە...</option>
+                <option value="1" @selected($selectedStudentYear === '1')>1</option>
+                <option value="2" @selected($selectedStudentYear === '2')>زیاتر لە 2</option>
+            </select>
         </div>
 
         <div class="col-md-3">
@@ -305,8 +320,8 @@
                     <label class="form-check-label" for="student_gis">GIS</label>
                 </div>
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="student_all_departments" name="student_all_departments"
-                        value="1" @checked((int) old('student_all_departments', data_get($student, 'all_departments', 0)) === 1)>
+                    <input class="form-check-input" type="checkbox" id="student_all_departments"
+                        name="student_all_departments" value="1" @checked((int) old('student_all_departments', data_get($student, 'all_departments', 0)) === 1)>
                     <label class="form-check-label" for="student_all_departments">All Departments</label>
                 </div>
             </div>
@@ -337,7 +352,9 @@
             function setRoleRequiredFields(role) {
                 const centerFields = ['center_province'];
                 const teacherFields = ['teacher_province'];
-                const studentFields = ['student_mark', 'student_province', 'student_type', 'student_gender', 'student_year', 'student_status'];
+                const studentFields = ['student_mark', 'student_province', 'student_type', 'student_gender',
+                    'student_year', 'student_status'
+                ];
 
                 centerFields.forEach(id => {
                     const field = document.getElementById(id);

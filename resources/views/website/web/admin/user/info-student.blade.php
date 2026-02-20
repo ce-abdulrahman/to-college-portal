@@ -7,8 +7,8 @@
     <div class="row g-3">
         <div class="col-md-6">
             <label for="mark" class="form-label">نمرەی قوتابی <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="mark" name="mark" 
-                   value="{{ old('mark') }}" required step="0.01" min="0" max="100">
+            <input type="number" class="form-control" id="mark" name="mark" value="{{ old('mark') }}"
+                required step="0.01" min="0" max="100">
             <div class="invalid-feedback">تکایە نمرەی دروست بنووسە.</div>
         </div>
 
@@ -44,16 +44,23 @@
         </div>
 
         <div class="col-md-6">
-            <label for="year" class="form-label">ساڵ <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="year" name="year" 
-                   value="{{ old('year', date('Y')) }}" required min="2000" max="{{ date('Y') }}">
-            <div class="invalid-feedback">تکایە ساڵی دروست بنووسە.</div>
+            @php
+                $yearValue = old('year');
+                $selectedYear = $yearValue === null || $yearValue === '' ? '' : ((int) $yearValue > 1 ? '2' : '1');
+            @endphp
+            <label for="year" class="form-label">پڕکردنەوەی فۆرم <span class="text-danger">*</span></label>
+            <select class="form-select" id="year" name="year" required>
+                <option value="" @selected($selectedYear === '')>هەڵبژێرە...</option>
+                <option value="1" @selected($selectedYear === '1')>1</option>
+                <option value="2" @selected($selectedYear === '2')>زیاتر لە 2</option>
+            </select>
+            <div class="invalid-feedback">تکایە پڕکردنەوەی فۆرم هەڵبژێرە.</div>
         </div>
 
         <div class="col-md-6">
             <label for="referral_code" class="form-label">کۆدی بانگێشت</label>
-            <input type="text" class="form-control" id="referral_code" name="referral_code" 
-                   value="{{ auth()->user()->rand_code }}" >
+            <input type="text" class="form-control" id="referral_code" name="referral_code"
+                value="{{ auth()->user()->rand_code }}">
         </div>
 
         <div class="col-md-6">
@@ -69,24 +76,24 @@
     {{-- Queue Numbers Section --}}
     <div id="queue-numbers-section" class="{{ $showNum ? '' : 'd-none' }}">
         <hr class="my-4">
-        
+
         <div class="row g-3">
             <div class="col-md-4">
                 <label for="zankoline_num" class="form-label">زانکۆلاین</label>
-                <input type="number" class="form-control" id="zankoline_num" name="zankoline_num" 
-                       value="{{ old('zankoline_num') }}" step="0.01" min="0">
+                <input type="number" class="form-control" id="zankoline_num" name="zankoline_num"
+                    value="{{ old('zankoline_num') }}" step="0.01" min="0">
             </div>
 
             <div class="col-md-4">
                 <label for="parallel_num" class="form-label">پارالیل</label>
-                <input type="number" class="form-control" id="parallel_num" name="parallel_num" 
-                       value="{{ old('parallel_num') }}" step="0.01" min="0">
+                <input type="number" class="form-control" id="parallel_num" name="parallel_num"
+                    value="{{ old('parallel_num') }}" step="0.01" min="0">
             </div>
 
             <div class="col-md-4">
                 <label for="evening_num" class="form-label">ئێواران</label>
-                <input type="number" class="form-control" id="evening_num" name="evening_num" 
-                       value="{{ old('evening_num') }}" step="0.01" min="0">
+                <input type="number" class="form-control" id="evening_num" name="evening_num"
+                    value="{{ old('evening_num') }}" step="0.01" min="0">
             </div>
         </div>
     </div>

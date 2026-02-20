@@ -193,6 +193,17 @@ class TeacherInCenterController extends Controller
                         ->orderBy('rank')
                         ->orderBy('id');
                 },
+                'aiRankings' => function ($query) {
+                    $query->with([
+                        'department.system:id,name',
+                        'department.province:id,name',
+                        'department.university:id,name',
+                        'department.college:id,name',
+                    ])
+                        ->orderByRaw('CASE WHEN rank IS NULL THEN 1 ELSE 0 END')
+                        ->orderBy('rank')
+                        ->orderBy('id');
+                },
             ])
             ->where('referral_code', (string) $ref)
             ->whereHas('user', fn($q) => $q->where('role', 'student'))

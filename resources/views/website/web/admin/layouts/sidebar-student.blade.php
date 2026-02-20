@@ -7,15 +7,15 @@
         <i class="bi bi-puzzle"></i>
         <span>MBTI</span>
     </a>
+    <a href="{{ route('student.ai-ranking.preferences') }}"
+        class="drawer-nav-item {{ navActive('student.ai-ranking.*') }}">
+        <i class="fas fa-robot"></i>
+        <span>AI ڕێزبەندی</span>
+    </a>
     <a href="{{ route('student.departments.selection') }}"
         class="drawer-nav-item {{ navActive('student.departments.selection') }}">
         <i class="fas fa-university"></i>
         <span>هەڵبژاردنی بەش</span>
-    </a>
-    <a href="{{ route('student.ai-ranking.questionnaire') }}"
-        class="drawer-nav-item {{ navActive('student.ai-ranking.questionnaire') }}">
-        <i class="fas fa-robot"></i>
-        <span>AI</span>
     </a>
     <a href="{{ route('student.final-report') }}" class="drawer-nav-item {{ navActive('student.final-report') }}">
         <i class="fa-solid fa-file-invoice"></i>

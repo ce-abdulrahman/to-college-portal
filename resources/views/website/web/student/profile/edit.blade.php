@@ -3,6 +3,11 @@
 @section('title', 'پرۆفایلی قوتابی')
 
 @section('content')
+@php
+    $studentYearRaw = (int) data_get($student, 'year', 0);
+    $studentYearDisplay = $studentYearRaw === 1 ? '1' : ($studentYearRaw > 1 ? 'زیاتر لە ٢' : '—');
+    $isYearOne = $studentYearRaw === 1;
+@endphp
 <div class="container-fluid py-4">
     <!-- Page Title & Breadcrumb -->
     <div class="row mb-4">
@@ -147,9 +152,22 @@
                             <div class="text-muted small">ڕەگەز</div>
                             <div class="fw-semibold">{{ $student?->gender ?? '—' }}</div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="text-muted small">چەند جارە فۆرمی زانکۆلاین پێشکەش کردووە</div>
-                            <div class="fw-semibold">{{ $student?->year ?? '—' }}</div>
+                        <div class="col-12">
+                            <div class="text-muted small">پڕکردنەوەی فۆرم</div>
+                            <div class="fw-semibold">
+                                @if ($studentYearDisplay !== '—')
+                                    @if ($isYearOne)
+                                        دەتوانی سیستەمی <span class="badge bg-success">زانکۆلاین</span> و
+                                        <span class="badge bg-danger">پاڕالێل</span> و
+                                        <span class="badge bg-dark">ئێواران</span> هەڵبژێری
+                                    @else
+                                        بەس سیستەمی <span class="badge bg-danger">پاڕالێل</span> و
+                                        <span class="badge bg-dark">ئێواران</span> هەڵبژێری
+                                    @endif
+                                @else
+                                    —
+                                @endif
+                            </div>
                         </div>
                         <div class="col-md-6">
                             @if($student?->referral_code)
@@ -164,6 +182,7 @@
                                 </div>
                             @endif
                         </div>
+                        <hr>
                         <div class="col-md-6">
                             <div class="text-muted small">جۆری کەسایەتی MBTI</div>
                             <div class="fw-semibold"><span class="badge bg-{{ $student->mbti_type ? 'success' : 'danger' }} text-black">{{ $student?->mbti_type ?? 'دیاری نەکراوە' }}</span></div>

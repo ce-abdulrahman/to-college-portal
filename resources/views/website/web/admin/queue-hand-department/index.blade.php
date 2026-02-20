@@ -89,7 +89,8 @@
                             <select id="collegeFilter" class="form-select">
                                 <option value="">هەموو</option>
                                 @foreach ($colleges as $college)
-                                    <option value="{{ $college->id }}" data-university-id="{{ $college->university_id }}">
+                                    <option value="{{ $college->id }}"
+                                        data-university-id="{{ $college->university_id }}">
                                         {{ $college->name }}
                                     </option>
                                 @endforeach
@@ -234,8 +235,7 @@
                             <select id="studentSelector" class="form-select form-select-sm">
                                 <option value="">قوتابی هەڵبژێرە</option>
                                 @foreach ($students as $student)
-                                    <option value="{{ $student->id }}"
-                                        data-name="{{ $student->user->name ?? '' }}"
+                                    <option value="{{ $student->id }}" data-name="{{ $student->user->name ?? '' }}"
                                         data-code="{{ $student->user->code ?? '' }}"
                                         data-mark="{{ $student->mark ?? '' }}"
                                         data-province="{{ $student->province ?? '' }}"
@@ -300,11 +300,13 @@
                             <div class="row g-2">
                                 <div class="col-md-6">
                                     <label for="quickStudentName" class="form-label">ناوی قوتابی</label>
-                                    <input id="quickStudentName" name="name" type="text" class="form-control" required>
+                                    <input id="quickStudentName" name="name" type="text" class="form-control"
+                                        required>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="quickStudentCode" class="form-label">کۆدی چوونەژوورەوە</label>
-                                    <input id="quickStudentCode" name="code" type="text" class="form-control" required>
+                                    <input id="quickStudentCode" name="code" type="text" class="form-control"
+                                        required>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="quickStudentPhone" class="form-label">ژمارەی مۆبایل</label>
@@ -317,8 +319,8 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label for="quickStudentMark" class="form-label">نمرە</label>
-                                    <input id="quickStudentMark" name="mark" type="number" step="0.001" min="0"
-                                        max="100" class="form-control" required>
+                                    <input id="quickStudentMark" name="mark" type="number" step="0.001"
+                                        min="0" max="100" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="quickStudentProvince" class="form-label">پارێزگا</label>
@@ -330,9 +332,11 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="quickStudentYear" class="form-label">ساڵ</label>
-                                    <input id="quickStudentYear" name="year" type="number" min="1" max="12"
-                                        class="form-control" value="1" required>
+                                    <label for="quickStudentYear" class="form-label">پڕکردنەوەی فۆرم</label>
+                                    <select id="quickStudentYear" name="year" class="form-select" required>
+                                        <option value="1" selected>1</option>
+                                        <option value="2">زیاتر لە 2</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="quickStudentType" class="form-label">لق</label>
@@ -441,9 +445,7 @@
                 @php
                     $requiresStudentLocation = false;
                     if (in_array(auth()->user()->role, ['center', 'teacher'], true)) {
-                        $ownerAiRank = auth()->user()->role === 'center'
-                            ? (int) (auth()->user()?->center?->ai_rank ?? 0)
-                            : (int) (auth()->user()?->teacher?->ai_rank ?? 0);
+                        $ownerAiRank = auth()->user()->role === 'center' ? (int) (auth()->user()?->center?->ai_rank ?? 0) : (int) (auth()->user()?->teacher?->ai_rank ?? 0);
                         $requiresStudentLocation = $ownerAiRank === 1;
                     }
                 @endphp
@@ -459,7 +461,8 @@
                 };
 
                 const fillQuickLocationFromBrowser = () => new Promise((resolve) => {
-                    if (!requiresStudentLocation || !$quickLatInput.length || !$quickLngInput.length || !navigator.geolocation || quickLocatingInProgress) {
+                    if (!requiresStudentLocation || !$quickLatInput.length || !$quickLngInput.length || !
+                        navigator.geolocation || quickLocatingInProgress) {
                         resolve(false);
                         return;
                     }
